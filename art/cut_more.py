@@ -29,6 +29,13 @@ JOBS = [
     ("more-believers-attack.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:atk", ("h", 31), set()),
     ("more-believers-down.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:down", ("w", 40), set()),
     ("more-believers-win.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:win", ("h", 39, 3), set()),
+    # 新しい名のある人物（2026-11-24）：3段（立ち・攻撃・倒れ）に描かせた絵を split_rows.py で分けたもの
+    ("more-named-a-stand.png", 5, ["sigrun", "halvar", "toki", "hozuki", "zaid"], "hero", ("h", 38), set()),
+    ("more-named-a-attack.png", 5, ["sigrun", "halvar", "toki", "hozuki", "zaid"], "pose:atk", ("h", 33), set()),
+    ("more-named-a-down.png", 5, ["sigrun", "halvar", "toki", "hozuki", "zaid"], "pose:down", ("w", 44), set()),
+    ("more-named-b-stand.png", 4, ["najma", "koko", "ilse", "dorn"], "hero", ("h", 37), set()),
+    ("more-named-b-attack.png", 4, ["najma", "koko", "ilse", "dorn"], "pose:atk", ("h", 33), set()),
+    ("more-named-b-down.png", 4, ["najma", "koko", "ilse", "dorn"], "pose:down", ("w", 42), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
@@ -36,7 +43,7 @@ JOBS = [
     # はぐれオーガ：立ち・振りかぶり・叩きつけ・倒れを1枚に描いたもの。立ち姿の背丈で縮尺を決める
     ("more-strayogre.png", 4, ["strayogre", "strayogre_raise", "strayogre_atk", "strayogre_down"], "enemy", ("h", 50, 0), set()),
 ]
-FLIP = {"more-heroes-attack.png": {"tohma"}}   # 画像ごとの反転：生成で逆向きに描かれたもの
+FLIP = {"more-heroes-attack.png": {"tohma"}, "more-named-a-stand.png": {"toki", "hozuki", "zaid"}, "more-named-b-stand.png": {"najma", "ilse", "dorn"}}   # 画像ごとの反転：生成で逆向きに描かれたもの
 
 
 def enc(img):
