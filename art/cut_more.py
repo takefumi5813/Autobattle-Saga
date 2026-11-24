@@ -18,10 +18,13 @@ JOBS = [
     ("more-heroes-stand.png", 2, ["tohma", "noa"], "hero", ("h", 37), set()),
     ("more-heroes-attack.png", 2, ["tohma", "noa"], "pose:atk", ("h", 35), set()),
     ("more-heroes-down.png", 2, ["tohma", "noa"], "pose:down", ("w", 42), set()),
+    ("more-heroes-win.png", 2, ["tohma", "noa"], "pose:win", ("h", 39, 1), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
     ("more-enemies-down.png", 3, ["wolf_down", "bandit_down", "boss_down"], "enemy", ("w", 42, 1), set()),
+    # はぐれオーガ：立ち・振りかぶり・叩きつけ・倒れを1枚に描いたもの。立ち姿の背丈で縮尺を決める
+    ("more-strayogre.png", 4, ["strayogre", "strayogre_raise", "strayogre_atk", "strayogre_down"], "enemy", ("h", 50, 0), set()),
 ]
 FLIP = {"more-heroes-attack.png": {"tohma"}}   # 画像ごとの反転：生成で逆向きに描かれたもの
 
