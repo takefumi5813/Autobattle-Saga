@@ -14,7 +14,7 @@ keep = []
 for ln in lines:
     s = ln.lstrip()
     if s.startswith(("const HERO_IMG=", "const POSE_IMG=", "const ENEMY_IMG=", "const BG_IMG=",
-                     "Object.assign(HERO_IMG", "Object.assign(POSE_IMG", "Object.assign(ENEMY_IMG")):
+                     "Object.assign(HERO_IMG", "Object.assign(POSE_IMG", "Object.assign(ENEMY_IMG", "/*MORE-ART*/")):
         keep.append(ln)
     elif s.startswith("for(const [k,v] of Object.entries({") and "data:image" in s:
         keep.append(ln)   # 勝利のポーズを POSE_IMG に足す行
