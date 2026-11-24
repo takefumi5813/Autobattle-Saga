@@ -395,6 +395,14 @@ th{font-weight:500;color:var(--muted);font-size:.74rem;letter-spacing:.08em}
 .st .pop2 .acts{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
 .eqs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .eqb.dim{opacity:.45}
+.bar.sta{height:3px;margin-top:2px}.bar.sta i{display:block;height:100%}
+.frm .pitch{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 0;padding:8px 26px 8px 8px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 33.3%,rgba(255,255,255,.07) 33.3% 66.6%);border:1px solid var(--hair)}
+.frm .pe{position:absolute;right:4px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:.65rem;letter-spacing:.2em;color:var(--acc)}
+.frm .cell{min-height:46px;display:flex;gap:3px;align-items:center;justify-content:center;flex-wrap:wrap;background:rgba(0,0,0,.18);border:1px dashed transparent;cursor:pointer;padding:3px}
+.frm .cell.can{border-color:var(--acc)}.frm .fp .fc{width:34px;height:34px;display:block}.frm .fp.on{outline:2px solid var(--acc)}
+.frm .fms{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}.frm .fm{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.frm .fmw{display:flex;align-items:center;gap:6px;background:none;border:0;color:inherit;cursor:pointer;font:inherit;padding:2px}.frm .fmw .fc{width:28px;height:28px;display:block}.frm .fmw small{color:var(--muted);font-size:.7rem}
+.frm .fm.on .fmw{outline:1px solid var(--acc)}
 .tm .evc{background:rgba(14,14,18,.92);color:#f2efe8;border-left:3px solid var(--acc);padding:14px 16px;margin:0 0 14px;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
 .evh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.evh small{font-size:.62rem;letter-spacing:.2em;color:var(--acc)}.evh b{font-size:1.1rem}.evh .mini2{margin-left:auto;color:#b8b2a6}
 .evt{margin:8px 0;line-height:1.8}.evl{margin:8px 0}.evln{display:flex;gap:10px;align-items:center;margin:6px 0}.evln p{margin:0;line-height:1.7}.evln .fc{flex:0 0 42px;width:42px;height:42px;display:block}
@@ -1753,6 +1761,15 @@ function renderPrep(){
   $('#view').innerHTML=h; bindPrep();
 }
 /* ---- 旅立ち：一行の顔ぶれ・戒律・連携技 ---- */
+/* 陣形：左が後ろ、右が敵のいる前。人物を選んでから枠を押すと、そこへ置く */
+let FSEL=null;
+function formHtml(ids){const cols=['後','中','前'],rows=['左','中','右'];
+  let h=`<div class="hd" style="margin-top:16px" title="置き場所と動き方。背後からの攻撃は1.5倍、側面は1.2倍。近接の者は敵のそばまで歩いてから斬る">陣形<small>FORMATION</small></div><div class="fr frm">
+    <div class="seg">${Object.entries(FORM_PRESET).map(([k,p])=>`<button data-fpre="${k}" title="${p.tip||'職ごとの基本の置き方'}">${p.name}</button>`).join('')}</div>
+    <div class="pitch"><span class="pe">敵 ▶</span>${rows.map(r=>cols.map(c=>{const here=ids.filter(id=>formOf(id).c===c+r);return `<button class="cell${FSEL?' can':''}" data-fcell="${c}${r}" title="${c}・${r}">${here.map(id=>`<span class="fp${FSEL===id?' on':''}">${faceBox(id)}</span>`).join('')}</button>`;}).join('')).join('')}</div>
+    <div class="fms">${ids.map(id=>{const f=formOf(id);return `<div class="fm${FSEL===id?' on':''}"><button class="fmw" data-fsel="${id}" title="選んでから上の枠を押すと、そこへ置く">${faceBox(id)}<b>${CHAR_DB[id].name}</b><small>${f.c[0]}・${f.c[1]}</small></button>
+      <div class="seg">${Object.entries(FORM_MOVE).map(([m,n])=>`<button class="${f.m===m?'on':''}" data-fmove="${id}|${m}" title="${{hold:'置き場所で構え、近づいた敵を討つ',press:'いちばん近い敵へ攻めかかる',flank:'弱った敵の背後へ回り込む'}[m]}">${n}</button>`).join('')}</div></div>`;}).join('')}</div></div>`;
+  return h;}
 function departHtml(ids){const P=S.policy;
   let h=`<div class="dep"><div>${S.visitors.length?`<button class="vban" data-ptab="party">${ico('門')}門を叩く者がいる${S.visitors.map(v=>faceBox(v.id)).join('')}</button>`:''}<div class="hd">一行<small>PARTY</small></div><div class="line5">`;
   for(const r of ROLE_ORDER){const id=S.party[r];
@@ -1769,7 +1786,7 @@ function departHtml(ids){const P=S.policy;
       ${ok&&m===0?`<button class="ab gold" data-reveal="${c}" style="margin-left:auto">${ico('技能')}啓示を授ける</button>`:''}</div></div>`;}
   h+=`</div></div></div><div><div class="hd">戒律<small>LAW</small></div><div class="fr">`;
   for(const [k,label,opts] of LAWS)h+=`<div class="law">${ico(label)}<span>${label}</span><div class="seg" role="radiogroup" aria-label="${label}">${opts.map(([v,t,tip])=>`<button role="radio" aria-checked="${P[k]===v}" class="${P[k]===v?'on':''}" data-rule="${k}|${v}" title="${tip}">${t}</button>`).join('')}</div></div>`;
-  h+=`</div><p class="mini2" style="margin-top:10px;text-align:right"><span id="resetwrap"><button class="btn tiny" id="reset">最初からやり直す</button></span></p></div></div>`;
+  h+=`</div>${formHtml(ids)}<p class="mini2" style="margin-top:10px;text-align:right"><span id="resetwrap"><button class="btn tiny" id="reset">最初からやり直す</button></span></p></div></div>`;
   return h;}
 /* ---- 一行：一人ずつ大きく見せる ---- */
 function partyHtml(ids){
@@ -2268,6 +2285,10 @@ function bindPrep(){
   document.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{prepMsgs.push(declineVisitor(b.dataset.dec));persist();renderPrep();});
   document.querySelectorAll('[data-skt]').forEach(b=>b.onclick=()=>{SKT=b.dataset.skt;renderPrep();});
   document.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const [id,j]=b.dataset.tr.split('|');S.train[id]=j;persist();renderPrep();});
+  document.querySelectorAll('[data-fsel]').forEach(b=>b.onclick=()=>{FSEL=FSEL===b.dataset.fsel?null:b.dataset.fsel;renderPrep();});
+  document.querySelectorAll('[data-fcell]').forEach(b=>b.onclick=()=>{if(!FSEL)return;S.form=S.form||{};S.form[FSEL]=Object.assign(formOf(FSEL),{c:b.dataset.fcell});FSEL=null;persist();renderPrep();});
+  document.querySelectorAll('[data-fmove]').forEach(b=>b.onclick=()=>{const [id,m]=b.dataset.fmove.split('|');S.form=S.form||{};S.form[id]=Object.assign(formOf(id),{m});persist();renderPrep();});
+  document.querySelectorAll('[data-fpre]').forEach(b=>b.onclick=()=>{const P=FORM_PRESET[b.dataset.fpre].d;S.form={};for(const id of partyIds()){const d=P[CHAR_DB[id].role];if(d)S.form[id]=Object.assign({},d);}persist();renderPrep();});
   document.querySelectorAll('[data-rule]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.rule.split('|');S.policy[k]=v;persist();renderPrep();});
   document.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>{S.floor=+b.dataset.floor;rollNext(S);persist();renderPrep();});
   if($('#ovl'))$('#ovl').onclick=ev=>{if(ev.target.id==='ovl'){SKV=null;renderPrep();}};
@@ -2599,18 +2620,18 @@ function fFrame(dt,now){
     order.forEach((u,i)=>{if(i===0||u.state==='down')return;const P=FLD.P[u.id];const tg=behind(i*16);const ox=P.x,oy=P.y;P.x+=(tg[0]-P.x)*Math.min(1,dt*6);P.y+=(tg[1]-P.y)*Math.min(1,dt*6);P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*8;});
   }else{
     const bx=B.posX??40;FLD.trail=[];
-    ok.forEach((u,i)=>{const P=FLD.P[u.id];const h=camp&&!enemiesUp?fCampHome(i,ok.length,bx+20):fHome(u,bx);const ox=P.x,oy=P.y;
-      if(!P.dash&&u.state!=='down'){P.x+=(h[0]-P.x)*Math.min(1,dt*4);P.y+=(h[1]-P.y)*Math.min(1,dt*4);}P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*10;});
+    ok.forEach((u,i)=>{const P=FLD.P[u.id];const h=enemiesUp&&u.x!=null?[u.x,u.y]:camp&&!enemiesUp?fCampHome(i,ok.length,bx+20):fHome(u,bx);const ox=P.x,oy=P.y;
+      if(!P.dash&&u.state!=='down'){const k=enemiesUp&&u.x!=null?10:4;P.x+=(h[0]-P.x)*Math.min(1,dt*k);P.y+=(h[1]-P.y)*Math.min(1,dt*k);}P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*10;});
   }
   // 魔獣は主のそばをついて歩く
-  for(const pt of B.pets||[]){const P=FLD.P[pt.id],O=FLD.P[pt.owner];if(!P||!O||P.dash||pt.state!=='ok')continue;const tx=O.x-12,ty=O.y+10;const ox=P.x,oy=P.y;P.x+=(tx-P.x)*Math.min(1,dt*5);P.y+=(ty-P.y)*Math.min(1,dt*5);P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*8;}
+  for(const pt of B.pets||[]){const P=FLD.P[pt.id],O=FLD.P[pt.owner];if(!P||!O||P.dash||pt.state!=='ok')continue;const tx=pt.x!=null?pt.x:O.x-12,ty=pt.x!=null?pt.y:O.y+10;const ox=P.x,oy=P.y;P.x+=(tx-P.x)*Math.min(1,dt*5);P.y+=(ty-P.y)*Math.min(1,dt*5);P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*8;}
   // 敵の位置：現れると奥から歩いてくる
   const bx=B.posX??40;const es=B.enemies;
   es.forEach((e,i)=>{if(!FLD.E[e.id]){const big=BIG_E.includes(e.kind);const n=es.length;
       const hx=camp?bx+70+(i%3)*16:bx+64+(big?26:0)+Math.floor(i/3)*24+(i%2)*8;const hy=fPathY(hx)+(big?2:((i%3)-1)*24);
       FLD.E[e.id]={x:hx+70,y:hy,hx,hy,hitT:-9,dash:null,deathT:null,seen:t};}
-    const Q=FLD.E[e.id];if(e.state==='dead'&&Q.deathT==null){Q.deathT=now;Q.ice=e.frozen>0;}
-    if(!Q.dash&&e.state==='ok'){Q.x+=(Q.hx-Q.x)*Math.min(1,dt*3);Q.y+=(Q.hy-Q.y)*Math.min(1,dt*3);}});
+    const Q=FLD.E[e.id];if(e.x!=null&&e.state==='ok'){Q.hx=e.x;Q.hy=e.y;}if(e.state==='dead'&&Q.deathT==null){Q.deathT=now;Q.ice=e.frozen>0;}
+    if(!Q.dash&&e.state==='ok'){const k=e.x!=null?8:3;Q.x+=(Q.hx-Q.x)*Math.min(1,dt*k);Q.y+=(Q.hy-Q.y)*Math.min(1,dt*k);}});
   // 攻撃の合図を動きにする
   for(const q of B.fq||[]){if(q.done)continue;q.done=true;
     const A=q.side==='p'?FLD.P[q.a]:FLD.E[q.a];const T=q.side==='p'?FLD.E[q.b]:FLD.P[q.b];if(!A||!T)continue;
@@ -2646,6 +2667,9 @@ function fFrame(dt,now){
       else if(P.moving)img=fr.walk[wi];
       else if(enemiesUp)img=fr.ready[((Math.floor(now/700+P.x/31))%2+2)%2];
       else if(camp)img=fr.ready[1];
+      if(enemiesUp&&u.fx!=null&&u.fx<-.2&&u.state!=='down')img=fFlipC(img);
+      if(u.state==='ok'&&(u.sta??100)<40&&Math.floor(now/400)%2){g.fillStyle='#bfe4ff';g.fillRect(Math.round(x-cam+6),Math.round(y-img.height-2),1,2);g.fillRect(Math.round(x-cam+8),Math.round(y-img.height),1,1);}
+      if(u.run){g.globalAlpha=.4;g.fillStyle='#c8b89a';for(let i=0;i<3;i++)g.fillRect(Math.round(x-cam-(u.fx||1)*(6+i*3)),Math.round(y-1-((now/60+i)%3)),2,1);g.globalAlpha=1;}
       if(flash)img=fW(img);
       const bob=P.moving&&wi%2===1?1:0;const X=Math.round(x-cam-(img.ax??img.width/2)+recoil),Y=Math.round(y-img.height+2-bob);
       g.globalAlpha=.35;g.fillStyle='#000';g.beginPath();g.ellipse(x-cam,y,7,2.5,0,0,7);g.fill();g.globalAlpha=1;
@@ -2673,6 +2697,7 @@ function fFrame(dt,now){
         const dk=(k-.27)/.45;if(dk>0&&dk<1){const n=BIG_E.includes(e.kind)?10:6;for(let i=0;i<n;i++){const a=Math.PI*(i/(n-1));const rr=(BIG_E.includes(e.kind)?18:9)*dk+2;g.fillStyle=Q.ice?'#dff4ff':'#9a9284';g.fillRect(Math.round(x-cam+6+Math.cos(a)*rr*1.4),Math.round(y-Math.sin(a)*rr*.5),1,1);}}return;}
       let spr;const moving=Math.hypot(Q.hx-Q.x,Q.hy-Q.y)>1.5;
       if(e.wind>0&&F.raise)spr=F.raise;else if(Q.dash)spr=F.atk;else if(now-Q.hitT<300&&now>=Q.hitT)spr=F.hurt;else if(moving)spr=F.walk[((Math.floor(now/166+Q.hy/7))%4+4)%4];else spr=F.ready[((Math.floor(now/830+Q.hy/13))%2+2)%2];
+      if(e.fx!=null&&e.fx>.2)spr=fFlipC(spr);
       if(now-Q.hitT<120&&now>=Q.hitT)spr=fW(spr);else if(e.frozen>0)spr=fTintCache(spr);
       const X=Math.round(x-cam-(spr.ax??spr.width/2)),Y=Math.round(y-spr.height+2);
       g.globalAlpha=.35;g.fillStyle='#000';g.beginPath();g.ellipse(x-cam,y,BIG_E.includes(e.kind)?18:7,BIG_E.includes(e.kind)?5:2.5,0,0,7);g.fill();g.globalAlpha=1;
@@ -2703,6 +2728,7 @@ function fFrame(dt,now){
   if(FLD.hadEnemies&&!enemiesUp&&!B.over)FLD.vicT=now;FLD.hadEnemies=enemiesUp;
 }
 const fIceCache=new Map();
+const fFlipCache=new WeakMap();function fFlipC(c){let f=fFlipCache.get(c);if(!f){f=fFlip(c);fFlipCache.set(c,f);}return f;}
 function fTintCache(c){let w=fIceCache.get(c);if(!w){w=fTint(c,'#8ad8ff',.45);fIceCache.set(c,w);}return w;}
 
 /* ============ 戦闘 ============ */
@@ -2722,7 +2748,7 @@ function makeAdvParty(){const nm=pick(ADV_NAMES);const roles=shuffle(['sword','t
 function makeRivalParty(){const v=Object.assign(makeEnemy('vald'),{adv:'tank',team:'white',leader:true});
   return [v].concat(['sword','mage','priest'].map(r=>Object.assign(makeEnemy('adv_'+r),{name:`白翼の${ROLES[r]}`,adv:r,team:'white',hp:Math.round(ENEMY_DB['adv_'+r].hp*1.35*((B&&B.emul)||1)),max:Math.round(ENEMY_DB['adv_'+r].hp*1.35*((B&&B.emul)||1)),atk:ENEMY_DB['adv_'+r].atk*1.2*((B&&B.amul)||1)})));}
 function makeEnemy(kind,suf){const d=ENEMY_DB[kind];const m=(B&&B.emul)||1,am=(B&&B.amul)||1;const hp=Math.round(d.hp*m);
-  return{id:'e'+(eid++),side:'e',kind,name:d.name+(suf||''),max:hp,hp,atk:d.atk*am,amul:am,spd:d.spd,fmul:(B&&B.fmul)||1,
+  return{id:'e'+(eid++),side:'e',kind,name:d.name+(suf||''),max:hp,hp,atk:d.atk*am*1.06,amul:am,spd:d.spd,fmul:(B&&B.fmul)||1,
   gauge:Math.random()*0.4,frozen:0,stun:0,wind:0,cycle:0,state:'ok',pop:null,eva:d.eva||.05};}
 function spawnWave(n){
   const f=B.floor||3;B.place=floorName(f);B.emul=floorMul(f);B.amul=floorAtk(f);B.fmul=floorFlash(f);
@@ -2793,6 +2819,7 @@ function advance(){
   if(st.t==='sight'){doSight(st);return;}
   if(st.t==='gather'){doGather(st);return;}
   if(st.t==='road'){B.place=AREAS[st.area].name;B.wave=0;
+    for(const u of B.units)u.sta=Math.max(10,(u.sta??100)-(st.lost?14:7)*(AREAS[st.area].theme==='plain'?.6:1));
     if(st.forage&&MATERIALS[st.forage]){B.mats[st.forage]=(B.mats[st.forage]||0)+(st.fn||1);log(`道すがら、${MATERIALS[st.forage].name}×${st.fn||1}を手に入れた`,'sys');}
     if(st.enc&&ROAD_ENC[st.enc]){B.enemies=ROAD_ENC[st.enc].make();B.selected=null;log(ROAD_ENC[st.enc].msg(AREAS[st.area].name,st.area),'warn');waveStart(false);}
     else{B.enemies=[];log(`${AREAS[st.area].name}を越えた。敵影はない`,'sys');B.waveWait=1.2;B.nextFn=advance;}
@@ -2830,7 +2857,7 @@ function fireTalk(alive,amt){
   const good=Math.random()<p;addRel(a.id,b.id,good?amt:-amt);
   const txt=pick(good?FIRE_POS:FIRE_NEG).replace('{a}',a.name).replace('{b}',b.name);B.relNotes.push('焚き火：'+txt);return{txt,good};
 }
-function camp(st){const n=st.night;
+function camp(st){const n=st.night;for(const u of B.units)u.sta=Math.min(100,(u.sta??100)+(S.policy.camp==='watch'?45:75));
   B.enemies=[];B.wave=0;B.place=`${AREAS[st.area].name}・野営`;
   const watch=S.policy.camp==='watch';const kei=okU().find(u=>hasAb(u,'keikai'));
   log(`${['一','二','三','四','五','六','七'][n]||n+1}夜目の野営。${watch?'交代で見張りを立てる':'見張りを置かず、ぐっすり休む'}`,'sys');
@@ -2866,7 +2893,7 @@ function startBattle(trip){
   B.units.forEach(applyAbStats);
   // 生まれた迷宮に潜るときは、その迷宮の深さと顔ぶれで
   {const last=(trip.nodes||[])[trip.nodes.length-1];if(trip.kind==='dive'&&last&&last!=='great'&&AREAS[last]){B.dun=last;B.floor=AREAS[last].lv||3;B.dtheme=AREAS[last].dtheme;}}
-  B.units.forEach(applyStyleGrants);makePets();
+  B.units.forEach(applyStyleGrants);makePets();B.angle={side:0,back:0};
   setSteps('battle');
   $('#view').innerHTML=`<section class="battle"><div>
     <div class="bhead"><div class="wave" id="wave"></div><div class="clock" id="clock"></div>
@@ -2898,6 +2925,65 @@ function log(html,cls){fNote(html,cls);const el=$('#log');if(!el)return;const d=
   d.innerHTML=`<span class="ts">${fmt(B.t)}</span><span class="tx">${html}</span>`;el.appendChild(d);el.scrollTop=el.scrollHeight;}
 function say(u,text,cls){if(u)fSay(u,text);if(u)log(`<b>${u.name}</b>「${text}」`,cls||'say');}
 function ev(d,fn){B.events.push({at:B.t+d,fn});}
+/* ===== 動き回る戦い（2026-11-24）=====
+   戦いの計算に位置と向きを持たせた。近接の者は敵のそばまで歩いてから斬り、遠くの者はその場から撃つ。
+   当たり方は向きで変わる：背後は1.35倍・命中+15%、側面は1.12倍・命中+7%、正面はそのまま（一行が受けるときも背後1.3倍・側面1.1倍）。
+   陣形（S.form）：一人ずつ、置き場所（前・中・後 × 左・中・右）と動き方（構える・攻める・回り込む）を決める */
+const FORM_COL={前:14,中:-18,後:-46},FORM_ROW={左:-24,中:0,右:24};
+const FORM_MOVE={hold:'構える',press:'攻める',flank:'回り込む'};
+const FORM_DEF={tank:{c:'前中',m:'hold'},sword:{c:'前左',m:'press'},thief:{c:'中右',m:'flank'},hunter:{c:'中右',m:'hold'},mage:{c:'後左',m:'hold'},priest:{c:'後中',m:'hold'}};
+const FORM_PRESET={
+  base:{name:'基本',d:FORM_DEF},
+  guard:{name:'守りの陣',tip:'皆その場で構える。後ろの者は安全だが、背後を取りにくい',d:{tank:{c:'前中',m:'hold'},sword:{c:'前左',m:'hold'},thief:{c:'中右',m:'hold'},hunter:{c:'後右',m:'hold'},mage:{c:'後左',m:'hold'},priest:{c:'後中',m:'hold'}}},
+  wing:{name:'翼の陣',tip:'両翼が回り込んで背後を突く。中央が薄くなる',d:{tank:{c:'前中',m:'hold'},sword:{c:'前左',m:'flank'},thief:{c:'前右',m:'flank'},hunter:{c:'中右',m:'hold'},mage:{c:'後左',m:'hold'},priest:{c:'後中',m:'hold'}}},
+  rush:{name:'攻めの陣',tip:'前衛がまとめて押し込む。後衛も前に出る',d:{tank:{c:'前中',m:'press'},sword:{c:'前左',m:'press'},thief:{c:'前右',m:'flank'},hunter:{c:'中右',m:'hold'},mage:{c:'中左',m:'hold'},priest:{c:'中中',m:'hold'}}}};
+const formOf=id=>Object.assign({},FORM_DEF[(CHAR_DB[id]||{}).role]||{c:'中中',m:'hold'},(S.form||{})[id]||{});
+const isMeleeU=u=>u.pet||['sword','tank','thief'].includes(u.role);
+const isMeleeE=e=>MELEE_E.includes(e.kind)||BIG_E.includes(e.kind)||e.kind==='traitor'||(e.adv&&['sword','tank','thief'].includes(e.adv));
+const reachOf=x=>BIG_E.includes(x.kind)?30:22;
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function unitHome(u){const bx=B.posX??40;if(u.pet){const o=B.units.find(x=>x.id===u.owner);if(o&&o.x!=null)return [o.x-10,o.y+12];}const f=formOf(u.id);const x=bx+FORM_COL[f.c[0]];return [x,fPathY(x)+FORM_ROW[f.c[1]]];}
+function enemyHome(e,i){const bx=B.posX??40;const big=BIG_E.includes(e.kind);const hx=bx+64+(big?26:0)+Math.floor(i/3)*24+(i%2)*8;return [hx,fPathY(hx)+(big?2:((i%3)-1)*24)];}
+/* 向き：どちらから当たったか。front / side / back */
+function sideOf(def,att){if(!def||!att||def.x==null||att.x==null)return 'front';const vx=att.x-def.x,vy=att.y-def.y;const L=Math.hypot(vx,vy)||1;const c=(vx*(def.fx??-1)+vy*(def.fy??0))/L;return c>.45?'front':c<-.35?'back':'side';}
+/* 走る・疲労（2026-11-24）：遠い所へは走る（1.6倍の速さ。息が切れる）。動かずにいると息が戻る。
+   息（sta 0〜100）が40を切ると手も足も1割5分遅く、15を切ると3割遅く・攻撃も1割5分弱く・走れない。
+   息は旅のあいだ持ち越す。区画を歩くたびに減り、野営で戻る。敵も同じ */
+const tired=o=>(o.sta??100)<15?.7:(o.sta??100)<40?.85:1;
+function stepTo(o,gx,gy,v,dt){const dx=gx-o.x,dy=gy-o.y,L=Math.hypot(dx,dy);o.run=false;if(L<.5){o.sta=Math.min(100,(o.sta??100)+3*dt);return;}
+  v*=tired(o);if(L>40&&(o.sta??100)>15){v*=1.6;o.run=true;o.sta=Math.max(0,(o.sta??100)-9*dt);}else o.sta=Math.min(100,(o.sta??100)+1*dt);
+  const s=Math.min(L,v*dt);o.x+=dx/L*s;o.y+=dy/L*s;const yc=fPathY(o.x);o.y=clamp(o.y,yc-52,yc+52);}
+function face(o,t,def){if(t&&t.x!=null){const dx=t.x-o.x,dy=t.y-o.y,L=Math.hypot(dx,dy)||1;o.fx=dx/L;o.fy=dy/L;}else{o.fx=def;o.fy=0;}}
+function moveAll(dt){const es=okE();const us=okU().concat((B.pets||[]).filter(p=>p.state==='ok'));
+  if(!es.length){for(const u of B.units.concat(B.pets||[])){u.x=u.y=undefined;u.mt=null;}for(const e of B.enemies)e.x=e.y=undefined;return;}
+  B.enemies.forEach((e,i)=>{if(e.x==null){const [hx,hy]=enemyHome(e,i);e.hx=hx;e.hy=hy;e.x=hx+40;e.y=hy;face(e,null,-1);}});
+  for(const u of us)if(u.x==null){const [hx,hy]=unitHome(u);u.x=hx-6;u.y=hy;face(u,null,1);}
+  // 一行
+  for(const u of us){const [hx,hy]=unitHome(u);const f=u.pet?{m:'press'}:formOf(u.id);let t=null,gx=hx,gy=hy;
+    if(isMeleeU(u)){
+      if(B.focusT>0&&B.focus)t=es.find(e=>e.id===B.focus)||null;
+      if(!t){if(f.m==='hold'){t=es.filter(e=>Math.hypot(e.x-hx,e.y-hy)<54).sort((a,b)=>dist(a,u)-dist(b,u))[0]||null;}
+        else if(f.m==='flank'){t=(u.mt&&u.mt.state==='ok'&&u.mtT>B.t)?u.mt:es.slice().sort((a,b)=>(a.hp/a.max)-(b.hp/b.max))[0];}
+        else t=(u.mt&&u.mt.state==='ok'&&u.mtT>B.t)?u.mt:es.slice().sort((a,b)=>dist(a,u)-dist(b,u))[0];}
+      if(t){if(t!==u.mt)u.mtT=B.t+2;
+        if(f.m==='flank'){gx=t.x-(t.fx??-1)*18;gy=t.y-(t.fy??0)*18;}
+        else{const dx=u.x-t.x,dy=u.y-t.y,L=Math.hypot(dx,dy)||1;gx=t.x+dx/L*16;gy=t.y+dy/L*16;}}}
+    else t=null;
+    u.mt=t;const busy=u.busy>0||(u.casting)||(t&&dist(u,t)<=reachOf(u)&&(f.m!=='flank'||sideOf(t,u)==='back'));
+    if(busy)u.sta=Math.min(100,(u.sta??100)+2*dt);else stepTo(u,gx,gy,(u.pet?34:26)*(u.spd||1)*(B.hasteT>0?1.2:1),dt);
+    face(u,t||es.slice().sort((a,b)=>dist(a,u)-dist(b,u))[0],1);}
+  // 敵：近接は狙った相手のそばへ（狼は横から回り込む）。挑発されると挑発した者へ。遠くの敵はその場から
+  for(const e of es){if(e.frozen>0||e.stun>0||e.wind>0){continue;}
+    let t=null,gx=e.hx,gy=e.hy;
+    if(isMeleeE(e)){const tau=okU().find(u=>u.taunt>0);
+      const hunt=e.kind==='wolf'||e.kind==='bandit'||e.adv==='thief';
+      t=tau||((e.mt&&e.mt.state==='ok'&&e.mtT>B.t)?e.mt:hunt?us.slice().sort((a,b)=>(a.hp/a.max)-(b.hp/b.max)||dist(a,e)-dist(b,e))[0]:us.slice().sort((a,b)=>dist(a,e)-dist(b,e))[0]);
+      if(t){if(t!==e.mt)e.mtT=B.t+2.5;
+        if(e.kind==='wolf'){const side=(e.id.charCodeAt(e.id.length-1)%2)?1:-1;gx=t.x+(t.fx??1)*4;gy=t.y+side*17;}
+        else{const dx=e.x-t.x,dy=e.y-t.y,L=Math.hypot(dx,dy)||1;gx=t.x+dx/L*(reachOf(e)-4);gy=t.y+dy/L*(reachOf(e)-4);}}}
+    else t=okU().sort((a,b)=>dist(a,e)-dist(b,e))[0]||null;
+    e.mt=t;if(t&&isMeleeE(e)&&dist(e,t)<=reachOf(e)&&e.kind!=='wolf'){e.sta=Math.min(100,(e.sta??100)+2*dt);face(e,t,-1);continue;}stepTo(e,gx,gy,(BIG_E.includes(e.kind)?30:36)*(e.spd||1)*(e.slowT>0?.6:1),dt);face(e,t,-1);}}
+let forceT=null,forceU=null;   // その一撃の相手（近接は手の届く相手だけを斬る）
 /* 唱える／引き絞る。base はふつうの速さでの秒数。終わるまで動けない。そのぶんゲージは先に溜めておく（ふつうの速さなら手数は変わらない） */
 function beginCast(u,kind,base,fn){const sp=kind==='draw'?(u.drawSpd||1):(u.castSpd||1);const ct=base/sp;const tok={};
   u.casting={kind,tok,t0:B.t,until:B.t+ct};u.busy=Math.max(u.busy||0,ct);u.gauge=Math.min(.7,base*u.spd/2.4);
@@ -2922,7 +3008,9 @@ function popOn(x,v,cls){x.pop={v:typeof v==='number'?Math.round(v):v,cls,t:B.t};
 function dmgEnemy(e,dmg,src,crit){
   if(!e||e.state!=='ok')return;
   // 命中：止まった敵には当てやすい。必ず急所の技は外れない
-  if(src&&src.side==='p'&&!crit&&src.hit){const hc=clamp(.93+(src.hit-1)-(e.eva||0)+(stopped(e)?.2:0),.55,.99);if(Math.random()>hc){fAtk(src,e);popOn(e,'ミス','dmg');return;}}
+  if(src&&src.side==='p'&&(src.sta??100)<15)dmg*=.85;
+  const sd=src&&src.side==='p'?sideOf(e,src):'front';if(sd==='back')dmg*=1.35;else if(sd==='side')dmg*=1.12;if(sd!=='front'&&B.angle)B.angle[sd]++;
+  if(src&&src.side==='p'&&!crit&&src.hit){const hc=clamp(.93+(src.hit-1)-(e.eva||0)+(stopped(e)?.2:0)+(sd==='back'?.15:sd==='side'?.07:0),.55,.99);if(Math.random()>hc){fAtk(src,e);popOn(e,'ミス','dmg');return;}}
   // 急所：命中が高いほど、幸運が多いほど当たる
   if(src&&src.side==='p'&&!crit&&Math.random()<.04+Math.max(0,(src.hit||1)-1)*.5+(src.luck||0)/300){dmg*=1.5;crit=true;}
   if(src&&src.side==='p')fAtk(src,e);
@@ -2971,7 +3059,7 @@ function tryTame(e){const kind=e.kind==='scout'?'goblin':e.kind;const K=PET_KIND
 function makePets(){B.pets=[];for(const u of B.units){if(!trait(u,'tamer'))continue;const pid=(S.petOn||{})[u.id];const p=(S.pets||[]).find(x=>x.id===pid);if(!p)continue;const K=PET_KINDS[p.kind];
   const m=(1+.08*(p.lv-1))*(1+(classPerk(u.id).stat.pet||0));
   B.pets.push({id:'pet:'+p.id,pid:p.id,owner:u.id,kind:p.kind,name:p.name,side:'p',max:Math.round(K.hp*m),hp:Math.round(K.hp*m),atk:K.atk*m,spd:K.spd,gauge:Math.random()*.5,state:'ok'});}}
-function petAct(pt){const t=partyTarget();if(!t)return;const was=t.state;dmgEnemy(t,pt.atk*rnd(.9,1.1),null);B.fq.push({a:pt.id,b:t.id,t:B.t,side:'p'});
+function petAct(pt){const t=partyTarget();if(!t)return;const was=t.state;const sd=sideOf(t,pt);dmgEnemy(t,pt.atk*rnd(.9,1.1)*(sd==='back'?1.35:sd==='side'?1.12:1),null);B.fq.push({a:pt.id,b:t.id,t:B.t,side:'p'});
   if(was==='ok'&&t.state!=='ok'){const p=(S.pets||[]).find(x=>x.id===pt.pid);if(p){p.exp++;if(p.exp>=p.lv*4){p.exp=0;p.lv++;log(`${p.name}が逞しくなった（Lv${p.lv}）`,'good');}}}}
 function petHit(pt,dmg,src){if(src)B.fq.push({a:src.id,b:pt.id,t:B.t,side:'e'});pt.hp-=dmg;popOn(pt,dmg,'dmg');if(pt.hp<=0){pt.hp=0;pt.state='down';log(`${pt.name}が倒れた。次の旅には戻ってくる`,'warn');}}
 function hitParty(u,dmg,sweep,src){
@@ -2984,6 +3072,8 @@ function hitParty(u,dmg,sweep,src){
   if(!sweep&&u.hp/u.max<.3&&!u._cov){const cv=okU().find(x=>x!==u&&hasAb(x,'kabau')&&x.hp/x.max>.4);
     if(cv){dmg*=.5;cv._cov=true;hitParty(cv,dmg,false,null);cv._cov=false;if(Math.random()<.4)log(`${cv.name}が${u.name}をかばった`,'sys');
       if(hasStyle(cv,'kenshin')){heal(cv,u,22);triggerStyle(cv,'kenshin');}}}
+  if(src&&(src.sta??100)<15)dmg*=.85;
+  if(src&&!sweep){const sd=sideOf(u,src);if(sd==='back')dmg*=1.3;else if(sd==='side')dmg*=1.1;}
   let f=1-u.def; if(B.guardT>0)f*=sweep?0.35:0.6; if(u.parry>0)f*=0.5; if(B.wardT>0)f*=0.8; if(trait(u,'guardT'))f*=.92; if(sweep&&trait(u,'sweepRes'))f*=.7;
   dmg*=f; u.hp-=dmg; popOn(u,dmg,'dmg');
   if(src&&src.state==='ok'&&src.side!=='p'){if(u.thornT>0)dmgEnemy(src,dmg*.3,null); if(trait(u,'thornsP'))dmgEnemy(src,dmg*.1,null);
@@ -3034,6 +3124,7 @@ function heal(p,t,amt){if(t.state!=='ok')return;if(p&&p.side==='p'&&hasAb(p,'kus
 /* --- 目標選択 --- */
 function partyTarget(){
   const es=okE(); if(!es.length)return null;
+  if(forceT&&forceT.state==='ok')return forceT;
   if(B.focusT>0){const f=es.find(e=>e.id===B.focus);if(f)return f;}
   {const tt=es.find(e=>e.tauntE>0);if(tt)return tt;}   // 他のパーティの重騎士の挑発
   const pol=S.policy.target;
@@ -3043,6 +3134,7 @@ function partyTarget(){
 }
 function enemyTarget(ignoreTaunt){
   const us=okU(); if(!us.length)return null;
+  if(forceU&&forceU.state==='ok'&&!forceU.pet)return forceU;
   if(!ignoreTaunt){const t=us.find(u=>u.taunt>0);if(t)return t;}
   const w=us.map(u=>(u.role==='sword'||u.role==='tank')?3:u.role==='thief'?0.7:1); let s=w.reduce((a,b)=>a+b,0)*Math.random();
   for(let i=0;i<us.length;i++){s-=w[i];if(s<=0)return us[i];}
@@ -3316,11 +3408,10 @@ function advAct(e){const r=e.adv;if(!okU().length)return;
     ev(1.2,()=>{if(e.state!=='ok'||!e.castE)return;e.castE=0;log(`${e.name}の炎の嵐！`,'warn');for(const u of okU())hitParty(u,e.atk*.55*rnd(.9,1.1),false,e);});return;}}
   if(r==='thief'&&Math.random()<.2&&B.gold>0){const g=Math.min(B.gold,Math.round(rnd(3,8)));B.gold-=g;log(`${e.name}に財布を掠め取られた（金-${g}）`,'warn');}
   if(e.leader&&Math.random()<.25){for(const x of okE())x.gauge=Math.min(.95,x.gauge+.25);log(`${e.name}「大神の御名において！」 白翼の一行が勢いづいた`,'warn');return;}
-  const back=(r==='hunter'||r==='mage'||r==='thief')?okU().filter(u=>u.role!=='tank').sort((a,b)=>a.hp-b.hp)[0]:null;
+  const back=forceU?null:(r==='hunter'||r==='mage')?okU().filter(u=>u.role!=='tank').sort((a,b)=>a.hp-b.hp)[0]:null;
   const t=back||enemyTarget(false);if(t)hitParty(t,e.atk*rnd(.88,1.12),false,e);}
 function actEnemy(e){
   if(e.adv){advAct(e);return;}
-  if(B.pets&&(MELEE_E.includes(e.kind)||BIG_E.includes(e.kind))){const pt=B.pets.find(p=>p.state==='ok');if(pt&&Math.random()<.18){petHit(pt,e.atk*rnd(.85,1.15),e);return;}}
   if(e.kind==='traitor'){const t=enemyTarget(Math.random()<0.5);if(t){hitParty(t,e.atk*rnd(.9,1.15),false,e);if(Math.random()<0.25)log(`${e.name}の一撃が${t.name}を捉えた`,'sys');}return;}
   if(MELEE_E.includes(e.kind)){const t=enemyTarget(false);if(t)hitParty(t,e.atk*rnd(.85,1.15),false,e);return;}
   if(e.kind==='shaman'){
@@ -3340,7 +3431,8 @@ function sweep(e){
   B.alert=null;
   const guarded=B.guardT>0;
   log(`${e.name}の薙ぎ払い！${guarded?' 守りの構えが衝撃を受け止めた':''}`,guarded?'good':'warn');
-  for(const u of okU())hitParty(u,62*(e.amul||1)*rnd(.95,1.05),true,e);
+  const near=okU().filter(u=>u.x==null||e.x==null||Math.hypot(u.x-e.x,u.y-e.y)<110);if(near.length<okU().length)log(`離れていた${okU().length-near.length}人には届かなかった`,'good');
+  for(const u of near)hitParty(u,62*(e.amul||1)*rnd(.95,1.05),true,e);
   if(guarded&&B.guardByOracle){log('神託の守りが、仲間を救った','oracle');for(const u of okU())addFaith(u.id,2);
     const last=B.oracles.filter(o=>o.k==='guard').pop();if(last)last.note='薙ぎ払いを防いだ';}
 }
@@ -3386,7 +3478,7 @@ function resolveOracle(){
 /* --- 進行 --- */
 function tick(dt){
   B.t+=dt;
-  if(B.travel){if(B.t>=B.travel.until){const f=B.travel.fn;B.travel=null;f();}if(!B.over)render();return;}
+  if(B.travel){for(const u of B.units)u.sta=Math.min(100,(u.sta??100)+.6*dt);if(B.t>=B.travel.until){const f=B.travel.fn;B.travel=null;f();}if(!B.over)render();return;}
   const avg=okU().reduce((a,u)=>a+S.faith[u.id],0)/Math.max(1,okU().length);
   B.divine=Math.min(100,B.divine+dt*2.6*(avg/65)*(0.8+S.belief[S.base]/250)*(hasP('b2')?1.2:1)*(1+okU().reduce((a,u)=>a+(u.divineB||0),0)));
   B.guardT=Math.max(0,B.guardT-dt); if(B.guardT<=0)B.guardByOracle=false;
@@ -3425,12 +3517,18 @@ function tick(dt){
   }
   if(B.waveWait>0){B.waveWait-=dt;if(B.waveWait<=0){B.waveWait=0;const f=B.nextFn;B.nextFn=null;if(f)f();}}
   else{
-    for(const u of B.units){if(u.state!=='ok'||u.busy>0)continue;u.gauge+=dt*u.spd*(B.songT>0?1.15:1)*(B.hasteT>0?1.2:1)/2.4;if(u.gauge>=1){u.gauge=0;actParty(u);}}
-    for(const pt of B.pets||[]){if(pt.state!=='ok')continue;pt.gauge+=dt*pt.spd/2.4;if(pt.gauge>=1){pt.gauge=0;petAct(pt);}}
+    moveAll(dt);
+    for(const u of B.units){if(u.state!=='ok'||u.busy>0)continue;u.gauge=Math.min(1,u.gauge+dt*u.spd*tired(u)*(B.songT>0?1.15:1)*(B.hasteT>0?1.2:1)/2.4);if(u.gauge<1)continue;
+      if(isMeleeU(u)){const t=u.mt;if(!t||t.state!=='ok'||dist(u,t)>reachOf(u)){if(u.role==='tank'&&u.cd.taunt<=0&&okE().length>=2&&Math.random()<.02){u.gauge=0;doTaunt(u);}continue;}forceT=t;}
+      u.gauge=0;u.sta=Math.max(0,(u.sta??100)-(isMeleeU(u)?5:2));try{actParty(u);}finally{forceT=null;}}
+    for(const pt of B.pets||[]){if(pt.state!=='ok')continue;pt.gauge=Math.min(1,pt.gauge+dt*pt.spd/2.4);if(pt.gauge<1)continue;const t=pt.mt;if(!t||t.state!=='ok'||dist(pt,t)>reachOf(pt))continue;pt.gauge=0;forceT=t;try{petAct(pt);}finally{forceT=null;}}
     for(const e of B.enemies){
       if(e.state!=='ok'||e.frozen>0||e.stun>0)continue;
       if(e.wind>0){e.wind-=dt;if(e.wind<=0){e.wind=0;sweep(e);}continue;}
-      e.gauge+=dt*e.spd*(e.slowT>0?.6:1)/2.6;if(e.gauge>=1){e.gauge=0;actEnemy(e);}
+      e.gauge=Math.min(1,e.gauge+dt*e.spd*tired(e)*(e.slowT>0?.6:1)/2.6);if(e.gauge<1)continue;
+      if(isMeleeE(e)&&!e.adv){const t=e.mt;if(!t||t.state!=='ok'||dist(e,t)>reachOf(e))continue;forceU=t.pet?null:t;if(t.pet){e.gauge=0;petHit(t,e.atk*rnd(.85,1.15),e);continue;}}
+      else if(isMeleeE(e)&&e.adv){const t=e.mt;if(!t||t.state!=='ok'||dist(e,t)>reachOf(e))continue;forceU=t.pet?null:t;}
+      e.gauge=0;e.sta=Math.max(0,(e.sta??100)-(isMeleeE(e)?5:2));try{actEnemy(e);}finally{forceU=null;}
     }
   }
   if(B.over)return;
@@ -3471,10 +3569,11 @@ function render(){
     if(u.parry>0)ch.push('<span class="chip frost">受け流し</span>');
     if(u.busy>0&&u.state==='ok')ch.push('<span class="chip good">行動中</span>');
     if(u.state==='ok'&&B.guardT>0)ch.push('<span class="chip frost">守り</span>');
+    if(u.state==='ok'&&(u.sta??100)<40)ch.push(`<span class="chip ${(u.sta??100)<15?'bad':'gold'}">${(u.sta??100)<15?'へとへと':'息切れ'}</span>`);
     if(u.state==='ok'&&(S.spark[u.id]||0)>=60)ch.push('<span class="chip spark">兆し</span>');
     const cls=['u',u.state==='down'?'down':'',u.state==='lost'?'lost':'',L&&L.id===u.id?'leader':'',B.t-u.flashT<1.2?'flash':''].join(' ');
     return `<div class="${cls}"><div class="un"><span>${u.name} <small>${className(u.id)}${S.apostle===u.id?'・使徒':''}</small></span></div>
-      <div class="bar hp"><i style="width:${u.hp/u.max*100}%"></i></div><div class="bar gauge"><i style="width:${u.state==='ok'?u.gauge*100:0}%"></i></div>
+      <div class="bar hp"><i style="width:${u.hp/u.max*100}%"></i></div><div class="bar gauge"><i style="width:${u.state==='ok'?u.gauge*100:0}%"></i></div><div class="bar sta" title="息。走ると減り、休むと戻る。40を切ると遅く、15を切ると弱る"><i style="width:${Math.round(u.sta??100)}%;background:${(u.sta??100)<15?'#e0605a':(u.sta??100)<40?'#e2bd64':'#8ab4d8'}"></i></div>
       <div class="nums">${Math.ceil(u.hp)}/${u.max}・信仰${Math.round(S.faith[u.id])}</div><div class="chips">${ch.join('')}</div>${popHtml(u)}</div>`;}).join('');
   $('#divbar').style.width=B.divine+'%';$('#divnum').textContent=Math.floor(B.divine);
   document.querySelectorAll('[data-o]').forEach(b=>{const o=ORACLES.find(x=>x.k===b.dataset.o);b.disabled=B.over||!!B.pending||B.divine<costOf(o);});
