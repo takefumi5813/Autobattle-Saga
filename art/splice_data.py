@@ -6,9 +6,11 @@
 import sys
 
 MOCK = "mock/ff6mock.html"
-FILES = ["sprites.js", "poses.js", "extra.js", "win.js", "enemies.js", "enemy_poses.js", "bg.js", "world.js"]
+FILES = ["sprites.js", "poses.js", "extra.js", "win.js", "enemies.js", "enemy_poses.js", "enemy_down.js", "bg.js", "world.js"]
+# 先に一致したものを使うので、似た書き出しは長いほうを前に置く
 PREFIXES = ["const HERO_IMG=", "const POSE_IMG=", "Object.assign(HERO_IMG,", "Object.assign(POSE_IMG,",
-            "for(const [k,v] of Object.entries(", "const ENEMY_IMG=", "Object.assign(ENEMY_IMG,", "const BG_IMG=", "const WORLD_IMG="]
+            "for(const [k,v] of Object.entries(", "const ENEMY_IMG=", "Object.assign(ENEMY_IMG,/*down*/", "Object.assign(ENEMY_IMG,",
+            "const BG_IMG=", "const WORLD_IMG="]
 
 lines = open(MOCK, encoding="utf-8").read().split("\n")
 for fn in FILES:
@@ -16,7 +18,7 @@ for fn in FILES:
         pre = next((p for p in PREFIXES if dl.startswith(p)), None)
         if not pre:
             continue
-        idx = [i for i, l in enumerate(lines) if l.startswith(pre)]
+        idx = [i for i, l in enumerate(lines) if next((p for p in PREFIXES if l.startswith(p)), None) == pre]
         if len(idx) != 1:
             print("見つからない、または複数ある:", fn, pre, len(idx)); sys.exit(1)
         if lines[idx[0]] != dl:
