@@ -12,7 +12,7 @@ from PIL import Image, ImageEnhance
 
 ART = sys.argv[1]
 NAMES = ["goblin", "shaman", "ogre", "ogre_raise"]
-OGRE_PX = 74
+OGRE_PX = 56
 
 im = Image.open(f"{ART}/enemies.png").convert("RGB")
 a = np.asarray(im).astype(int)

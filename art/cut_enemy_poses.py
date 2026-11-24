@@ -11,8 +11,8 @@ import numpy as np
 from PIL import Image, ImageEnhance
 
 ART = sys.argv[1]
-# 名前と、縮めたあとの高さ（立ち姿：ゴブリン44・呪術師55・オーガ77）
-TARGETS = [("goblin_atk", 40), ("shaman_atk", 60), ("ogre_smash", 66)]
+# 名前と、縮めたあとの高さ（立ち姿：ゴブリン33・呪術師41・オーガ58）
+TARGETS = [("goblin_atk", 30), ("shaman_atk", 45), ("ogre_smash", 50)]
 
 im = Image.open(f"{ART}/enemies-attack.png").convert("RGB")
 a = np.asarray(im).astype(int); H, W, _ = a.shape
