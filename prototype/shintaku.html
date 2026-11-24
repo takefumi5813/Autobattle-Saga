@@ -216,6 +216,17 @@ th{font-weight:500;color:var(--muted);font-size:.74rem;letter-spacing:.08em}
 .rv{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.84rem;padding:6px 0;border-bottom:1px dashed var(--line)}
 .rv:last-child{border-bottom:0}
 .rv .cond{flex-basis:100%}
+/* ---------- 神殿のタブと、下に固定した旅立ちの帯 ---------- */
+.ptabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.ptabs button{background:none;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;padding:8px 18px;font-family:var(--f-display);font-weight:800;font-size:1rem;letter-spacing:.08em;color:var(--muted);display:flex;gap:6px;align-items:baseline}
+.ptabs button small{font-family:var(--f-body);font-weight:500;font-size:.68rem;color:var(--gold-dim)}
+.ptabs button.on{color:var(--gold);border-color:var(--line);background:var(--panel);margin-bottom:-1px}
+.ptabs button:hover:not(.on){color:var(--fg)}
+.dock{position:sticky;bottom:0;z-index:5;margin-top:22px;padding:12px 14px;background:rgba(16,18,27,.96);border-top:1px solid var(--gold-dim);backdrop-filter:blur(4px)}
+.mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.mrow{display:flex;gap:10px;align-items:baseline;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:6px 10px;font-size:.8rem;color:var(--muted);text-align:left}
+.mrow b{color:var(--fg);font-family:var(--f-display);font-size:.95rem}
+.mrow:hover{border-color:var(--gold-dim)}
 @media (prefers-reduced-motion:reduce){.alert.on,.pop{animation:none}}
 </style>
 
@@ -675,6 +686,9 @@ function learn(id,k,st,src){S.seen[k]=true;const e={k,st,exp:0,src};(S.skills[id
 
 /* ============ 神殿（準備） ============ */
 let prepNotice=[];
+let PREP_TAB='depart';   // 神殿のタブ：depart 旅立ち / party 一行 / world 世界 / store 蔵
+/* 奉納：余った装備や書物を神殿の祭壇へ。3品ごとに拠点の町の信仰が1上がる */
+function offer(n){const before=Math.floor((S.offered||0)/3);S.offered=(S.offered||0)+n;const g=Math.floor(S.offered/3)-before;const up=g?addBelief(BASE_TOWN,g):0;return up;}
 function renderPrep(){
   stopLoop(); setSteps('prep');
   const added=fillParty(); if(added.length)prepNotice=prepNotice.concat(added); persist();
@@ -683,27 +697,40 @@ function renderPrep(){
   let h=`<p class="lead">あなたは忘れられた小神です。パーティを直接は動かせません。旅立つ前に<b>戒律</b>・<b>装備</b>・<b>書物</b>・<b>師弟</b>を整え、旅と戦いの最中は限られた神力で<b>神託</b>を下します。大迷宮までは<b>岩の丘</b>と<b>北の街道</b>を越え、二晩の<b>野営</b>をはさみます。技は書物で学ぶほか、強敵との戦いの中で<b>閃く</b>ことがあります。倒れた仲間を10秒以内に救えなければ、その仲間は二度と戻りません。季節は旅のたびに巡り、仲間は歳をとり、やがて<b>後継者</b>に道を譲ります。</p>`;
   if(prepNotice.length){h+=`<div class="notice">新たな仲間が一行に加わりました：${prepNotice.map(id=>{const d=CHAR_DB[id];return `<b>${d.name}</b>（${ROLES[d.role]}${d.parent?`・${CHAR_DB[d.parent].name}の${d.rel}`:d.town?`・${TOWNS[d.town].name}の信者`:''}）`;}).join('、')}。前の仲間との連携技の習熟は引き継がれません。</div>`;prepNotice=[];}
   if(over.length)h+=`<div class="notice bad">技は一人4つまでしか持てません。${over.map(id=>CHAR_DB[id].name).join('、')}の技を整理してください。体得した書物の技は、忘れる前に伝書として書き残せます。</div>`;
-  if(SKV&&ids.includes(SKV))h+=skillPanel(SKV);else SKV=null;
-  h+=`<section class="sec"><h2>パーティ</h2><div class="roster">`;
-  for(const id of ids)h+=charCard(id);
-  h+=`</div>${reserveHtml(ids)}</section>`;
-  h+=relPanel(ids);
-  h+=worldHtml(ids);
-  // 蔵
+  // 直前の操作の知らせ（奉納・夢枕・入れ替えなど）は、どのタブでも上に出す
+  if(prepMsgs.length){h+=`<div class="notice">${prepMsgs.join('<br>')}</div>`;prepMsgs=[];}
+  // ---- 一行 ----
+  let hParty='';
+  if(SKV&&ids.includes(SKV))hParty+=skillPanel(SKV);else SKV=null;
+  hParty+=`<section class="sec"><h2>パーティ</h2><div class="roster">`;
+  for(const id of ids)hParty+=charCard(id);
+  hParty+=`</div>${reserveHtml(ids)}</section>`;
+  hParty+=relPanel(ids);
+  // ---- 世界 ----
+  const hWorld=worldHtml(ids);
+  // ---- 蔵：同じ物はまとめて1行。余りは神殿に奉納できる ----
   const inv=inventory();
-  h+=`<div class="cols3"><section class="panel"><h3>書庫</h3><p class="muted small" style="margin:0 0 8px">書物を読むと、その技を「啓示」の段階で覚えます。書物で覚えた技は「実戦」までしか伸びず、「体得」には戦いの中での開眼が要ります。読んだ書物はなくなります。</p><div class="inv">`;
-  if(!S.books.length)h+='<p class="muted small">書物はありません。迷宮で見つかることがあります。</p>';
-  S.books.forEach((k,i)=>{const sk=SKILLS[k];const rd=ids.filter(id=>aptOf(id).includes(sk.line)&&!knows(id,k));
-    h+=`<div class="it"><span class="in">『${sk.name}の書』 <span class="tag">${sk.line}</span></span><span></span><span class="id">${sk.desc}</span>
-      <div class="rd">${rd.length?`<select id="rd-${i}" data-reader="${i}">${rd.map(id=>`<option value="${id}">${CHAR_DB[id].name}</option>`).join('')}</select><button class="btn small" data-read="${i}">読ませる</button>`:'<span class="muted small">読める者がいない（系統が合わないか、習得済み）</span>'}</div></div>`;});
-  h+=`</div></section><section class="panel"><h3>武具庫</h3><div class="inv">`;
-  if(!inv.length)h+='<p class="muted small">余っている装備はありません。</p>';
-  for(const u of inv){const d=itemDef(u);h+=`<div class="it"><span class="in">${d.name}</span><span class="tag">${SLOTS[d.slot]}${d.line?'・'+d.line:''}</span><span class="id">${d.txt}</span></div>`;}
-  h+=`</div></section><section class="panel"><h3>神の知識</h3><ul class="know">`;
-  for(const k of Object.keys(KNOW))h+=S.discovered[k]?`<li>${KNOW[k].t}</li>`:`<li class="q">？？？（${KNOW[k].q}）</li>`;
-  h+=`</ul><h4>閃きの系譜</h4><ul class="know">${Object.entries(SKILLS).filter(([k,s])=>s.from).map(([k,s])=>{const seen=Object.values(S.skills).some(a=>a.some(x=>x.k===k));
+  const bookGroups={};S.books.forEach((k,i)=>{(bookGroups[k]=bookGroups[k]||[]).push(i);});
+  const itemGroups={};for(const u of inv){const it=S.items[u];const key=it.k+'|'+(it.name||'');(itemGroups[key]=itemGroups[key]||[]).push(u);}
+  const spare=Object.values(bookGroups).reduce((a,g)=>a+g.length-1,0)+Object.entries(itemGroups).filter(([key])=>!key.startsWith('memento|')).reduce((a,[,g])=>a+g.length-1,0);
+  let hStore=`<div class="notice small" style="margin-bottom:14px">余った装備や書物は、神殿に<b>奉納</b>できます。奉納した品は${TOWNS[BASE_TOWN].name}の祭壇に並び、3つ奉納するごとに町の信仰が1上がります（いま奉納 ${S.offered||0} 品）。
+    ${spare?`<button class="btn small" id="offerall" style="margin-left:8px">余りをまとめて奉納（${spare}品・各1つは残す・形見は除く）</button>`:''}</div>`;
+  hStore+=`<div class="cols3"><section class="panel"><h3>書庫 <span class="muted small">${S.books.length}冊</span></h3><p class="muted small" style="margin:0 0 8px">書物を読むと、その技を「啓示」の段階で覚えます。書物で覚えた技は「実戦」までしか伸びず、「体得」には戦いの中での開眼が要ります。読んだ書物はなくなります。</p><div class="inv">`;
+  if(!S.books.length)hStore+='<p class="muted small">書物はありません。迷宮で見つかることがあります。</p>';
+  for(const [k,g] of Object.entries(bookGroups)){const i=g[0];const sk=SKILLS[k];const rd=ids.filter(id=>aptOf(id).includes(sk.line)&&!knows(id,k));
+    hStore+=`<div class="it"><span class="in">『${sk.name}の書』 <span class="tag">${sk.line}</span>${g.length>1?` <span class="tag gold">×${g.length}</span>`:''}</span><button class="btn tiny" data-offerbook="${i}">奉納</button><span class="id">${sk.desc}</span>
+      <div class="rd">${rd.length?`<select id="rd-${i}" data-reader="${i}">${rd.map(id=>`<option value="${id}">${CHAR_DB[id].name}</option>`).join('')}</select><button class="btn small" data-read="${i}">読ませる</button>`:'<span class="muted small">読める者がいない（系統が合わないか、習得済み）</span>'}</div></div>`;}
+  hStore+=`</div></section><section class="panel"><h3>武具庫 <span class="muted small">${inv.length}品</span></h3><div class="inv">`;
+  if(!inv.length)hStore+='<p class="muted small">余っている装備はありません。</p>';
+  for(const g of Object.values(itemGroups)){const d=itemDef(g[0]);hStore+=`<div class="it"><span class="in">${d.name} <span class="tag">${SLOTS[d.slot]}${d.line?'・'+d.line:''}</span>${g.length>1?` <span class="tag gold">×${g.length}</span>`:''}</span><button class="btn tiny" data-offeritem="${g[0]}">奉納</button><span class="id">${d.txt}</span></div>`;}
+  hStore+=`</div></section><section class="panel"><h3>神の知識</h3><ul class="know">`;
+  for(const k of Object.keys(KNOW))hStore+=S.discovered[k]?`<li>${KNOW[k].t}</li>`:`<li class="q">？？？（${KNOW[k].q}）</li>`;
+  hStore+=`</ul><h4>閃きの系譜</h4><ul class="know">${Object.entries(SKILLS).filter(([k,s])=>s.from).map(([k,s])=>{const seen=Object.values(S.skills).some(a=>a.some(x=>x.k===k));
       return seen?`<li>${SKILLS[s.from].name} → <b>${s.name}</b>（${s.line}）</li>`:`<li class="q">${SKILLS[s.from].name} → ？？？</li>`;}).join('')}</ul></section></div>`;
-  h+=`<div class="cols" style="margin-top:18px"><section class="panel"><h3>戒律</h3><p class="muted small" style="margin:0 0 6px">潜行中、パーティはこの方針で自分たちで判断します。</p>
+  if(S.graves.length)hStore+=`<section class="sec" style="margin-top:22px"><h3>墓碑</h3><p class="grave">${S.graves.map(g=>`<b>${g.name}</b>（${g.role}）願い「${g.wish}」${g.heir?`　― ${g.heir}`:''}`).join('<br>')}</p></section>`;
+  if(S.retired.length)hStore+=`<section class="sec"><h3>隠居した者</h3><p class="grave">${S.retired.map(g=>`<b>${g.name}</b>（${g.role}・${g.age}歳で引退）${g.heir?`　― 後継者 ${g.heir}`:''}`).join('<br>')}</p></section>`;
+  // ---- 旅立ち：戒律と連携技 ----
+  let hDepart=`<div class="cols"><section class="panel"><h3>戒律</h3><p class="muted small" style="margin:0 0 6px">潜行中、パーティはこの方針で自分たちで判断します。</p>
     ${rule('target','攻撃目標',[['weak','弱った敵から'],['caster','術者を優先'],['strong','最も強い敵']],P.target)}
     ${rule('heal','回復の基準',[['50','HPが半分を切ったら'],['30','HPが3割を切ったら']],P.heal)}
     ${rule('rescue','救命',[['first','倒れた仲間を最優先'],['situ','回復が足りていれば']],P.rescue)}
@@ -712,21 +739,27 @@ function renderPrep(){
     ${rule('camp','野営',[['watch','見張りを立てる（回復は控えめ・夜襲に備える）'],['rest','ぐっすり休む（よく回復するが、夜襲では寝込みを突かれる）']],P.camp)}
   </section><section class="panel"><h3>連携技の書</h3>`;
   for(const c of Object.keys(COMBOS)){const C=COMBOS[c];const ok=C.roles.every(r=>roleId(r));
-    if(c==='brk'&&!S.discovered.brk){h+=`<div class="combo"><div class="cn">？？？ <span class="tag">未発見</span></div><div class="cond">${KNOW.brk.q}。戦いの中で見つけるか、神託で気づかせてください。</div></div>`;continue;}
+    if(c==='brk'&&!S.discovered.brk){hDepart+=`<div class="combo"><div class="cn">？？？ <span class="tag">未発見</span></div><div class="cond">${KNOW.brk.q}。戦いの中で見つけるか、神託で気づかせてください。</div></div>`;continue;}
     const m=ok?getM(c):0;
-    h+=`<div class="combo"><div class="cn">${C.name} ${pips(m)} <span class="muted" style="font-size:.75rem;font-family:var(--f-body)">${['未伝授','啓示','訓練','実戦','体得'][m]}</span></div>
+    hDepart+=`<div class="combo"><div class="cn">${C.name} ${pips(m)} <span class="muted" style="font-size:.75rem;font-family:var(--f-body)">${['未伝授','啓示','訓練','実戦','体得'][m]}</span></div>
       <div class="cond">担い手：${C.roles.map(r=>roleId(r)?CHAR_DB[roleId(r)].name:`（${ROLES[r]}不在）`).join('・')}／条件：${C.cond}</div>
       <ol>${C.flow.map(f=>`<li>${f}</li>`).join('')}</ol>
       ${ok&&m===0?`<button class="btn small" data-reveal="${c}">啓示を授ける</button>`:''}</div>`;}
-  h+=`</section></div>`;
-  if(S.graves.length)h+=`<section class="sec" style="margin-top:22px"><h3>墓碑</h3><p class="grave">${S.graves.map(g=>`<b>${g.name}</b>（${g.role}）願い「${g.wish}」${g.heir?`　― ${g.heir}`:''}`).join('<br>')}</p></section>`;
-  if(S.retired.length)h+=`<section class="sec"><h3>隠居した者</h3><p class="grave">${S.retired.map(g=>`<b>${g.name}</b>（${g.role}・${g.age}歳で引退）${g.heir?`　― 後継者 ${g.heir}`:''}`).join('<br>')}</p></section>`;
+  hDepart+=`</section></div><p class="muted small" style="margin-top:18px">いちばん深い階で帰還すると、次の階が開く。　<span id="resetwrap"><button class="btn ghost small" id="reset">最初からやり直す</button></span></p>`;
+  // 旅立ちのタブには、一行の顔ぶれを短く見せる（詳しくは「一行」タブ）
+  hDepart=`<div class="panel" style="margin-bottom:18px"><h3>今回の一行</h3><div class="mini">${ids.map(id=>{const d=CHAR_DB[id];const warn=S.contact[id]||S.loyal[id]<40;
+    return `<button class="mrow" data-goparty="${id}"><b>${d.name}</b><span>${className(id)}</span><span class="${S.loyal[id]<40?'dn':''}">忠誠${Math.round(S.loyal[id])}</span><span>信仰${Math.round(S.faith[id])}</span>${warn?'<span class="dn">！</span>':''}</button>`;}).join('')}</div></div>`+hDepart;
+  // ---- タブ ----
+  const warnN=ids.filter(id=>S.contact[id]||S.loyal[id]<40).length+over.length;
+  const TABS=[['depart','旅立ち',''],['party','一行',warnN?`！${warnN}`:''],['world','世界',S.divinity?`神威${S.divinity}`:''],['store','蔵',`${S.books.length+inv.length}`]];
+  if(!TABS.some(t=>t[0]===PREP_TAB))PREP_TAB='depart';
+  h+=`<nav class="ptabs" role="tablist">${TABS.map(([k,n,b])=>`<button role="tab" aria-selected="${k===PREP_TAB}" class="${k===PREP_TAB?'on':''}" data-ptab="${k}">${n}${b?`<small>${b}</small>`:''}</button>`).join('')}</nav>`;
+  h+=`<div class="ptab">${{depart:hDepart,party:hParty,world:hWorld,store:hStore}[PREP_TAB]}</div>`;
+  // ---- 下に固定：潜る階と旅立つボタン ----
   const fls=[];for(let f=3;f<=S.depth;f++)fls.push(f);
-  h+=`<div class="cta" style="margin-top:22px"><label for="floorsel" class="small">潜る階</label><select id="floorsel" style="width:auto">${fls.map(f=>`<option value="${f}"${f===S.floor?' selected':''}>${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}</option>`).join('')}</select>
+  h+=`<div class="dock"><div class="cta" style="margin:0"><label for="floorsel" class="small">潜る階</label><select id="floorsel" style="width:auto">${fls.map(f=>`<option value="${f}"${f===S.floor?' selected':''}>${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}</option>`).join('')}</select>
     <button class="btn" id="go" ${over.length?'disabled':''}>大迷宮へ旅立つ</button>
-    <span class="muted small">${TOWNS[BASE_TOWN].name} → 岩の丘 → 北の街道 → ${floorName(S.floor)}（野営2夜）。いちばん深い階で帰還すると、次の階が開く</span>
-    <span class="muted small">${calTxt()}・潜行 ${S.runs}回・帰還 ${S.wins}回</span>
-    <span id="resetwrap"><button class="btn ghost small" id="reset">最初からやり直す</button></span></div>`;
+    <span class="muted small">${TOWNS[BASE_TOWN].name} → 岩の丘 → 北の街道 → ${floorName(S.floor)}（野営2夜）・${calTxt()}・潜行 ${S.runs}回・帰還 ${S.wins}回</span></div></div>`;
   $('#view').innerHTML=h; bindPrep();
 }
 function charCard(id){
@@ -906,8 +939,19 @@ function skillPanel(id){const d=CHAR_DB[id];
 function rule(k,label,opts,v){return `<div class="rule"><label for="p-${k}">${label}</label><select id="p-${k}" data-p="${k}">${opts.map(([a,b])=>`<option value="${a}"${a===v?' selected':''}>${b}</option>`).join('')}</select></div>`;}
 function bindPrep(){
   $('#go').onclick=startBattle;
+  document.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{PREP_TAB=b.dataset.ptab;renderPrep();window.scrollTo(0,0);});
+  document.querySelectorAll('[data-goparty]').forEach(b=>b.onclick=()=>{PREP_TAB='party';renderPrep();const el=document.querySelector(`[data-skv="${b.dataset.goparty}"]`);if(el)el.closest('.char').scrollIntoView({block:'center'});});
+  // 奉納（1品ずつ／余りをまとめて）
+  const offerMsg=(n,up)=>`${n}品を神殿に奉納した。${up?`${TOWNS[BASE_TOWN].name}の信仰が${up}上がった`:'祭壇がまた少し賑やかになった'}`;
+  document.querySelectorAll('[data-offerbook]').forEach(b=>b.onclick=()=>{S.books.splice(+b.dataset.offerbook,1);const up=offer(1);prepMsgs.push(offerMsg(1,up));persist();renderPrep();});
+  document.querySelectorAll('[data-offeritem]').forEach(b=>b.onclick=()=>{delete S.items[b.dataset.offeritem];const up=offer(1);prepMsgs.push(offerMsg(1,up));persist();renderPrep();});
+  if($('#offerall'))$('#offerall').onclick=()=>{let n=0;
+    const seen=new Set();S.books=S.books.filter(k=>{if(seen.has(k)){n++;return false;}seen.add(k);return true;});
+    const keep=new Set();for(const u of inventory()){const it=S.items[u];if(it.k==='memento')continue;const key=it.k+'|'+(it.name||'');if(keep.has(key)){delete S.items[u];n++;}else keep.add(key);}
+    const up=offer(n);prepMsgs.push(offerMsg(n,up));persist();renderPrep();};
   if($('#floorsel'))$('#floorsel').onchange=()=>{S.floor=+$('#floorsel').value;rollNext(S);persist();renderPrep();};
-  $('#reset').onclick=()=>{$('#resetwrap').innerHTML=`<span class="confirm">仲間・信仰・技・装備がすべて初期化されます。<button class="btn ghost small" id="rsy">初期化する</button><button class="btn ghost small" id="rsn">やめる</button></span>`;
+  // 「最初からやり直す」は旅立ちタブにだけある
+  if($('#reset'))$('#reset').onclick=()=>{$('#resetwrap').innerHTML=`<span class="confirm">仲間・信仰・技・装備がすべて初期化されます。<button class="btn ghost small" id="rsy">初期化する</button><button class="btn ghost small" id="rsn">やめる</button></span>`;
     $('#rsy').onclick=()=>{S=migrate(newSave());persist();renderPrep();};$('#rsn').onclick=renderPrep;};
   // 世界：布教・権能・控えとの入れ替え・継承
   if($('#preach'))$('#preach').onclick=()=>{if(S.grace<1)return;const k=$('#preachsel').value;S.grace--;
@@ -940,7 +984,7 @@ function bindPrep(){
   document.querySelectorAll('select[data-train]').forEach(sel=>sel.onchange=()=>{S.train[sel.dataset.train]=sel.value;persist();renderPrep();});
   document.querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.ab.split('|');let a=(S.aslot[id]||[]).filter(x=>(S.abil[id]||[]).includes(x));
     if(a.includes(k))a=a.filter(x=>x!==k);else if(a.length<2)a.push(k);S.aslot[id]=a;persist();renderPrep();});
-  document.querySelectorAll('[data-skv]').forEach(b=>b.onclick=()=>{SKV=b.dataset.skv;renderPrep();const el=$('#skp');if(el)el.scrollIntoView({block:'start'});});
+  document.querySelectorAll('[data-skv]').forEach(b=>b.onclick=()=>{SKV=b.dataset.skv;PREP_TAB='party';renderPrep();const el=$('#skp');if(el)el.scrollIntoView({block:'start'});});
   if($('#skclose'))$('#skclose').onclick=()=>{SKV=null;renderPrep();};
   document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.cc.split('|');if(k)S.cls[id]=k;else delete S.cls[id];persist();renderPrep();});
   document.querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{S.apostle=b.dataset.ap;addFaith(S.apostle,0);persist();renderPrep();});
