@@ -712,6 +712,71 @@ button:focus-visible,select:focus-visible{outline-color:var(--acc)}
 table{color:inherit;font-size:.84rem}
 .verdict{font-size:3rem;letter-spacing:.14em;line-height:1.1}
 .verdict.retreat{color:var(--frost)}
+/* ---- 帰還画面（rs） ---- */
+.rs{--rk:var(--fg)}
+.rs-retreat{--rk:#2a6c9c}.rs-wipe{--rk:#c8342b}.rs-arrive{--rk:#111}
+.rs-hero{position:relative;min-height:330px;margin:-6px 0 18px;display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:end;overflow:hidden;
+  background:linear-gradient(118deg,transparent 0 50%,rgba(255,255,255,.92) 50% 66%,transparent 66%),linear-gradient(118deg,transparent 0 calc(69% - 1px),rgba(0,0,0,.6) 69%,transparent calc(69% + 1px))}
+.rs-bg{position:absolute;left:-10px;top:-40px;font-family:var(--f-num);font-weight:700;font-size:15rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(0,0,0,.13);letter-spacing:-.02em;pointer-events:none;user-select:none}
+.rs-t{position:relative;z-index:1;display:flex;flex-direction:column;padding:0 0 96px 4px}
+.rs-t small{font-family:var(--f-num);font-weight:500;letter-spacing:.5em;font-size:.95rem;color:var(--rk);display:flex;align-items:center;gap:12px}
+.rs-t small::before{content:"";width:34px;height:4px;background:var(--acc)}
+.rs-t b{font-family:var(--f-display);font-weight:900;font-size:clamp(4rem,11vw,7.5rem);line-height:1;letter-spacing:.12em;color:var(--rk)}
+.rs-t span{font-size:.8rem;color:var(--muted);letter-spacing:.1em;margin-top:8px}
+.rs-t span i{font-style:normal;margin:0 8px;opacity:.5}
+.rs-art{position:relative;height:330px;z-index:1}
+.rs-art .pf{position:absolute;inset:0;background-size:auto 150%;background-position:50% 2%}
+.rs-wipe .rs-hero{grid-template-columns:minmax(0,1fr)}
+.rs-q{position:absolute;z-index:2;left:0;bottom:14px;max-width:min(600px,64%);margin:0;background:rgba(12,12,12,.9);color:#f2f2ef;padding:9px 18px;border-left:4px solid var(--acc);font-size:.9rem;line-height:1.6}
+.rs-q b{display:block;font-size:.68rem;letter-spacing:.3em;color:var(--acc);margin-bottom:2px}
+.rs-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:700px){.rs-row{grid-template-columns:repeat(3,minmax(0,1fr))}.rs-hero{grid-template-columns:minmax(0,1fr)}.rs-art{display:none}.rs-q{max-width:100%;position:relative;bottom:0}.rs-t{padding-bottom:12px}.rs-bg{font-size:9rem}}
+.rc{position:relative;height:190px;overflow:hidden;color:#f2f2ef;clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+  background:linear-gradient(122deg,transparent 0 46%,rgba(255,255,255,.1) 46% 60%,transparent 60%),linear-gradient(180deg,#4a4a48,#1a1a1a 70%)}
+.rc .pf{position:absolute;inset:0;background-size:auto 200%;background-position:50% 4%}
+.rc::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(8,8,8,.94) 72%)}
+.rcb{position:absolute;z-index:1;left:0;right:0;bottom:0;padding:8px 10px 12px;display:flex;flex-direction:column;gap:2px}
+.rcb b{font-family:var(--f-display);font-weight:900;font-size:1.05rem;letter-spacing:.08em}
+.rcs{position:absolute;z-index:2;right:8px;top:8px;font-family:var(--f-num);font-size:.62rem;letter-spacing:.2em;padding:1px 7px;background:#f2f2ef;color:#111}
+.rc.down .rcs{background:var(--acc)}
+.rc.lost .rcs{background:#c8342b;color:#fff}
+.rc.lost .pf{filter:grayscale(1) brightness(.55)}
+.rc.lost::before{content:"";position:absolute;z-index:1;left:-20%;right:-20%;top:46%;height:3px;background:#c8342b;transform:rotate(-24deg)}
+.rcf{display:flex;align-items:center;gap:5px;font-family:var(--f-num);font-size:.95rem}
+.rcf svg{width:13px;height:13px;opacity:.7}
+.rcf em{font-style:normal;font-size:.72rem;margin-left:auto}
+.rcf em.up{color:#6fd4a4}.rcf em.dn{color:#ff6a5e}
+.rcx{display:flex;align-items:center;gap:4px;font-size:.66rem;color:#ffe066;letter-spacing:.06em}
+.rcx.g{color:#a3a3a0}.rcx svg{width:12px;height:12px}
+.rs-nums{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:rgba(12,12,12,.94);color:#f2f2ef;margin-bottom:16px;border-top:3px solid var(--acc)}
+@media (max-width:700px){.rs-nums{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.rs-nums div{padding:8px 14px 10px;border-left:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column}
+.rs-nums div:first-child{border-left:0}
+.rs-nums small{font-size:.6rem;letter-spacing:.3em;color:#a3a3a0}
+.rs-nums b{font-family:var(--f-num);font-weight:500;font-size:1.9rem;line-height:1.1}
+.rs-nums b small{font-size:.9rem;letter-spacing:0}
+.rs-nums div.bad b{color:#ff6a5e}
+.rs-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:980px){.rs-cols{grid-template-columns:minmax(0,1fr)}}
+.rl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rl li{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;line-height:1.5}
+.rl li>svg{width:15px;height:15px;flex:none;margin-top:3px;opacity:.75}
+.rl li b{margin-right:4px}
+.rl li em{font-style:normal;font-size:.62rem;margin-left:6px;padding:0 5px;border:1px solid var(--hair);color:var(--muted)}
+.rl li.sp>svg{color:var(--acc);opacity:1}
+.rl li.sp b{color:var(--acc)}
+.rl li.bad{color:var(--bad)}
+.rl li.rel{align-items:center}
+.rl li.rel .fc{width:26px;height:26px;flex:none}
+.rl li.rel i{font-style:normal;font-family:var(--f-num);font-size:.8rem;width:2.2em;text-align:center}
+.rl li.rel i.up{color:var(--heal)}.rl li.rel i.dn{color:var(--bad)}
+.rl li.rel span{color:var(--muted);font-size:.7rem}
+.rl li.orc small{color:var(--muted);margin:0 6px;font-size:.66rem}
+.rl li.orc.ignore{opacity:.6}
+.rs-loot{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.rs-loot .it2{padding:7px 9px;gap:2px}.rs-loot .it2 .ii svg{width:20px;height:20px}
+.rs-loot .it2{background:rgba(255,255,255,.04)}
+.rs-end{display:flex;justify-content:flex-end;margin-top:18px}
+.rs-end .go{margin-left:0}
 .src.base{background:#2a2a2a} .src.book{background:#20303c} .src.flash{background:#3a3418} .src.teach{background:#3a2626} .src.grant{background:#2c2236}
 </style>
 <div class="app">
@@ -2790,51 +2855,75 @@ function relAfterRun(kind){
   }
   S.grace=Math.min(graceMax(),(S.grace||0)+1);
 }
+/* 帰還画面（2026-11-24 作り直し）：大きな一語と立ち絵、仲間5人の札、数字の帯、黒い板3枚。文字は最小限、細かい説明は指を置くと出る */
 function renderResult(){
   if(!B||!B.over||!$('#party'))return;
   setSteps('result');
   const kind=B.kind;
   const L=B.units.filter(u=>u.state==='ok').sort((a,b)=>(a.role==='sword'?-1:0)-(b.role==='sword'?-1:0)||S.faith[b.id]-S.faith[a.id])[0];
   const title={win:'帰還',retreat:'撤退',wipe:'全滅',arrive:'到着'}[kind];
-  let h=`<div class="verdict ${kind}">${title}</div><p class="muted" style="margin:0">${B.place}${B.wave?`・第${B.wave}波`:''}・${fmt(B.t)}</p>`;
-  if(kind==='wipe')h+=`<p class="report">誰も戻らなかった。装備も${B.wave?'迷宮':'荒野'}に呑まれた。神殿の灯明が、ひとつ、またひとつと消えていく。</p>`;
-  else if(L)h+=`<p class="report"><b>${L.name}</b>「${REPORT[kind][L.pers]}${B.lostNow.length?` ……${B.lostNow.map(i=>CHAR_DB[i].name).join('と')}のことは、忘れない。`:''}」</p>`;
+  const sub={win:'RETURNED',retreat:'RETREAT',wipe:'ANNIHILATED',arrive:'ARRIVED'}[kind];
   const nm=id=>CHAR_DB[id].name;
-  h+=`<div class="cols3"><section class="panel"><h3>仲間と信仰</h3><div class="tw"><table><thead><tr><th>名前</th><th>状態</th><th>信仰</th><th>増減</th></tr></thead><tbody>`;
-  for(const u of B.units){const d=S.faith[u.id]-B.startFaith[u.id];
-    h+=`<tr><td>${u.name}</td><td>${u.state==='lost'?'<span class="dn">ロスト</span>':'生還'}</td><td>${Math.round(S.faith[u.id])}</td><td class="${d>0?'up':d<0?'dn':''}">${d>0?'+':''}${Math.round(d)}</td></tr>`;}
-  h+=`</tbody></table></div>`;
-  h+=`<h3 style="margin-top:16px">連携技</h3><p style="font-size:.85rem;margin:0">成功 ${B.combos.ok}回・不完全 ${B.combos.fail}回</p>`;
-  if(B.mast.length)h+=`<ul class="know">${B.mast.map(m=>`<li>【${COMBOS[m.c].name}】習熟 ${m.from}→${m.to}/4</li>`).join('')}</ul>`;
-  {const rd=Object.entries(B.relDelta).filter(([k,v])=>Math.abs(v)>=4).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,6);
-   h+=`<h3 style="margin-top:16px">人間関係</h3>`;
-   if(B.relNotes.length)h+=`<ul class="know">${B.relNotes.map(x=>`<li class="${x.startsWith('！')?'dn':''}">${x}</li>`).join('')}</ul>`;
-   if(rd.length)h+=`<ul class="know">${rd.map(([k,v])=>{const [a,b]=k.split('|');return `<li>${CHAR_DB[a].name}と${CHAR_DB[b].name} <span class="${v>0?'up':'dn'}">${v>0?'+':''}${v}</span></li>`;}).join('')}</ul>`;
-   if(!B.relNotes.length&&!rd.length)h+='<p class="muted small">大きな変化はなかった。</p>';}
-  if(B.disc.length)h+=`<h3 style="margin-top:12px">新たな神の知識</h3><ul class="know">${B.disc.map(k=>`<li>${KNOW[k].t}</li>`).join('')}</ul>`;
-  h+=`</section><section class="panel"><h3>技と継承</h3>`;
-  const anyGrow=B.flashes.length||B.ups.length||B.wills.length||B.teachLog.length||B.styleNew.length||Object.keys(B.styleUse).length||B.clsUnlock.length||B.abLog.length;
-  if(!anyGrow)h+='<p class="muted small">今回、技に変化はなかった。強敵と戦うほど閃きやすく、神託の直後はさらに閃きやすい。</p>';
-  if(B.flashes.length)h+=`<h4>閃き・開眼</h4><ul class="know">${B.flashes.map(f=>`<li>${nm(f.id)}：【${SKILLS[f.k].name}】${f.type==='eye'?'に開眼（体得）':'を閃いた（実戦）'}${f.grace?'<span class="muted">　神の気配の中で</span>':''}</li>`).join('')}</ul>`;
-  if(B.ups.length)h+=`<h4>習熟</h4><ul class="know">${B.ups.map(x=>`<li>${nm(x.id)}：【${SKILLS[x.k].name}】${STAGE[x.st]}へ</li>`).join('')}</ul>`;
-  if(B.wills.length)h+=`<h4>遺言</h4><ul class="know">${B.wills.map(w=>`<li>${nm(w.to)}が師${nm(w.from)}の【${SKILLS[w.k].name}】を継いだ（${STAGE[w.st]}）</li>`).join('')}</ul>`;
-  if(B.styleNew.length||Object.keys(B.styleUse).length)h+=`<h4>流儀</h4><ul class="know">${B.styleNew.map(x=>`<li>${CHAR_DB[x.id].name}が流儀【${STYLES[x.k].name}】に目覚めた</li>`).join('')}${Object.entries(B.styleUse).map(([k,n])=>`<li>【${STYLES[k].name}】 ${n}回発動</li>`).join('')}</ul>`;
-  if(B.abLog.length)h+=`<h4>アビリティ</h4><ul class="know">${B.abLog.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-  if(B.clsUnlock.length)h+=`<h4>転職</h4><ul class="know">${B.clsUnlock.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-  if(B.teachLog.length)h+=`<h4>師弟</h4><ul class="know">${B.teachLog.map(t=>`<li>${t}</li>`).join('')}</ul>`;
-  h+=`</section><section class="panel"><h3>持ち帰ったもの</h3>`;
-  if(!B.loot.length)h+='<p class="muted small">何も持ち帰れなかった。</p>';
-  else h+=`<ul class="know">${B.loot.map(x=>x.startsWith('book:')?`<li>『${SKILLS[x.slice(5)].name}の書』</li>`:(S.items[x]?`<li>${itemDef(x).name}<span class="muted">（${itemDef(x).txt}）</span></li>`:'')).join('')}</ul>`;
-  if(B.tripNotes&&B.tripNotes.length)h+=`<h3 style="margin-top:16px">地図</h3><ul class="know">${B.tripNotes.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-  if(B.worldNotes&&B.worldNotes.length)h+=`<h3 style="margin-top:16px">世界の動き</h3><ul class="know">${B.worldNotes.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-  h+=`<h3 style="margin-top:16px">神託の記録</h3>`;
-  if(!B.oracles.length)h+='<p class="muted small">今回は一度も神託を下さなかった。パーティは戒律だけで戦った。</p>';
-  else{h+=`<div class="tw"><table><thead><tr><th>時刻</th><th>神託</th><th>解釈</th><th>結果</th></tr></thead><tbody>`;
-    for(const o of B.oracles)h+=`<tr><td>${fmt(o.t)}</td><td>${ORACLES.find(x=>x.k===o.k).w}</td><td>${o.leader}が${{obey:'従った',partial:'曲解した',ignore:'無視した'}[o.res]}</td><td>${o.note||'―'}</td></tr>`;
-    h+=`</tbody></table></div>`;}
-  h+=`</section></div><div class="cta" style="margin-top:22px"><button class="btn" id="back">神殿に戻る</button></div>`;
-  $('#view').innerHTML=h; $('#back').onclick=renderPrep;
+  const fl=(B.place||'').match(/B\d+F?/);
+  const quote=kind==='wipe'?`誰も戻らなかった。装備も${B.wave?'迷宮':'荒野'}に呑まれた。`
+    :L?`${REPORT[kind][L.pers]}${B.lostNow.length?` ……${B.lostNow.map(i=>nm(i)).join('と')}のことは、忘れない。`:''}`:'';
+  // ---- 上：一語と立ち絵 ----
+  let h=`<div class="tm rs rs-${kind}">`;
+  h+=`<div class="rs-hero"><div class="rs-bg">${fl?fl[0].replace(/F?$/,'F'):'TRIP'}</div>
+    <div class="rs-t"><small>${sub}</small><b>${title}</b><span>${B.place}${B.wave?`<i>／</i>第${B.wave}波`:''}<i>／</i>${fmt(B.t)}</span></div>
+    ${L&&kind!=='wipe'?`<div class="rs-art">${pfDiv(L.id)}</div>`:''}
+    ${quote?`<p class="rs-q">${L&&kind!=='wipe'?`<b>${L.name}</b>`:''}${quote}</p>`:''}</div>`;
+  // ---- 仲間の札：顔・生死・信仰の増減・伸びたこと ----
+  h+=`<div class="rs-row">`;
+  for(const u of B.units){const d=Math.round(S.faith[u.id]-B.startFaith[u.id]);
+    const st=u.state==='lost'?'lost':u.state==='ok'?'ok':'down';
+    const grow=B.flashes.filter(f=>f.id===u.id).length+B.ups.filter(x=>x.id===u.id).length;
+    const fls=B.flashes.filter(f=>f.id===u.id).map(f=>SKILLS[f.k].name);
+    h+=`<div class="rc ${st}" title="${u.name}：${{ok:'生還',down:'倒れたが生還',lost:'ロスト'}[st]}・信仰 ${Math.round(S.faith[u.id])}（${d>0?'+':''}${d}）${fls.length?'・閃き：'+fls.join('、'):''}">
+      ${pfDiv(u.id,`style="background-position:50% ${Math.max(0,Math.round((2*((FACE[faceOf(u.id).k]||[.5,.25])[1])-.36)*100))}%"`)}<span class="rcs">${{ok:'生還',down:'負傷',lost:'LOST'}[st]}</span><div class="rcb"><b>${u.name}</b>
+      <span class="rcf">${ico('信仰')}${Math.round(S.faith[u.id])}<em class="${d>0?'up':d<0?'dn':''}">${d>0?'▲'+d:d<0?'▼'+(-d):'―'}</em></span>
+      ${fls.length?`<span class="rcx">${ico('閃き')}${fls[0]}</span>`:grow?`<span class="rcx g">${ico('技能')}習熟 ${grow}</span>`:''}</div></div>`;}
+  h+=`</div>`;
+  // ---- 数字の帯 ----
+  const loot=B.loot.filter(x=>x.startsWith('book:')||S.items[x]);
+  const lost=B.units.filter(u=>u.state==='lost').length;
+  const nums=[['時間',fmt(B.t)],['連携',`${B.combos.ok}<small>/${B.combos.ok+B.combos.fail}</small>`],['閃き',B.flashes.length],['神託',B.oracles.length],['戦利品',loot.length],['ロスト',lost]];
+  h+=`<div class="rs-nums">${nums.map(([k,v])=>`<div class="${k==='ロスト'&&lost?'bad':''}"><small>${k}</small><b>${v}</b></div>`).join('')}</div>`;
+  // ---- 黒い板3枚 ----
+  const li=(icon,txt,cls)=>`<li class="${cls||''}">${ico(icon)}<span>${txt}</span></li>`;
+  // 技と継承
+  let a='';
+  a+=B.flashes.map(f=>li('閃き',`<b>${nm(f.id)}</b>【${SKILLS[f.k].name}】${f.type==='eye'?'開眼':'閃き'}${f.grace?'<em>神の気配</em>':''}`,'sp')).join('');
+  a+=B.ups.map(x=>li(SKILLS[x.k].line||'技能',`<b>${nm(x.id)}</b>【${SKILLS[x.k].name}】→ ${STAGE[x.st]}`)).join('');
+  a+=B.wills.map(w=>li('継承',`<b>${nm(w.to)}</b>が師${nm(w.from)}の【${SKILLS[w.k].name}】を継ぐ`,'sp')).join('');
+  a+=B.styleNew.map(x=>li('技能',`<b>${nm(x.id)}</b>流儀【${STYLES[x.k].name}】に目覚める`,'sp')).join('');
+  a+=Object.entries(B.styleUse).map(([k,n])=>li('技能',`流儀【${STYLES[k].name}】×${n}`)).join('');
+  a+=B.abLog.map(x=>li('技能',x)).join('');
+  a+=B.clsUnlock.map(x=>li('門',x,'sp')).join('');
+  a+=B.teachLog.map(x=>li('師事',x)).join('');
+  a+=B.mast.map(m=>li('連携',`【${COMBOS[m.c].name}】習熟 ${m.from}→${m.to}`)).join('');
+  a+=B.disc.map(k=>li('魔',KNOW[k].t)).join('');
+  // 人間関係
+  let r='';
+  const rd=Object.entries(B.relDelta).filter(([k,v])=>Math.abs(v)>=4).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1])).slice(0,6);
+  r+=rd.map(([k,v])=>{const [p,q]=k.split('|');return `<li class="rel">${faceBox(p)}<i class="${v>0?'up':'dn'}">${v>0?'+':''}${v}</i>${faceBox(q)}<span>${nm(p)}と${nm(q)}</span></li>`;}).join('');
+  r+=B.relNotes.map(x=>li(x.startsWith('！')?'外す':'野営',x,x.startsWith('！')?'bad':'')).join('');
+  // 持ち帰ったもの・世界
+  const items=loot.map(x=>{if(x.startsWith('book:')){const sk=SKILLS[x.slice(5)];return `<div class="it2" title="${sk.desc}"><div class="ii">${ico('書')}<b>『${sk.name}の書』</b></div></div>`;}
+    const d=itemDef(x);return `<div class="it2" title="${d.txt}"><div class="ii">${ico(d.line||SLOTS[d.slot])}<b>${d.name}</b></div><span class="eff">${d.txt}</span></div>`;}).join('');
+  let w='';
+  w+=(B.tripNotes||[]).map(x=>li('門',x)).join('');
+  w+=(B.worldNotes||[]).map(x=>li('信仰',x)).join('');
+  const orc=B.oracles.map(o=>`<li class="orc ${o.res}">${ico('魔')}<span><b>${ORACLES.find(x=>x.k===o.k).w}</b><small>${fmt(o.t)}</small> ${o.leader}が${{obey:'従った',partial:'曲解した',ignore:'無視した'}[o.res]}${o.note?`<small>${o.note}</small>`:''}</span></li>`).join('');
+  const none=t=>`<p class="mini2">${t}</p>`;
+  h+=`<div class="rs-cols">
+    <section class="fr"><div class="hd">成長<small>GROWTH</small></div>${a?`<ul class="rl">${a}</ul>`:none('技に変化はなかった')}
+      <div class="hd" style="margin-top:14px">絆<small>BOND</small></div>${r?`<ul class="rl">${r}</ul>`:none('大きな変化はなかった')}</section>
+    <section class="fr"><div class="hd">戦利品<small>LOOT</small></div>${items?`<div class="shelf rs-loot">${items}</div>`:none('何も持ち帰れなかった')}
+      <div class="hd" style="margin-top:14px">神託<small>ORACLE</small></div>${orc?`<ul class="rl">${orc}</ul>`:none('一度も神託を下さなかった')}</section>
+    <section class="fr"><div class="hd">世界<small>WORLD</small></div>${w?`<ul class="rl">${w}</ul>`:none('―')}</section></div>`;
+  h+=`<div class="rs-end"><button class="go" id="back"><b>神殿へ</b><small>RETURN</small></button></div></div>`;
+  $('#view').innerHTML=h; $('#back').onclick=renderPrep; scrollTo(0,0);
 }
-
 renderPrep();
 </script>
