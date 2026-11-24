@@ -35,6 +35,7 @@ const LORE_END=['いまも持ち主を選ぶという。','刃には消えない
 const GEAR_TRAITS={
   frostBite:'wc',stunBite:'w',giant:'w',beast:'w',goblin:'w',human:'w',vamp:'wc',bleedHit:'w',stunHit:'w',freezeHit:'w',first:'w',
   lowHp:'wc',fullHp:'wc',faithAtk:'wc',deep:'w',quickCd:'wc',
+  accurate:'wc',lucky:'ac',
   guardT:'ac',dodge:'ac',regenT:'ac',rescue:'ac',counter:'aw',thornsP:'a',sweepRes:'a',
 };
 function genGear(){

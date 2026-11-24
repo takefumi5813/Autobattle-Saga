@@ -7,7 +7,7 @@
    wt 使える武器の型 / arm 着られる防具の重さ（heavy 重・mid 中・light 軽） / apt その職で開く系統 / req 転職の条件
    req：['lv',職,★]（その職の熟練度）／['line',系統,段階,数]／['faith',n]／['faithLo',n]／['loyal',n]／['runs',n]
    perk：desc 説明 / per ★ひとつごとの値 / at {★:[固有の癖]} その★で付く癖 / ab その職でいるあいだ働くアビリティ
-     per の値：atk・hp・spd（割合）, def・heal・flash・crit・skill・multi・aoe・song・obey・divine（割合）, frost・taunt（秒）,
+     per の値：atk・hp・spd・hit（命中）（割合）, luck（幸運）, def・heal・flash・crit・skill・multi・aoe・song・obey・divine（割合）, frost・taunt（秒）,
               magicHeal（魔の技を使うと全員をこの量回復）, hasteStart（戦いの始めに一行の加速をこの秒数）
    abil：[{k,name,lv,desc, stat, tr}]。lv はその職の★。stat は付けているあいだの値、tr は固有の癖。k だけなら試作の ABIL にある既存のもの */
 const CLASS_JP=[0,2,5,9,14,20];   // ★1〜★5 に必要な熟練度（帰還2・撤退1）
@@ -96,8 +96,8 @@ const CLASS_DATA={
 
   // ===== 狩人から =====
   archer:{name:'弓聖',base:'hunter',wt:['長弓','和弓'],arm:['mid','light'],req:[['lv','hunter',3],['line','弓',3,2]],
-    perk:{desc:'会心+2%/★。★3で大物に+30%',per:{crit:.02},at:{3:['giant'],5:['critHit']}},
-    abil:[{k:'sokusha',lv:2},{k:'meichuu',name:'百発百中',lv:4,desc:'会心の確率+8%',stat:{crit:.08}}]},
+    perk:{desc:'会心+2%/★・命中+2%/★。★3で大物に+30%',per:{crit:.02,hit:.02},at:{3:['giant'],5:['critHit']}},
+    abil:[{k:'sokusha',lv:2},{k:'meichuu',name:'百発百中',lv:4,desc:'命中+12%・会心の確率+5%',stat:{hit:.12,crit:.05}}]},
   shinobi:{name:'忍び',base:'hunter',wt:['刀','短刀','短弓','投げ刃'],arm:['light'],apt:['剣'],req:[['line','剣',1,1],['line','弓',1,1]],
     perk:{desc:'かわす。速さ+2%/★。★5で最初の一撃が2倍',per:{spd:.02},at:{1:['dodge'],5:['first']}},
     abil:[{k:'kagebashiri',lv:2},{k:'utsusemi',name:'空蝉',lv:4,desc:'8%でかわす',tr:['dodge']}]},
@@ -105,8 +105,8 @@ const CLASS_DATA={
     perk:{desc:'敵が現れるたび1体を足止め（罠の心得）。気絶した敵に+30%。会心+1%/★',per:{crit:.01},ab:['trap'],at:{1:['stunBite'],5:['stunHit']}},
     abil:[{k:'kakushi',name:'隠し罠',lv:2,desc:'気絶した敵に+30%',tr:['stunBite']},{k:'jirai',name:'仕掛け',lv:4,desc:'1割の確率で敵を気絶させる',tr:['stunHit']}]},
   takajou:{name:'鷹匠',base:'hunter',wt:['長弓','短弓'],arm:['mid'],req:[['lv','hunter',2],['runs',4]],
-    perk:{desc:'攻撃+2%/★。★3で獣に+40%、★5で最初の一撃が2倍',per:{atk:.02},at:{3:['beast'],5:['first']}},
-    abil:[{k:'takanome',name:'鷹の目',lv:2,desc:'会心の確率+5%',stat:{crit:.05}},{k:'yasei',name:'野生',lv:4,desc:'獣に+40%',tr:['beast']}]},
+    perk:{desc:'攻撃+2%/★・命中+2%/★。★3で獣に+40%、★5で最初の一撃が2倍',per:{atk:.02,hit:.02},at:{3:['beast'],5:['first']}},
+    abil:[{k:'takanome',name:'鷹の目',lv:2,desc:'命中+8%・会心の確率+3%',stat:{hit:.08,crit:.03}},{k:'yasei',name:'野生',lv:4,desc:'獣に+40%',tr:['beast']}]},
   dohei:{name:'弩兵',base:'hunter',wt:['弩'],arm:['heavy','mid'],req:[['lv','hunter',2]],
     perk:{desc:'攻撃+4%/★、速さ-1.5%/★。★3で大物に+30%',per:{atk:.04,spd:-.015},at:{3:['giant']}},
     abil:[{k:'makiage',name:'巻き上げ',lv:2,desc:'攻撃+6%',stat:{atk:.06}},{k:'kantsuu',name:'貫通',lv:4,desc:'全体技+12%',stat:{aoe:.12}}]},
@@ -154,13 +154,13 @@ const CLASS_DATA={
     perk:{desc:'かわす。速さ+2%/★・歌の効果+3%/★',per:{spd:.02,song:.03},at:{1:['dodge']}},
     abil:[{k:'mikawashi',name:'身かわし',lv:2,desc:'8%でかわす',tr:['dodge']},{k:'butou',name:'舞踏',lv:4,desc:'速さ+10%',stat:{spd:.1}}]},
   mittei:{name:'密偵',base:'thief',wt:['短刀','投げ刃','短弓'],arm:['light'],req:[['lv','thief',2]],
-    perk:{desc:'聞き耳（噂が確かに）。閃き+4%/★。★3で最初の一撃が2倍',per:{flash:.04},ab:['kikimimi'],at:{3:['first']}},
+    perk:{desc:'聞き耳（噂が確かに）。閃き+4%/★・幸運+2/★。★3で最初の一撃が2倍',per:{flash:.04,luck:2},ab:['kikimimi'],at:{3:['first']}},
     abil:[{k:'sennyuu',name:'潜入',lv:2,desc:'戦いの最初の一撃が2倍',tr:['first']},{k:'jouhoumou',name:'情報網',lv:4,desc:'閃き+20%',stat:{flash:.2}}]},
   tobaku:{name:'賭博師',base:'thief',wt:['投げ刃','短刀'],arm:['light'],req:[['lv','thief',2],['faithLo',50]],
-    perk:{desc:'会心+4%/★、防御-1%/★。★5で一度だけ踏みとどまる',per:{crit:.04,def:-.01},at:{5:['guts']}},
-    abil:[{k:'kake',name:'大博打',lv:2,desc:'会心の確率+8%',stat:{crit:.08}},{k:'kyouun',name:'強運',lv:4,desc:'一度だけ倒れずに踏みとどまる',tr:['guts']}]},
+    perk:{desc:'会心+4%/★・幸運+3/★、防御-1%/★。★5で一度だけ踏みとどまる',per:{crit:.04,luck:3,def:-.01},at:{5:['guts']}},
+    abil:[{k:'kake',name:'大博打',lv:2,desc:'会心の確率+8%',stat:{crit:.08}},{k:'kyouun',name:'強運',lv:4,desc:'幸運+15。一度だけ倒れずに踏みとどまる',stat:{luck:15},tr:['guts']}]},
   gizoku:{name:'義賊',base:'thief',wt:['短刀','曲刀','短弓'],arm:['light','mid'],req:[['lv','thief',3],['faith',60]],
-    perk:{desc:'盗む。人に+40%。HP+2%/★',per:{hp:.02},ab:['nusumu'],at:{1:['human']}},
+    perk:{desc:'盗む。人に+40%。HP+2%/★・幸運+2/★',per:{hp:.02,luck:2},ab:['nusumu'],at:{1:['human']}},
     abil:[{k:'nasake',name:'情け',lv:2,desc:'人（野盗・離反者）に+40%',tr:['human']},{k:'kyoukaku',name:'侠客',lv:4,desc:'HP+10%',stat:{hp:.1}}]},
   dokutsukai:{name:'毒使い',base:'thief',wt:['鉤爪','短刀','投げ刃'],arm:['light'],req:[['lv','thief',2]],
     perk:{desc:'2割の確率で毒を与える。技の威力+2%/★',per:{skill:.02},at:{1:['bleedHit']}},
