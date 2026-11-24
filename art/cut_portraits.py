@@ -33,6 +33,35 @@ SHEETS = {
     ]),
 }
 
+def knock_out(win, bg):
+    """背景（紺の一色）を透明にする（2026-11-24：管理画面を明るい灰の地にしたため）。
+    外枠につながっている背景色だけを抜く（服の暗い影は残す）。縁は色の差でなだらかに透かし、紺のにじみを取り除く。"""
+    import numpy as np
+    from PIL import ImageDraw, ImageFilter
+    a = np.asarray(win, dtype=np.float32)
+    b = np.array(bg, dtype=np.float32)
+    dist = np.abs(a - b).max(axis=2)
+    from scipy import ndimage
+    lab, n = ndimage.label(dist < 7)
+    sizes = ndimage.sum(np.ones_like(dist), lab, range(1, n + 1))
+    edge = set(np.unique(np.concatenate([lab[0], lab[:, 0], lab[:, -1]]))) - {0}
+    # 外枠につながる背景と、弓の弦の内側のような大きな背景の溜まり（1500画素以上）を抜く
+    keep_bg = [i + 1 for i, s in enumerate(sizes) if (i + 1) in edge or s > 1500]
+    out = np.isin(lab, keep_bg)
+    # 隣の人の切れ端（本体から離れた小さな塊）も消す
+    fl, m = ndimage.label(~out)
+    if m > 1:
+        fs = ndimage.sum(np.ones_like(dist), fl, range(1, m + 1))
+        out |= np.isin(fl, [i + 1 for i, s in enumerate(fs) if s < fs.max() * 0.04])
+    near = np.asarray(Image.fromarray((out * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))) > 0
+    alpha = np.ones(dist.shape, np.float32)
+    alpha[near] = np.clip((dist[near] - 6) / 22, 0, 1)
+    alpha[out] = 0
+    k = np.maximum(alpha, 1e-3)[..., None]
+    rgb = np.where(k > 0.35, np.clip((a - b * (1 - k)) / k, 0, 255), a)
+    rgba = np.dstack([rgb, alpha * 255]).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA")
+
 def cut(art: Path):
     faces = {}
     out_dir = art / "portraits"
@@ -53,8 +82,8 @@ def cut(art: Path):
             win = Image.new("RGB", (W, H), bg)
             sx0, sx1 = max(0, x0), min(im.width, x0 + W)
             win.paste(keep.crop((sx0, 0, sx1, H)), (sx0 - x0, 0))
-            win = win.resize((OUT_W, OUT_H), Image.LANCZOS)
-            win.save(out_dir / f"{pid}.webp", "WEBP", quality=80, method=6)
+            win = knock_out(win, bg).resize((OUT_W, OUT_H), Image.LANCZOS)
+            win.save(out_dir / f"{pid}.webp", "WEBP", quality=82, alpha_quality=70, method=6)
             faces[pid] = [round((fx - x0) / W, 3), round(fy / H, 3)]
             print(pid, (out_dir / f"{pid}.webp").stat().st_size // 1024, "KB", faces[pid])
     return faces
