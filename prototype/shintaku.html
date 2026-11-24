@@ -408,7 +408,7 @@ th{font-weight:500;color:var(--muted);font-size:.74rem;letter-spacing:.08em}
 .rsv .sw{position:absolute;top:6px;right:6px;z-index:2;font-size:.66rem;padding:2px 8px;background:var(--gold);color:#1a1408;border:0;font-weight:700}
 /* 技能と職：前面に出す板 */
 .ovl{position:fixed;inset:0;z-index:40;background:rgba(6,8,13,.78);backdrop-filter:blur(3px);overflow:auto;padding:40px max(16px,4vw)}
-.ovl .skp{max-width:1180px;margin:0 auto;background:#121725;border:1px solid var(--gold-dim)}
+
 /* ---- 世界 ---- */
 .wld{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px}
 @media (max-width:980px){.wld{grid-template-columns:minmax(0,1fr)}}
@@ -451,8 +451,104 @@ th{font-weight:500;color:var(--muted);font-size:.74rem;letter-spacing:.08em}
 .stones{display:flex;gap:10px;flex-wrap:wrap}
 .stone{background:linear-gradient(180deg,#232838,#151926);border:1px solid var(--hair2);border-radius:40px 40px 2px 2px;padding:14px 12px 8px;min-width:92px;text-align:center;font-size:.68rem;color:var(--muted)}
 .stone b{display:block;font-family:var(--f-display);color:var(--fg);font-size:.95rem}
+/* ---- 技能と職の板 ---- */
+.pop2{position:absolute;z-index:6;top:calc(100% + 6px);left:50%;transform:translateX(-50%);width:230px;background:#0e121c;border:1px solid var(--gold-dim);padding:10px 12px;font-size:.76rem;box-shadow:0 10px 30px rgba(0,0,0,.6);text-align:left;font-weight:400}
+.ovl .skp2{max-width:1180px;margin:0 auto;background:#111624;border:1px solid var(--gold-dim);padding:16px 20px 24px}
+.skh{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--hair2);padding-bottom:10px;margin-bottom:18px}
+.skh .fc.big{width:54px;height:54px;transform:rotate(45deg);border:2px solid var(--gold);margin:8px}
+.skh .fc.big>.fi{transform:rotate(-45deg) scale(1.42)}
+.skn2{font-family:var(--f-display);font-weight:800;font-size:1.6rem;letter-spacing:.08em;line-height:1.1}
+.skc{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--gold);letter-spacing:.1em;flex-wrap:wrap}
+.ln2{display:inline-flex;align-items:center;gap:2px;margin-left:8px;color:var(--fg);padding:0 6px;border:1px solid var(--hair2)}
+.sktabs{display:flex;margin-left:auto;flex-wrap:wrap}
+.sktabs .tm-tab{min-width:84px;padding:6px 18px 4px}
+.trees{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.tl2{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tl2 svg{width:22px;height:22px;color:var(--gold)}
+.tl2 b{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.2em}
+.tl2 small{font-size:.6rem;color:var(--muted);letter-spacing:.2em}
+.trk0{display:flex;flex-direction:column;gap:10px}
+.tr{display:flex;align-items:flex-start}
+.trk{display:flex;flex-direction:column;gap:4px;position:relative;padding-left:18px;margin-top:26px;border-left:1px solid var(--hair)}
+.trk>.tr{position:relative}
+.trk>.tr::before{content:"";position:absolute;left:-18px;top:0;width:16px;border-top:1px solid var(--hair)}
+.trk{margin-left:-6px}
+.tn2{position:relative}
+.tn2>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;width:86px;gap:2px;margin-top:-26px;padding-top:4px}
+.tr:not(.trk>.tr)>.tn2>summary,.trk0>.tr>.tn2>summary{margin-top:0}
+.tn2>summary::-webkit-details-marker{display:none}
+.dm2{width:36px;height:36px;transform:rotate(45deg);border:1px solid var(--hair2);display:grid;place-items:center;background:var(--card);margin:6px 0}
+.dm2 svg{transform:rotate(-45deg);width:20px;height:20px}
+.tn2.got .dm2{background:linear-gradient(135deg,#f2d48e,#b8913f);border-color:var(--gold);color:#1a1408;box-shadow:0 0 12px rgba(226,189,100,.35)}
+.tn2.own .dm2{border-color:var(--gold);color:var(--gold)}
+.tn2.seen .dm2{color:var(--fg)}
+.tn2.unk{opacity:.4}
+.tn2.lock .dm2{border-style:dashed}
+.tn2[open] .dm2{outline:2px solid var(--gold);outline-offset:3px}
+.tnm{font-size:.74rem;font-weight:700;text-align:center;line-height:1.2}
+.how{font-size:.58rem;color:var(--muted);letter-spacing:.06em}
+.jobt{display:grid;grid-template-columns:170px minmax(0,1fr);gap:30px;align-items:center;margin-bottom:14px}
+.jroot{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border:1px solid var(--hair);background:var(--card);position:relative}
+.jroot.cur{border-color:var(--gold)}
+.jroot>svg{width:36px;height:36px;color:var(--gold)}
+.jroot b{font-family:var(--f-display);font-size:1.2rem;letter-spacing:.15em}
+.jroot small{font-size:.6rem;color:var(--muted);letter-spacing:.2em}
+.jroot::after{content:"";position:absolute;right:-31px;top:50%;width:30px;border-top:1px solid var(--hair)}
+.jkids{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.jc{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--hair2);padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.jc.ok{border-color:var(--gold);box-shadow:0 0 18px rgba(226,189,100,.16)}
+.jc.cur{border-color:var(--gold);background:linear-gradient(160deg,rgba(226,189,100,.16),var(--card))}
+.jh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.jh svg{width:22px;height:22px;color:var(--gold)}
+.jh b{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.1em}
+.jh small{font-size:.62rem;color:var(--muted)}
+.jreq{display:flex;flex-direction:column;gap:4px}
+.gg.rq2{grid-template-columns:minmax(0,9em) minmax(0,1fr) 4.2em;font-size:.7rem;letter-spacing:.04em}
+.gg.rq2 b small{color:var(--muted);font-weight:400}
+.gg .gb.dim i{background:linear-gradient(90deg,#4c4130,#8d7236)}
+.jown{font-size:.7rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+@media (max-width:760px){.jobt{grid-template-columns:minmax(0,1fr)}.jroot::after{display:none}}
+.aslots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.aslot{min-height:66px;border:1px dashed var(--hair2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-size:.8rem;background:none}
+.aslot.on{border:1px solid var(--gold);background:linear-gradient(160deg,rgba(226,189,100,.14),var(--card));color:var(--fg)}
+.aslot.on svg{width:20px;height:20px;color:var(--gold)}
+.aslot b{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.08em}
+.aslot small{font-size:.62rem;color:var(--muted)}
+.jtrk{display:grid;grid-template-columns:6.5em minmax(0,1fr) 2.5em;gap:14px;align-items:center;padding:14px 4px 26px;border-bottom:1px solid var(--hair2)}
+.jtrk.tr .jn{color:var(--gold)}
+.jn{font-family:var(--f-display);font-weight:800;letter-spacing:.1em;font-size:.9rem}
+.trk2{position:relative;height:6px;background:rgba(255,255,255,.08);margin-right:20px}
+.trk2>i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#8d7236,var(--gold))}
+.mk{position:absolute;top:50%;transform:translate(-50%,-50%);background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center}
+.mk span{width:14px;height:14px;transform:rotate(45deg);border:1px solid var(--hair);background:var(--ink);display:block}
+.mk.got span{background:var(--gold);border-color:var(--gold)}
+.mk.on span{box-shadow:0 0 0 3px rgba(226,189,100,.4)}
+.mk small{position:absolute;top:18px;white-space:nowrap;font-size:.64rem;color:var(--muted)}
+.mk.got small{color:var(--fg)}
+.mk:disabled{cursor:default}
+.jp{font-family:var(--f-display);color:var(--gold);text-align:right;font-size:1.1rem}
+.styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.sty2{border:1px solid var(--hair2);background:linear-gradient(160deg,var(--card2),var(--card));padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.sty2.on{border-color:var(--gold)}
+.sty2 b{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.12em}
+.sty2 .rq{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.sty2 .rq span{font-size:.68rem;padding:0 7px;border:1px solid var(--hair2);color:var(--muted)}
+.sty2 .rq span.h{border-color:var(--gold);color:var(--gold)}
+.sty2 .rq i{font-style:normal;font-size:.7rem;color:var(--muted)}
+.sty2 p{margin:0;font-size:.74rem;color:var(--muted)}
+/* ---- 来訪 ---- */
+.gate{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-bottom:20px}
+.vis{display:grid;grid-template-columns:118px minmax(0,1fr);background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--gold-dim);min-height:178px;overflow:hidden;position:relative}
+.vis .pf{background-size:auto 165%;background-position:50% 4%}
+.vb{padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.vn{font-family:var(--f-display);font-size:1.35rem;letter-spacing:.08em;line-height:1.1}
+.vc{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--gold);letter-spacing:.08em}
+.vq{margin:0;font-family:var(--f-display);font-size:.82rem;color:#e8dfc6;line-height:1.5}
+.vban{display:flex;align-items:center;gap:6px;width:100%;background:linear-gradient(90deg,rgba(226,189,100,.2),transparent);border:0;border-left:3px solid var(--gold);padding:6px 14px;margin-bottom:12px;color:var(--fg);font-family:var(--f-display);letter-spacing:.12em;text-align:left}
+.vban .fc{width:30px;height:30px;transform:rotate(45deg);border:1px solid var(--gold);margin:4px 6px}
+.vban .fc>.fi{transform:rotate(-45deg) scale(1.42)}
+.vban>svg{color:var(--gold);width:20px;height:20px}
 </style>
-
 <div class="app">
   <header class="top">
     <div class="brand"><span class="mark">✶</span>神託の迷宮<small>戦闘試作 v0.3</small></div>
@@ -537,6 +633,11 @@ const SKILLS={
   tensen:{name:'天穿',line:'弓',from:'aim',cls:'archer',cd:12,desc:'敵全体を貫く強射（攻撃力×2）'},
   oboro:{name:'朧',line:'弓',from:'shadow',cls:'shinobi',cd:12,desc:'敵全体を1.5秒足止めする'},
   kiseki:{name:'奇跡の祈り',line:'祈',from:'wind',cls:'bishop',cd:30,desc:'倒れた仲間全員を、その場で立たせる'},
+  // 2026-11-24：暗殺者の技と、新しい系統「歌」（吟遊詩人が開く）
+  kubikari:{name:'首狩り',line:'短',from:'kyusho',cls:'assassin',cd:12,desc:'HPが4割を切った敵に攻撃力×4。大物でなければ、2割5分を切った敵をその場で仕留める'},
+  gaika:{name:'凱歌',line:'歌',book:true,cd:16,desc:'8秒間、全員の攻撃+15%・行動の速さ+15%'},
+  komori:{name:'子守唄',line:'歌',from:'gaika',cd:14,desc:'敵全体の行動ゲージを半分に戻し、大技の振りかぶりを1秒遅らせる'},
+  chinkon:{name:'鎮魂歌',line:'歌',from:'komori',cls:'bard',cd:24,desc:'倒れた仲間の救命の猶予を6秒延ばし、全員を少し癒やす'},
 };
 const STAGE=['未習得','啓示','訓練','実戦','体得'];
 const POW=[0,.7,.85,1,1.15], SUCC=[0,.6,.78,.92,1], USE=[0,.12,.25,.35,.42], EXP_NEED={1:4,2:6,3:10};
@@ -565,7 +666,7 @@ const STARTER_ROLE={};
 const SLOTS={wpn:'武器',arm:'防具',acc:'装飾'};
 const STARTER={剣:'longsword',盾:'oakshield',魔:'oldstaff',弓:'longbow',祈:'sigil',短:'dagger'};
 const LOOT=['runesword','towershield','froststaff','windbow','chain','mantle','frostring','eldersigil','feather','kris'];
-const BOOKS=['parry','wall','thunder','aim','bless','nage'];
+const BOOKS=['parry','wall','thunder','aim','bless','nage','gaika'];
 const COMBOS={
   cage:{name:'鉄壁の檻',roles:['tank','mage','hunter'],cond:'敵が3体以上いて、挑発・凍結の霧・貫通矢がすべて使えるとき',
     flow:['重騎士：挑発で敵を引きつける','魔術師：凍結の霧で敵全体を凍らせる','狩人：凍った敵を貫通矢でまとめて射抜く']},
@@ -577,21 +678,31 @@ const KNOW={
   brk:{t:'大技の振りかぶりは、盾撃で崩すことができる',q:'振りかぶりの瞬間は、隙だらけに見える'},
   shatter:{t:'凍った敵に雷を落とすと、氷ごと砕ける（雷撃の威力2倍）',q:'氷と雷の相性はどうだろう'},
 };
-/* 上級職：cond は表示用、ok は判定 */
 const lineCount=(id,line,st)=>(S.skills[id]||[]).filter(x=>SKILLS[x.k].line===line&&x.st>=st).length;
 const cruns=id=>(S.cruns&&S.cruns[id])||0;
+/* 転職の条件は、ゲージで見せるために [見出し, いまの値, 必要な値, 以下なら真] の並びで持つ。ok は全部そろったか */
+const R_LINE=(line,st,n)=>[`${line}の技（${STAGE[st]}以上）`,id=>lineCount(id,line,st),n];
+const R_FAITH=n=>['信仰',id=>Math.round(S.faith[id]),n];
+const R_FAITHLO=n=>['信仰（低いほど）',id=>Math.round(S.faith[id]),n,true];
+const R_LOYAL=n=>['忠誠',id=>Math.round(S.loyal[id]),n];
+const R_RUNS=n=>['潜行',id=>cruns(id),n];
+const reqMet=(id,r)=>r[3]?r[1](id)<=r[2]:r[1](id)>=r[2];
 const CLASSES={
-  kensei:{name:'剣聖',base:'sword',mod:{atk:4,spd:0.1},cond:'剣の技を2つ「実戦」以上に育てる',ok:id=>lineCount(id,'剣',3)>=2},
-  berserk:{name:'狂戦士',base:'sword',mod:{atk:6,def:-0.08},cond:'信仰30以下・潜行5回以上（神に頼らぬ者）',ok:id=>S.faith[id]<=30&&cruns(id)>=5},
-  guardian:{name:'守護騎士',base:'tank',mod:{hp:40,def:0.1},cond:'盾の技を2つ「実戦」以上に育てる',ok:id=>lineCount(id,'盾',3)>=2},
-  paladin:{name:'聖騎士',base:'tank',mod:{hp:20,def:0.05},apt:['祈'],cond:'信仰80以上・潜行3回以上。祈の系統を得る',ok:id=>S.faith[id]>=80&&cruns(id)>=3},
-  sage:{name:'賢者',base:'mage',mod:{atk:2,heal:0.2},apt:['祈'],cond:'魔の技を1つ「実戦」以上・信仰60以上。祈の系統を得る',ok:id=>lineCount(id,'魔',3)>=1&&S.faith[id]>=60},
-  warlock:{name:'呪術師',base:'mage',mod:{atk:3},cond:'信仰30以下（異神の囁きを聞く者）',ok:id=>S.faith[id]<=30},
-  archer:{name:'弓聖',base:'hunter',mod:{atk:3,spd:0.1},cond:'弓の技を2つ「実戦」以上に育てる',ok:id=>lineCount(id,'弓',3)>=2},
-  shinobi:{name:'忍び',base:'hunter',mod:{spd:0.2},apt:['剣'],cond:'剣と弓の技を1つずつ覚える。剣の系統を得る',ok:id=>lineCount(id,'剣',1)>=1&&lineCount(id,'弓',1)>=1},
-  bishop:{name:'司教',base:'priest',mod:{heal:0.3,hp:10},cond:'信仰95以上・祈の技を2つ覚える',ok:id=>S.faith[id]>=95&&lineCount(id,'祈',1)>=2},
+  kensei:{name:'剣聖',base:'sword',mod:{atk:4,spd:0.1},req:[R_LINE('剣',3,2)]},
+  berserk:{name:'狂戦士',base:'sword',mod:{atk:6,def:-0.08},req:[R_FAITHLO(30),R_RUNS(5)],note:'神に頼らぬ者'},
+  guardian:{name:'守護騎士',base:'tank',mod:{hp:40,def:0.1},req:[R_LINE('盾',3,2)]},
+  paladin:{name:'聖騎士',base:'tank',mod:{hp:20,def:0.05},apt:['祈'],req:[R_FAITH(80),R_RUNS(3)]},
+  sage:{name:'賢者',base:'mage',mod:{atk:2,heal:0.2},apt:['祈'],req:[R_LINE('魔',3,1),R_FAITH(60)]},
+  warlock:{name:'呪術師',base:'mage',mod:{atk:3},req:[R_FAITHLO(30)],note:'異神の囁きを聞く者'},
+  archer:{name:'弓聖',base:'hunter',mod:{atk:3,spd:0.1},req:[R_LINE('弓',3,2)]},
+  shinobi:{name:'忍び',base:'hunter',mod:{spd:0.2},apt:['剣'],req:[R_LINE('剣',1,1),R_LINE('弓',1,1)]},
+  bishop:{name:'司教',base:'priest',mod:{heal:0.3,hp:10},req:[R_FAITH(95),R_LINE('祈',1,2)]},
+  // 盗賊の上級職（2026-11-24）。吟遊詩人は新しい系統「歌」を開く
+  assassin:{name:'暗殺者',base:'thief',mod:{atk:4,spd:0.05},req:[R_LINE('短',3,2)]},
+  bard:{name:'吟遊詩人',base:'thief',mod:{spd:0.05,hp:10},apt:['歌'],req:[R_LOYAL(70),R_RUNS(4)],note:'一行の心をつかんだ者'},
 };
-/* 流儀：一人が持つ技の組み合わせで発動する相乗効果。@role は職の固有技（凍結の霧など）を表す */
+for(const c of Object.values(CLASSES)){c.ok=id=>c.req.every(r=>reqMet(id,r));
+  c.cond=c.req.map(r=>`${r[0]}${r[3]?r[2]+'以下':r[2]+(r[0].startsWith('潜行')?'回':'')+'以上'}`).join('・')+(c.apt?`。${c.apt.join('・')}の系統を得る`:'');}/* 流儀：一人が持つ技の組み合わせで発動する相乗効果。@role は職の固有技（凍結の霧など）を表す */
 const STYLES={
   kaeshi:{name:'返し刃',req:['parry','double'],desc:'受け流しの最中に攻撃を受けると、即座に斬り返す'},
   tsubamek:{name:'燕の構え',req:['double','tsubame'],desc:'二段斬りのあと、燕返しの待ち時間が半分になる'},
@@ -604,6 +715,8 @@ const STYLES={
   hyoujin:{name:'氷刃',req:['ab:enchant','double'],desc:'二段斬りが必ず敵を2秒凍らせる（魔術師のアビリティ×剣の技）'},
   kenshin:{name:'献身',req:['ab:kabau','ab:inoritate'],desc:'かばった瞬間、かばった仲間の傷を癒やす（重騎士×神官のアビリティ）'},
   gekirin:{name:'逆鱗',req:['ab:haisui','sutemi'],desc:'背水の最中、捨て身で自分を傷つけない'},
+  utakage:{name:'影の歌',req:['gaika','nage'],desc:'凱歌の最中、投げ短刀が3体に飛ぶ'},
+  yasoukyoku:{name:'夜想曲',req:['komori','kyusho'],desc:'子守唄で眠らせた直後の敵には、急所突きが必ず急所に入る'},
 };
 /* ===== アビリティ（職で覚え、どの職でも付けられる。FF5方式） ===== */
 const JOBN=Object.assign({},ROLES);
@@ -630,8 +743,11 @@ const ABIL={
   sokusha:{name:'速射',job:'archer',jp:3,desc:'速さ+15%'},
   kagebashiri:{name:'影走り',job:'shinobi',jp:3,desc:'速さ+10%・1割の確率で攻撃をかわす'},
   jihi:{name:'慈悲',job:'bishop',jp:3,desc:'救命の祈りが0.8秒で届く'},
+  kyushogan:{name:'急所眼',job:'assassin',jp:3,desc:'HPが3割を切った敵へのダメージ+40%'},
+  kyoumei:{name:'共鳴',job:'bard',jp:3,desc:'歌の効果が5割長く続く'},
 };
 const MULTI=['double','tsubame','blast','tenrai','tensen','nage'];
+const SONGS=['gaika','komori','chinkon'];
 /* ===== 人間関係 ===== */
 const LOYAL0={gareth:75,borg:80,erin:50,mira:65,rio:90,aldo:60,tohma:70,noa:65,kei:35,sera:70,raz:45};
 const REL0={'borg|gareth':60,'erin|gareth':-5,'erin|rio':30,'gareth|mira':35,'borg|rio':25,'borg|erin':-20,'aldo|gareth':30,'erin|kei':-30,'kei|mira':10};
@@ -741,7 +857,17 @@ const floorMul=f=>1+0.22*(f-3);        // 敵のHPの倍率
 const floorAtk=f=>1+0.09*(f-3);        // 敵の攻撃の倍率（HPより緩やかに上げて、急な壁にしない）
 const floorFlash=f=>1+0.15*(f-3);      // 閃きの溜まりやすさ
 const RETIRE_AGE=48;
-
+/* ===== 来訪：名のある仲間は、条件がそろうと神殿を訪ねてくる。迎えるかどうかはあなたが決める（2026-11-24） ===== */
+const ARRIVE={
+  kei:{when:s=>s.runs>=2,from:'宿場町ロウの酒場',line:'神様ってのは、報酬を前払いしてくれるのか？',cost:1},
+  aldo:{when:s=>s.depth>=4,from:'東の大迷宮の入口',line:'団の連中の遺品が、まだ底にある。深く潜る一行に加えてくれ',gift:{book:'parry'}},
+  sera:{when:s=>s.rival.fame>=40||s.runs>=5,from:'大神殿',line:'大神殿を追われました。本当に人を救う神なのか、確かめさせてください',gift:{item:'eldersigil'}},
+  tohma:{when:s=>cruns('borg')>=3||s.runs>=6,from:'東方の街道',line:'ボルグ殿の盾の噂を聞いて来ました！ 弟子にしてください！',master:'borg'},
+  noa:{when:s=>s.belief.liesen>=25||s.runs>=8,from:'王都リーゼン',line:'娘の病を治す霊薬を探している。魔術なら役に立てる',gift:{book:'thunder'}},
+};
+const ROOMS=4;        // 神殿の宿坊。一行の5人のほかに控えられる人数
+const VISIT_STAY=3;   // 来訪者が待ってくれる旅の回数
+const REVISIT=6;      // 帰した名のある者が、また訪ねてくるまでの旅の回数
 /* ============ 保存 ============ */
 const KEY='shintaku-proto-v2';
 function newSave(){
@@ -751,7 +877,8 @@ function newSave(){
     lost:[],mastery:{'cage:borg,erin,mira':1},discovered:{frost:false,brk:false,shatter:false},runs:0,wins:0,
     policy:{target:'weak',heal:'50',rescue:'first',combo:'aggressive',retreat:'lost'},
     skills:{gareth:[{k:'parry',st:2,exp:0,src:'book'}],borg:[],erin:[],mira:[],rio:[{k:'bless',st:1,exp:0,src:'book'}]},
-    spark:{},items:{},equip:{},books:['thunder','aim','wall'],master:{},teach:{},uid:0,written:{},graves:[]};
+    spark:{},items:{},equip:{},books:['thunder','aim','wall'],master:{},teach:{},uid:0,written:{},graves:[],
+    met:{gareth:true,borg:true,erin:true,mira:true,rio:true,raz:true},visitors:[],declined:{}};
   for(const id of Object.values(s.party))outfit(s,id);
   for(const k of ['chain','frostring','runesword'])addItem(s,k);
   return s;
@@ -773,6 +900,9 @@ function migrate(s){
   s.heirOf=s.heirOf||{};s.retired=s.retired||[];s.vacated=s.vacated||{};s.believers=s.believers||{};
   if(!s.policy.camp)s.policy.camp='watch';
   if(s.depth==null)s.depth=3;if(s.floor==null||s.floor>s.depth)s.floor=s.depth;
+  // ④：名のある仲間は「来訪」で迎える。前からのセーブでは、一行にいたことのある者と後から生まれた者は迎え済みとする
+  if(!s.met){s.met={};for(const k of ['gareth','borg','erin','mira','rio','raz'])s.met[k]=true;for(const k of Object.values(s.party))if(k)s.met[k]=true;for(const k of Object.keys(s.equip||{}))s.met[k]=true;for(const k of Object.keys(s.chars||{}))s.met[k]=true;}
+  s.visitors=s.visitors||[];s.declined=s.declined||{};
   if(!s.next||!s.rumors)rollNext(s);
   return s;}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.party&&s.items)return migrate(s);}catch(e){}return migrate(newSave());}
@@ -830,7 +960,7 @@ function addBelief(k,d){if(!TOWNS[k]||TOWNS[k].fixed)return 0;const o=S.belief[k
   S.belief[k]=clamp(o+step,0,100);return S.belief[k]-o;}
 const costOf=o=>o.cost-(hasP('g1')&&(o.k==='guard'||o.k==='save')?5:0);
 const roleId=r=>{const id=S.party[r];return id&&CHAR_DB[id]&&CHAR_DB[id].role===r?id:null;};
-const avail=k=>!S.lost.includes(k)&&!S.defected.includes(k)&&!S.gone.includes(k);
+const avail=k=>!S.lost.includes(k)&&!S.defected.includes(k)&&!S.gone.includes(k)&&(!S.met||!!S.met[k]);
 /* 後継者（parent）か、町の信者（town）を新しく生み出す */
 function makeChar(o){
   const id='g'+(S.uid++);const used=new Set(Object.values(CHAR_DB).map(c=>c.name));
@@ -858,6 +988,36 @@ function retire(id,why){
   delete S.equip[id];
   S.retired.push({name:nm,role:ROLES[CHAR_DB[id].role],age:ageOf(id),heir:h&&CHAR_DB[h]?CHAR_DB[h].name:''});
   return `${nm}は${why==='age'?`${ageOf(id)}歳を機に`:''}一線を退いた${h&&avail(h)?`。あとは${CHAR_DB[h].name}が継ぐ`:''}`;
+}
+/* 来訪者を迎える・帰す */
+function roomsUsed(){const ids=partyIds();return Object.keys(CHAR_DB).filter(k=>avail(k)&&!ids.includes(k)).length;}
+function arrivals(notes){
+  for(const [k,a] of Object.entries(ARRIVE)){
+    if(S.met[k]||S.lost.includes(k)||S.gone.includes(k)||S.defected.includes(k)||S.visitors.some(v=>v.id===k))continue;
+    if(S.declined[k]!=null&&S.turn-S.declined[k]<REVISIT)continue;
+    if(!a.when(S))continue;
+    S.visitors.push({id:k,left:VISIT_STAY});if(notes)notes.push(`${a.from}から、${CHAR_DB[k].name}（${ROLES[CHAR_DB[k].role]}）が神殿を訪ねてきた`);
+    break;   // 一度に一人ずつ
+  }
+}
+function acceptVisitor(id){
+  const v=S.visitors.find(x=>x.id===id);if(!v)return '';const a=ARRIVE[id]||{};const cost=a.cost||0;
+  const sl=slotOf(CHAR_DB[id].role);const into=!S.party[sl];
+  if(S.grace<cost||(!into&&roomsUsed()>=ROOMS))return '';
+  S.grace-=cost;S.met[id]=true;S.visitors=S.visitors.filter(x=>x!==v);
+  if(!S.equip[id])outfit(S,id);
+  if(into)S.party[sl]=id;
+  const g=a.gift;let gt='';
+  if(g&&g.book){S.books.push(g.book);gt=`『${SKILLS[g.book].name}の書』を持ってきた`;}
+  if(g&&g.item){addItem(S,g.item);gt=`${ITEMS[g.item].name}を持ってきた`;}
+  if(a.master&&partyIds().includes(a.master)){S.master[id]=a.master;gt+=(gt?'。':'')+`${CHAR_DB[a.master].name}に師事する`;}
+  PSEL=id;
+  return `${CHAR_DB[id].name}を迎えた${into?'（一行に加わった）':'（神殿で控える）'}${gt?'。'+gt:''}`;
+}
+function declineVisitor(id){
+  S.visitors=S.visitors.filter(x=>x.id!==id);
+  if(BASE_IDS.includes(id))S.declined[id]=S.turn;else S.gone.push(id);
+  return `${CHAR_DB[id].name}は一礼して神殿を去った`;
 }
 function itemDef(uid){const it=S.items[uid];return it?Object.assign({},ITEMS[it.k],it.name?{name:it.name}:{},it.txt?{txt:it.txt}:{}):null;}
 function equipStats(id){
@@ -937,6 +1097,8 @@ const ICO_PATH={
   技能:'<path d="M12 2l3 7h7l-6 4 2 8-6-5-6 5 2-8-6-4h7z"/>',
   外す:'<path d="M6 6l12 12M18 6L6 18"/>',
   隠居:'<path d="M5 21V10l7-6 7 6v11z"/><path d="M10 21v-6h4v6"/>',
+  歌:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  門:'<path d="M4 21V9a8 8 0 0 1 16 0v12"/><path d="M4 21h16M12 3v18"/>',
   仲裁:'<path d="M12 3v18M5 8h14M5 8l-3 6h6zM19 8l-3 6h6z"/>',
 };
 const ico=(k,cls)=>`<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO_PATH[k]||ICO_PATH['魔']}</svg>`;
@@ -989,7 +1151,7 @@ function renderPrep(){
   const inv=inventory();
   const warnN=ids.filter(id=>S.contact[id]||S.loyal[id]<40).length+over.length;
   const canPw=Object.entries(POWERS).some(([k,p])=>!hasP(k)&&(!p.req||hasP(p.req))&&S.divinity>=p.cost);
-  const TABS=[['depart','旅立ち','DEPART',''],['party','一行','PARTY',warnN||''],['world','世界','WORLD',canPw?'✶':''],['store','蔵','DEPOT','']];
+  const TABS=[['depart','旅立ち','DEPART',''],['party','一行','PARTY',(warnN+S.visitors.length)||''],['world','世界','WORLD',canPw?'✶':''],['store','蔵','DEPOT','']];
   if(!TABS.some(t=>t[0]===PREP_TAB))PREP_TAB='depart';
   h+=`<nav class="tm-nav" role="tablist"><div class="crest">${ico('信仰')}<b>神殿</b>${calTxt()}</div>${TABS.map(([k,n,en,b])=>`<button role="tab" aria-selected="${k===PREP_TAB}" class="tm-tab ${k===PREP_TAB?'on':''}" data-ptab="${k}"><b>${n}</b><small>${en}</small>${b!==''?`<span class="bdg">${b}</span>`:''}</button>`).join('')}</nav>`;
   if(msgs.length||over.length)h+=`<div class="tm-msg">${over.length?`<div class="bad">技は一人4つまで：${over.map(id=>CHAR_DB[id].name).join('、')}の技を整理してください（体得した書物の技は、伝書に書き残せる）</div>`:''}${msgs.map(m=>`<div>${m}</div>`).join('')}</div>`;
@@ -1000,13 +1162,13 @@ function renderPrep(){
     <div class="flr" role="radiogroup" aria-label="潜る階">${fls.map(f=>`<button role="radio" aria-checked="${f===S.floor}" class="${f===S.floor?'on':''}${f===S.depth?' new':''}" data-floor="${f}" title="${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}">B${f}<small>×${floorMul(f).toFixed(2)}</small></button>`).join('')}</div>
     <span class="meta">潜行 ${S.runs}・帰還 ${S.wins}</span>
     <button class="go" id="go" ${over.length?'disabled':''}><b>旅立つ</b><small>DEPART</small></button></div>`;
-  h+='</div>';
   if(SKV&&CHAR_DB[SKV])h+=`<div class="ovl" id="ovl">${skillPanel(SKV)}</div>`;else SKV=null;
+  h+='</div>';
   $('#view').innerHTML=h; bindPrep();
 }
 /* ---- 旅立ち：一行の顔ぶれ・戒律・連携技 ---- */
 function departHtml(ids){const P=S.policy;
-  let h=`<div class="dep"><div><div class="hd">一行<small>PARTY</small></div><div class="line5">`;
+  let h=`<div class="dep"><div>${S.visitors.length?`<button class="vban" data-ptab="party">${ico('門')}門を叩く者がいる${S.visitors.map(v=>faceBox(v.id)).join('')}</button>`:''}<div class="hd">一行<small>PARTY</small></div><div class="line5">`;
   for(const r of ROLE_ORDER){const id=S.party[r];
     if(!id){h+=`<div class="pc empty">${SLOTN[r]}<br>空き</div>`;continue;}
     const d=CHAR_DB[id];const warn=S.contact[id]||S.loyal[id]<40;
@@ -1027,9 +1189,9 @@ function departHtml(ids){const P=S.policy;
 function partyHtml(ids){
   const rs=Object.keys(CHAR_DB).filter(k=>avail(k)&&!ids.includes(k));
   if(!PSEL||!(ids.includes(PSEL)||rs.includes(PSEL)))PSEL=ids[0]||rs[0];
-  let h=`<div class="pick">${ids.map(id=>`<button class="${id===PSEL?'on':''}" data-psel="${id}" title="${CHAR_DB[id].name}">${faceBox(id)}${S.contact[id]||S.loyal[id]<40?'<span class="w"></span>':''}</button>`).join('')}
+  let h=gateHtml()+`<div class="pick">${ids.map(id=>`<button class="${id===PSEL?'on':''}" data-psel="${id}" title="${CHAR_DB[id].name}">${faceBox(id)}${S.contact[id]||S.loyal[id]<40?'<span class="w"></span>':''}</button>`).join('')}
     ${rs.length?`<span class="sep"></span>${rs.map(id=>`<button class="rs ${id===PSEL?'on':''}" data-psel="${id}" title="控え：${CHAR_DB[id].name}（${ROLES[CHAR_DB[id].role]}）">${faceBox(id)}</button>`).join('')}`:''}
-    <span class="grace" title="潜行ごとに1回復。夢枕・仲裁・布教・後継者に使う">神の余力 <b>${'✶'.repeat(S.grace||0)}${'・'.repeat(Math.max(0,graceMax()-(S.grace||0)))}</b></span></div>`;
+    <span class="grace" title="控えられるのは${ROOMS}人まで">宿坊 <b>${rs.length}/${ROOMS}</b></span><span class="grace" style="margin-left:12px" title="潜行ごとに1回復。夢枕・仲裁・布教・後継者・転職の儀に使う">神の余力 <b>${'✶'.repeat(S.grace||0)}${'・'.repeat(Math.max(0,graceMax()-(S.grace||0)))}</b></span></div>`;
   if(PSEL)h+=profileHtml(PSEL,ids.includes(PSEL));
   if(S.defected.length)h+=`<p class="mini2" style="margin-top:10px">離反者：${S.defected.map(i=>`<b>${CHAR_DB[i].name}</b>`).join('、')}（大神の使徒として迷宮に現れることがある）</p>`;
   return h;}
@@ -1168,37 +1330,53 @@ function worldHtml(ids){
   return h+`</div></div></div>`;
 }const MODN={atk:['攻撃',1,''],def:['防御',100,'%'],hp:['HP',1,''],spd:['速さ',100,'%'],heal:['回復',100,'%']};
 const modTxt=m=>Object.entries(m).map(([k,v])=>`${MODN[k][0]}${v>0?'+':''}${Math.round(v*MODN[k][1])}${MODN[k][2]}`).join('・');
+/* ===== 技能と職の板：技の木・職の道・アビリティの修行・流儀を、絵で見せる ===== */
+let SKT='skill';
+const reqBar=(label,v,need,inv)=>{const met=inv?v<=need:v>=need;const fill=inv?(met?100:clamp(100-(v-need)*2,5,95)):clamp(v/need*100,0,100);
+  return `<div class="gg rq2"><span>${label}</span><div class="gb ${met?'':'dim'}"><i style="width:${fill}%"></i></div><b>${Math.round(v)}<small>/${inv?'≤':''}${need}</small></b></div>`;};
 function treeHtml(id){
-  const apt=aptOf(id);const role=CHAR_DB[id].role;let h='';
+  const apt=aptOf(id);const role=CHAR_DB[id].role;let h='<div class="trees">';
   for(const line of apt){
     const roots=Object.keys(SKILLS).filter(k=>SKILLS[k].line===line&&(SKILLS[k].base||SKILLS[k].book));
-    h+=`<div class="tline"><div class="tl-h">${line}の系譜${line===ROLE_LINE[role]?'':'<span class="muted small">（自分の基本技ではないので、閃きより書物と師弟が頼り）</span>'}</div>`;
-    const node=(k,depth)=>{const sk=SKILLS[k];const mine=(S.skills[id]||[]).find(x=>x.k===k);const own=sk.base&&BASE_SKILL[role]===k;
+    h+=`<div class="tree fr"><div class="tl2">${ico(line)}<b>${line}</b><small>${line===ROLE_LINE[role]?'本来の系統':'もう一つの系統'}</small></div>`;
+    const node=k=>{const sk=SKILLS[k];const mine=(S.skills[id]||[]).find(x=>x.k===k);const own=sk.base&&BASE_SKILL[role]===k;
       const locked=sk.cls&&S.cls[id]!==sk.cls;const seen=S.seen[k]||sk.base||sk.book;
-      const state=mine?`<span class="src ${mine.src}">${SRC[mine.src]}</span>${pips(mine.st,skillCap(mine))}`:own?'<span class="src base">基本</span>':
-        sk.cls?`<span class="tag${locked?'':' gold'}">${CLASSES[sk.cls].name}${locked?'で解禁':'の技'}</span>`:sk.book?'<span class="muted small">書物</span>':sk.base?'<span class="muted small">他職の基本技</span>':'<span class="muted small">閃き</span>';
-      let out=`<div class="tn ${mine||own?'got':''}" style="padding-left:${depth*1.2}em">${depth?'<span class="br">└</span>':''}<b>${seen?sk.name:'？？？'}</b> ${state}${seen?`<div class="tdesc" style="padding-left:${depth?1:0}em">${sk.desc}</div>`:''}</div>`;
-      for(const c of Object.keys(SKILLS).filter(c=>SKILLS[c].from===k&&SKILLS[c].line===line))out+=node(c,depth+1);
-      return out;};
-    for(const r of roots)h+=node(r,0);
-    h+='</div>';
-  }
-  return h;
-}
+      const st=mine?'got':own?'own':seen?'seen':'unk';
+      const how=mine?SRC[mine.src]:own?'基本':sk.cls?CLASSES[sk.cls].name+(locked?'で':''):sk.book?'書物':sk.base?'他職の基本':'閃き';
+      const kids=Object.keys(SKILLS).filter(c=>SKILLS[c].from===k&&SKILLS[c].line===line);
+      const pop=seen?`<b>${sk.name}</b><br>${sk.desc}${mine&&mine.st<skillCap(mine)?`<br><span class="muted">${STAGE[mine.st]}・経験 ${mine.exp}/${EXP_NEED[mine.st]}</span>`:mine?`<br><span class="muted">${STAGE[mine.st]}</span>`:''}`
+        :`${sk.from?`【${S.seen[sk.from]||SKILLS[sk.from].base||SKILLS[sk.from].book?SKILLS[sk.from].name:'？？？'}】を使い込むと閃くかもしれない`:''}${sk.cls?`<br>${CLASSES[sk.cls].name}でしか閃けない`:''}`;
+      return `<div class="tr"><details class="tn2 ${st}${locked?' lock':''}"><summary><span class="dm2">${ico(line)}</span><span class="tnm">${seen?sk.name:'？？？'}</span>${mine?pips(mine.st,skillCap(mine)):`<span class="how">${how}</span>`}</summary><div class="pop2">${pop}</div></details>${kids.length?`<div class="trk">${kids.map(node).join('')}</div>`:''}</div>`;};
+    h+=`<div class="trk0">${roots.map(node).join('')}</div></div>`;}
+  return h+'</div>';}
 function classHtml(id){
   const role=CHAR_DB[id].role;const cur=S.cls[id];
-  let h=`<p class="small" style="margin:0 0 6px">現在：<b>${className(id)}</b>。転職しても技は残り、その職でしか閃けない技の系譜が開きます。</p>`;
-  for(const [k,c] of Object.entries(CLASSES)){if(c.base!==role)continue;
-    const ok=c.ok(id),isCur=cur===k;
-    const own=Object.entries(SKILLS).filter(([sk,v])=>v.cls===k).map(([sk,v])=>S.seen[sk]?`${v.name}（${SKILLS[v.from].name}から）`:`？？？（${SKILLS[v.from].name}から）`).join('、');
-    h+=`<div class="cl ${isCur?'cur':ok?'ok':''}"><div class="cl-n">${ROLES[role]} → <b>${c.name}</b>${isCur?'<span class="tag gold">現職</span>':ok?`<button class="btn small" data-cc="${id}|${k}">転職する</button>`:'<span class="tag">条件未達</span>'}</div>
-      <div class="cond">条件：${c.cond}</div><div class="cond">補正：${modTxt(c.mod)}${c.apt?'・系統 '+c.apt.join('・'):''}</div><div class="cond">閃ける技：${own}</div></div>`;}
-  if(cur)h+=`<div class="cl"><div class="cl-n">${CLASSES[cur].name} → <b>${ROLES[role]}</b><button class="btn ghost small" data-cc="${id}|">基本職に戻る</button></div><div class="cond">上級職の技は手元に残るが、閃きの系譜は閉じる</div></div>`;
+  let h=`<div class="jobt"><div class="jroot ${cur?'':'cur'}">${ico(ROLE_LINE[role])}<b>${ROLES[role]}</b><small>基本職</small>${cur?`<button class="ab" data-cc="${id}|" title="上級職の技は手元に残るが、閃きの系譜は閉じる">${ico('撤退')}基本職に戻る</button>`:'<span class="chips2"><span class="c g">現職</span></span>'}</div><div class="jkids">`;
+  const mine=Object.entries(CLASSES).filter(([k,c])=>c.base===role);
+  if(!mine.length)h+='<p class="mini2">この職の上級職は、まだ見つかっていない</p>';
+  for(const [k,c] of mine){const ok=c.ok(id),isCur=cur===k;
+    const own=Object.entries(SKILLS).filter(([sk,v])=>v.cls===k).map(([sk,v])=>S.seen[sk]?v.name:'？？？');
+    h+=`<div class="jc ${isCur?'cur':ok?'ok':''}"><div class="jh">${ico(c.apt?c.apt[0]:ROLE_LINE[role])}<b>${c.name}</b>${c.note?`<small>${c.note}</small>`:''}</div>
+      <div class="chips2">${Object.entries(c.mod).map(([mk,v])=>`<span class="c ${v>0?'g':'w'}">${modTxt({[mk]:v})}</span>`).join('')}${(c.apt||[]).map(a=>`<span class="c g">${ico(a)}系統「${a}」</span>`).join('')}</div>
+      <div class="jreq">${c.req.map(r=>reqBar(r[0],r[1](id),r[2],r[3])).join('')}</div>
+      <div class="jown" title="この職でしか閃けない技">${ico('技能')}${own.join('・')}</div>
+      <div>${isCur?'<span class="chips2"><span class="c g">現職</span></span>':ok?`<button class="ab gold" data-cc="${id}|${k}" ${S.grace<1?'disabled':''} title="技は手元に残る。神の余力を1使う">${ico('技能')}転職の儀<small>✶1</small></button>`:''}</div></div>`;}
+  h+=`</div></div>`;
   const apOk=S.faith[id]>=100&&cruns(id)>=5;
-  h+=`<div class="cl ${S.apostle===id?'cur':apOk&&!S.apostle?'ok':''}"><div class="cl-n">✶ <b>使徒</b>${S.apostle===id?'<span class="tag gold">任命済み</span>':S.apostle?`<span class="tag">${CHAR_DB[S.apostle].name}が使徒</span>`:apOk?`<button class="btn small" data-ap="${id}">使徒に任じる</button>`:'<span class="tag">条件未達</span>'}</div>
-    <div class="cond">条件：信仰100・潜行5回以上（いま信仰${Math.round(S.faith[id])}・潜行${cruns(id)}回）。あなたが選ぶただ一人の称号</div><div class="cond">効果：パーティにいると神託が0.35秒で届き、ほかの仲間も神託に従いやすくなる。本人はほぼ必ず従う</div></div>`;
-  return h;
-}
+  h+=`<div class="jc apo ${S.apostle===id?'cur':apOk&&!S.apostle?'ok':''}" title="一行にいると神託が0.35秒で届き、ほかの仲間も神託に従いやすくなる。本人はほぼ必ず従う"><div class="jh">${ico('信仰')}<b>使徒</b><small>あなたが選ぶ、ただ一人の称号</small></div>
+    <div class="jreq">${reqBar('信仰',S.faith[id],100)}${reqBar('潜行',cruns(id),5)}</div>
+    <div>${S.apostle===id?'<span class="chips2"><span class="c g">任命済み</span></span>':S.apostle?`<span class="mini2">${CHAR_DB[S.apostle].name}が使徒</span>`:apOk?`<button class="ab gold" data-ap="${id}">${ico('信仰')}使徒に任じる</button>`:''}</div></div>`;
+  return h;}
+function abilHtml(id){
+  const cur=S.cls[id]||CHAR_DB[id].role;const tr=(S.train[id]&&(!CLASSES[S.train[id]]||S.train[id]===cur))?S.train[id]:cur;
+  const learned=S.abil[id]||[];const eq=(S.aslot[id]||[]).filter(k=>learned.includes(k));
+  const jobs=BASE_JOBS.concat(S.cls[id]?[S.cls[id]]:[]);
+  let h=`<div class="aslots">${[0,1].map(i=>{const k=eq[i];return k?`<button class="aslot on" data-ab="${id}|${k}" title="${ABIL[k].desc}（押すと外す）">${ico('技能')}<b>${ABIL[k].name}</b><small>${JOBNAME(ABIL[k].job)}</small></button>`:`<div class="aslot">空き</div>`;}).join('')}</div>`;
+  h+=`<div class="law">${ico('師事')}<span>修行先</span><div class="seg" title="生還すると修行先の熟練度が入る（帰還2・撤退1）">${jobs.map(j=>`<button class="${j===tr?'on':''}" data-tr="${id}|${j}">${JOBNAME(j)}</button>`).join('')}</div></div>`;
+  for(const j of jobs){const list=Object.entries(ABIL).filter(([k,a])=>a.job===j);if(!list.length)continue;const pts=(S.jp[id]&&S.jp[id][j])||0;const max=Math.max(...list.map(([k,a])=>a.jp));
+    h+=`<div class="jtrk ${j===tr?'tr':''}"><span class="jn">${JOBNAME(j)}</span><div class="trk2"><i style="width:${clamp(pts/max*100,0,100)}%"></i>${list.map(([k,a])=>{const got=learned.includes(k),on=eq.includes(k);
+      return `<button class="mk ${got?'got':''} ${on?'on':''}" style="left:${a.jp/max*100}%" ${got?`data-ab="${id}|${k}"`:'disabled'} title="${got?a.name+'：'+a.desc+(on?'（付けている）':'（押すと付ける）'):'熟練度'+a.jp+'で習得'}"><span></span><small>${got?a.name:'？？？'}</small></button>`;}).join('')}</div><b class="jp">${pts}</b></div>`;}
+  return h;}
 function styleHtml(id){
   const known=new Set((S.skills[id]||[]).map(x=>x.k));const role=CHAR_DB[id].role;
   const eqA=(S.aslot[id]||[]).filter(k=>(S.abil[id]||[]).includes(k));
@@ -1207,37 +1385,41 @@ function styleHtml(id){
   for(const [k,st] of Object.entries(STYLES)){
     const n=st.req.filter(has).length;const disc=S.styles[k];
     if(n===0){if(disc)other.push(st.name);continue;}
-    const reqTxt=st.req.map(r=>{const nm=r[0]==='@'?(ROLES[r.slice(1)]+'の固有技'):r.startsWith('ab:')?('アビリティ'+((S.abil[id]||[]).includes(r.slice(3))||has(r)?'【'+ABIL[r.slice(3)].name+'】':'？？？')):(S.seen[r]||has(r)?SKILLS[r].name:'？？？');return has(r)?`<b>${nm}</b>`:`<span class="muted">${nm}</span>`;}).join('＋');
+    const chip=r=>{const nm=r[0]==='@'?(ROLES[r.slice(1)]+'の固有技'):r.startsWith('ab:')?(((S.abil[id]||[]).includes(r.slice(3))||has(r))?ABIL[r.slice(3)].name:'？？？'):(S.seen[r]||has(r)?SKILLS[r].name:'？？？');return `<span class="${has(r)?'h':''}">${nm}</span>`;};
     const active=n===st.req.length;
-    h+=`<div class="sty ${active?'on':''}"><div><b>${disc?st.name:'？？？'}</b> ${active?`<span class="tag gold">${disc?'発動可能':'組み合わせがそろった'}</span>`:''}</div><div class="cond">${reqTxt}</div>${disc?`<div class="cond">${st.desc}</div>`:''}</div>`;
+    h+=`<div class="sty2 ${active?'on':''}"><b>${disc?st.name:'？？？'}</b><div class="rq">${st.req.map(chip).join('<i>＋</i>')}</div>${disc?`<p>${st.desc}</p>`:active?'<p>組み合わせがそろった。戦いの中で目覚める</p>':''}</div>`;
   }
-  if(!h)h='<p class="muted small">今の技の組み合わせから狙える流儀はない。技を増やすと手がかりが見える。</p>';
-  if(other.length)h+=`<p class="muted small" style="margin-top:8px">ほかの仲間が目覚めた流儀：${other.join('、')}</p>`;
-  return h;
-}
-function abilHtml(id){
-  const cur=S.cls[id]||CHAR_DB[id].role;const tr=(S.train[id]&&(!CLASSES[S.train[id]]||S.train[id]===cur))?S.train[id]:cur;
-  const learned=S.abil[id]||[];const eq=(S.aslot[id]||[]).filter(k=>learned.includes(k));
-  const jobs=BASE_JOBS.concat(S.cls[id]?[S.cls[id]]:[]);
-  let h=`<p class="muted small" style="margin:0 0 6px">職の修行で覚える、武器に依らない力。覚えたアビリティは転職しても失われず、どの職でも2つまで付けられる。ほかの職の技と組み合わせると流儀が生まれることがある。</p>
-  <div class="rule"><label for="tr-${id}">修行先</label><select id="tr-${id}" data-train="${id}">${jobs.map(j=>`<option value="${j}"${j===tr?' selected':''}>${JOBNAME(j)}${j===cur?'（現職）':''}</option>`).join('')}</select></div>
-  <p class="muted small" style="margin:4px 0 8px">生還すると修行先の熟練度が入る（帰還2・撤退1）。今の職でなくても、基本職ならどれでも修行できる。</p>
-  <h4>付けているアビリティ（${eq.length}/2）</h4>`;
-  for(const j of jobs){const list=Object.entries(ABIL).filter(([k,a])=>a.job===j);if(!list.length)continue;const pts=(S.jp[id]&&S.jp[id][j])||0;
-    h+=`<div class="tl-h" style="margin-top:8px">${JOBNAME(j)}　熟練度 ${pts}</div>`;
-    for(const [k,a] of list){const got=learned.includes(k),on=eq.includes(k);
-      h+=`<div class="tn ${got?'got':''}"><b>${got?a.name:'？？？'}</b> ${got?(on?`<button class="btn small" data-ab="${id}|${k}">外す</button>`:`<button class="btn ghost small" data-ab="${id}|${k}" ${eq.length>=2?'disabled':''}>付ける</button>`):`<span class="muted small">熟練度${a.jp}で習得</span>`}${got?`<div class="tdesc">${a.desc}</div>`:''}</div>`;}}
-  return h;
-}
+  if(!h)h='<p class="mini2">今の技の組み合わせから狙える流儀はない。技を増やすと手がかりが見える</p>';
+  return `<div class="styles">${h}</div>`+(other.length?`<p class="mini2" style="margin-top:10px">ほかの仲間が目覚めた流儀：${other.join('、')}</p>`:'');}
 function skillPanel(id){const d=CHAR_DB[id];
-  return `<section class="panel sec skp" id="skp"><div class="skp-h"><h2 style="margin:0">${d.name}の技能</h2><span class="muted small">${className(id)}・系統 ${aptOf(id).join('・')}・潜行 ${cruns(id)}回・信仰 ${Math.round(S.faith[id])}</span><button class="btn ghost small" id="skclose">閉じる</button></div>
-  <div class="cols3"><div><h3>職の系譜</h3>${classHtml(id)}<h3 style="margin-top:14px">アビリティ</h3>${abilHtml(id)}</div><div><h3>技の系譜</h3>${treeHtml(id)}</div><div><h3>流儀</h3><p class="muted small" style="margin:0 0 6px">技枠に入れた技の組み合わせで発動する、その人だけの相乗効果。初めて発動するまで名前はわからない。</p>${styleHtml(id)}</div></div></section>`;}
+  const T=[['skill','技','SKILL'],['job','職','CLASS'],['abil','アビリティ','ABILITY'],['style','流儀','STYLE']];
+  return `<section class="skp2" id="skp"><header class="skh">${faceBox(id,'big')}<div><div class="skn2">${d.name}</div><div class="skc">${roleIco(id)}${className(id)}${aptOf(id).map(l=>`<span class="ln2">${ico(l)}${l}</span>`).join('')}</div></div>
+    <nav class="sktabs">${T.map(([k,n,en])=>`<button class="tm-tab ${SKT===k?'on':''}" data-skt="${k}"><b>${n}</b><small>${en}</small></button>`).join('')}</nav><button class="ab" id="skclose">${ico('外す')}閉じる</button></header>
+    <div class="skb">${{skill:treeHtml,job:classHtml,abil:abilHtml,style:styleHtml}[SKT](id)}</div></section>`;}
+/* ---- 来訪者の札 ---- */
+function gateHtml(){
+  if(!S.visitors.length)return '';
+  const full=roomsUsed()>=ROOMS;
+  let h=`<div class="hd">来訪<small>VISITOR</small></div><div class="gate">`;
+  for(const v of S.visitors){const d=CHAR_DB[v.id];const a=ARRIVE[v.id]||{};const cost=a.cost||0;const into=!S.party[slotOf(d.role)];
+    const can=S.grace>=cost&&(into||!full);
+    const gift=a.gift?(a.gift.book?`『${SKILLS[a.gift.book].name}の書』`:ITEMS[a.gift.item].name):'';
+    h+=`<div class="vis"><div style="position:relative" title="${d.bio}">${pfDiv(v.id,'style="position:absolute;inset:0"')}</div><div class="vb">
+      <b class="vn">${d.name}</b><span class="vc">${roleIco(v.id)}${ROLES[d.role]}・${ageOf(v.id)}歳・${d.pers}</span>
+      <p class="vq">「${a.line||d.wish}」</p>
+      <div class="chips2">${gift?`<span class="c g" title="迎えると持ってくる">${ico('書')}${gift}</span>`:''}${a.master?`<span class="c">${CHAR_DB[a.master].name}に師事</span>`:''}<span class="c" title="あと${v.left}回の旅のあいだ待つ">待つ ${'◆'.repeat(v.left)}</span></div>
+      <div class="acts2" style="margin-top:auto"><button class="ab gold" data-acc="${v.id}" ${can?'':'disabled'} title="${can?(into?'空いた枠に入る':'神殿で控える'):S.grace<cost?'神の余力が足りない':`宿坊がいっぱい（控えは${ROOMS}人まで）`}">${ico('門')}迎える${cost?`<small>✶${cost}</small>`:''}</button><button class="ab" data-dec="${v.id}">帰す</button></div></div></div>`;}
+  return h+'</div>';}
 function rule(k,label,opts,v){return `<div class="rule"><label for="p-${k}">${label}</label><select id="p-${k}" data-p="${k}">${opts.map(([a,b])=>`<option value="${a}"${a===v?' selected':''}>${b}</option>`).join('')}</select></div>`;}
 function bindPrep(){
   $('#go').onclick=startBattle;
   document.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{PREP_TAB=b.dataset.ptab;renderPrep();window.scrollTo(0,0);});
   document.querySelectorAll('[data-goparty]').forEach(b=>b.onclick=()=>{PREP_TAB='party';PSEL=b.dataset.goparty;renderPrep();window.scrollTo(0,0);});
   document.querySelectorAll('[data-psel]').forEach(b=>b.onclick=()=>{PSEL=b.dataset.psel;renderPrep();});
+  document.querySelectorAll('[data-acc]').forEach(b=>b.onclick=()=>{const m=acceptVisitor(b.dataset.acc);if(m)prepMsgs.push(m);persist();renderPrep();});
+  document.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{prepMsgs.push(declineVisitor(b.dataset.dec));persist();renderPrep();});
+  document.querySelectorAll('[data-skt]').forEach(b=>b.onclick=()=>{SKT=b.dataset.skt;renderPrep();});
+  document.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const [id,j]=b.dataset.tr.split('|');S.train[id]=j;persist();renderPrep();});
   document.querySelectorAll('[data-rule]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.rule.split('|');S.policy[k]=v;persist();renderPrep();});
   document.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>{S.floor=+b.dataset.floor;rollNext(S);persist();renderPrep();});
   if($('#ovl'))$('#ovl').onclick=ev=>{if(ev.target.id==='ovl'){SKV=null;renderPrep();}};
@@ -1261,7 +1443,7 @@ function bindPrep(){
   document.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>{const [id,r]=b.dataset.swap.split('|');const old=S.party[r];
     S.party[r]=id;PSEL=id;if(!S.equip[id])outfit(S,id);prepMsgs.push(`${CHAR_DB[id].name}が一行に加わった${old?`。${CHAR_DB[old].name}は神殿で控える`:''}`);persist();renderPrep();});
   document.querySelectorAll('[data-heir]').forEach(b=>b.onclick=()=>{const id=b.dataset.heir;if(S.grace<1||S.heirOf[id])return;S.grace--;
-    const h=makeChar({parent:id});S.heirOf[id]=h;const d=CHAR_DB[h];
+    const h=makeChar({parent:id});S.met[h]=true;S.heirOf[id]=h;const d=CHAR_DB[h];
     prepMsgs.push(`${CHAR_DB[id].name}の${d.rel}、${d.name}（${d.age}歳）が神殿に迎えられた。${d.inh?`【${SKILLS[d.inh].name}】を口伝で受け継いでいる`:''}${d.inhAb?`。アビリティ【${ABIL[d.inhAb].name}】も`:''}`);persist();renderPrep();});
   document.querySelectorAll('[data-retire]').forEach(b=>b.onclick=()=>{const id=b.dataset.retire;const span=$('#rtw-'+id);const h=S.heirOf[id];
     span.innerHTML=`<span class="confirm">${CHAR_DB[id].name}を隠居させます。一行には戻りません。${h&&avail(h)?`${CHAR_DB[h].name}が枠を継ぎます。`:''}<button class="btn ghost small" id="ry">隠居させる</button><button class="btn ghost small" id="rn">やめる</button></span>`;
@@ -1285,7 +1467,7 @@ function bindPrep(){
     if(a.includes(k))a=a.filter(x=>x!==k);else if(a.length<2)a.push(k);S.aslot[id]=a;persist();renderPrep();});
   document.querySelectorAll('[data-skv]').forEach(b=>b.onclick=()=>{SKV=b.dataset.skv;renderPrep();});
   if($('#skclose'))$('#skclose').onclick=()=>{SKV=null;renderPrep();};
-  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.cc.split('|');if(k)S.cls[id]=k;else delete S.cls[id];persist();renderPrep();});
+  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.cc.split('|');if(k){if(S.grace<1||!CLASSES[k].ok(id))return;S.grace--;S.cls[id]=k;prepMsgs.push(`転職の儀。${CHAR_DB[id].name}は【${CLASSES[k].name}】になった${CLASSES[k].apt?`。系統「${CLASSES[k].apt.join('・')}」が開いた`:''}`);}else delete S.cls[id];persist();renderPrep();});
   document.querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{S.apostle=b.dataset.ap;addFaith(S.apostle,0);persist();renderPrep();});
   document.querySelectorAll('[data-write]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.write.split('|');S.books.push(k);S.written[id+':'+k]=true;persist();renderPrep();});
 }
@@ -1382,7 +1564,7 @@ function startBattle(){
   const ids=partyIds();
   B={t:0,speed:B?B.speed:1,units:ids.map(makeUnit),enemies:[],wave:0,place:'旅立ち',floor:S.floor||3,emul:1,fmul:1,plan:buildPlan(),si:-1,nextFn:null,stolen:[],rivalAhead:false,rivalNpc:false,rivalSaved:false,lampUsed:false,
     events:[],divine:60+(hasP('b1')?20:0),focus:null,focusT:0,guardT:0,guardByOracle:false,
-    saveOrder:0,comboLock:0,pending:null,over:false,waveWait:0,leaderId:null,alert:null,graceT:0,blessAtk:0,
+    saveOrder:0,comboLock:0,pending:null,over:false,waveWait:0,leaderId:null,alert:null,graceT:0,blessAtk:0,songT:0,
     startFaith:Object.fromEntries(ids.map(i=>[i,S.faith[i]])),oracles:[],mast:[],disc:[],lostNow:[],combos:{ok:0,fail:0},
     flashes:[],ups:[],wills:[],teachLog:[],loot:[],styleNew:[],styleUse:{},clsUnlock:[],abLog:[],relNotes:[],relDelta:{},reclaimed:[],traitorSeen:false,loyStart:Object.fromEntries(ids.map(i=>[i,S.loyal[i]]))};
   B.units.forEach(applyAbStats);
@@ -1419,7 +1601,7 @@ const okU=()=>B.units.filter(u=>u.state==='ok');
 const okE=()=>B.enemies.filter(e=>e.state==='ok');
 const byRole=r=>B.units.find(u=>u.role===r);
 const ready=u=>u&&u.state==='ok'&&u.busy<=0;
-const patk=u=>u.atk*(B.blessAtk>0?1.25:1)*(hasAb(u,'haisui')&&u.hp/u.max<.3?1.5:1);
+const patk=u=>u.atk*(B.blessAtk>0?1.25:1)*(B.songT>0?1.15:1)*(hasAb(u,'haisui')&&u.hp/u.max<.3?1.5:1);
 function getLeader(){const s=byRole('sword');if(s&&s.state==='ok')return s;return okU().sort((a,b)=>S.faith[b.id]-S.faith[a.id])[0]||null;}
 function addFaith(id,d){S.faith[id]=clamp(S.faith[id]+damp(S.faith[id],d),0,100);}
 function popOn(x,v,cls){x.pop={v:typeof v==='number'?Math.round(v):v,cls,t:B.t};}
@@ -1428,6 +1610,7 @@ function popOn(x,v,cls){x.pop={v:typeof v==='number'?Math.round(v):v,cls,t:B.t};
 function dmgEnemy(e,dmg,src,crit){
   if(!e||e.state!=='ok')return;
   if(src&&src.side==='p'&&hasAb(src,'sniper')&&(e.frozen>0||e.stun>0))dmg*=1.4;
+  if(src&&src.side==='p'&&hasAb(src,'kyushogan')&&e.hp/e.max<0.3)dmg*=1.4;
   if(e.stun>0)dmg*=1.5;
   if(src&&src.side==='p'){
     if(hasAb(src,'enchant')&&Math.random()<.2&&e.hp>dmg){e.frozen=Math.max(e.frozen,1.5);}
@@ -1552,6 +1735,10 @@ function wants(u,k,tg){
     case 'furaku':return okE().some(e=>e.wind>0)||okU().filter(x=>x.hp/x.max<0.5).length>=2;
     case 'seijun':return u.hp/u.max<0.8;
     case 'sutemi':return !!tg&&u.hp/u.max>0.4;
+    case 'gaika':return !(B.songT>0)&&okE().length>0;
+    case 'komori':return okE().length>=2||okE().some(e=>e.wind>0);
+    case 'chinkon':return B.units.some(x=>x.state==='down');
+    case 'kubikari':return !!tg&&tg.hp/tg.max<0.4;
     default:return !!tg;
   }
 }
@@ -1565,7 +1752,7 @@ function useLearned(u,tg){
 }
 function doSkill(u,s,tg,forced){
   const sk=SKILLS[s.k];
-  const SELF=['parry','wall','bless','wind','furaku','seijun','kiseki'],ALL=SELF.concat(['blast','tenrai','tensen','oboro']);
+  const SELF=['parry','wall','bless','wind','furaku','seijun','kiseki','gaika','chinkon'],ALL=SELF.concat(['blast','tenrai','tensen','oboro','komori']);
   if(!ALL.includes(s.k)&&(!tg||tg.state!=='ok'))tg=partyTarget();
   if(!tg&&!SELF.includes(s.k))return false;
   u.scd[s.k]=(sk.cd||8)*(hasAb(u,'quick')?.75:1);
@@ -1593,8 +1780,12 @@ function doSkill(u,s,tg,forced){
     case 'jubaku':tg.gauge=0;if(tg.wind>0){tg.wind=0;note=`${tg.name}の大技を封じた！`;if(B.alert&&B.alert.id===tg.id)B.alert=null;}dmgEnemy(tg,a*p,u);break;
     case 'tensen':for(const e of okE())dmgEnemy(e,a*2*p,u);break;
     case 'oboro':for(const e of okE()){e.stun=Math.max(e.stun,1.5);if(e.wind>0){e.wind=0;if(B.alert&&B.alert.id===e.id)B.alert=null;}}note='敵が影に縫い止められた';break;
-    case 'nage':{const ts=[tg].concat(okE().filter(e=>e!==tg).slice(0,1));for(const e of ts)dmgEnemy(e,a*1.4*p,u);break;}
-    case 'kyusho':{const stp=tg.stun>0||tg.frozen>0;dmgEnemy(tg,a*2.4*p*(stp?1.6:1),u,stp);if(stp)note='急所を貫いた';break;}
+    case 'nage':{const n2=B.songT>0&&hasStyle(u,'utakage')?2:1;if(n2>1)triggerStyle(u,'utakage');const ts=[tg].concat(okE().filter(e=>e!==tg).slice(0,n2));for(const e of ts)dmgEnemy(e,a*1.4*p,u);break;}
+    case 'kyusho':{let stp=tg.stun>0||tg.frozen>0;if(!stp&&tg.lullT&&B.t-tg.lullT<3&&hasStyle(u,'yasoukyoku')){stp=true;triggerStyle(u,'yasoukyoku');}dmgEnemy(tg,a*2.4*p*(stp?1.6:1),u,stp);if(stp)note='急所を貫いた';break;}
+    case 'gaika':B.songT=8*(hasAb(u,'kyoumei')?1.5:1);note='歌声が一行の足を速め、刃を鋭くする';break;
+    case 'komori':for(const e of okE()){e.gauge*=0.5;e.lullT=B.t;if(e.wind>0)e.wind+=1*(hasAb(u,'kyoumei')?1.5:1);}note='敵の動きが鈍った';break;
+    case 'chinkon':{let n=0;for(const x of B.units)if(x.state==='down'){x.down+=6*(hasAb(u,'kyoumei')?1.5:1);n++;}for(const x of okU())heal(u,x,10*p);note=n?'倒れた仲間の命の灯が、まだ消えない':'静かな歌が傷を癒やす';break;}
+    case 'kubikari':{const big=BIG_E.includes(tg.kind)||tg.kind==='traitor';if(!big&&tg.hp/tg.max<0.25){dmgEnemy(tg,tg.hp+1,u,true);note='一撃で仕留めた';}else dmgEnemy(tg,a*(tg.hp/tg.max<0.4?4:1.5)*p,u,true);break;}
     case 'kiseki':for(const x of B.units)if(x.state==='down'){x.state='ok';x.hp=x.max*0.4;x.down=0;popOn(x,x.hp,'heal');}note='倒れた仲間が立ち上がる';break;
   }
   const tgt=(ALL.includes(s.k)||!tg)?'':`→${tg.name}`;
@@ -1785,7 +1976,7 @@ function tick(dt){
   B.divine=Math.min(100,B.divine+dt*2.6*(avg/65)*(0.8+S.belief[BASE_TOWN]/250)*(hasP('b2')?1.2:1));
   B.guardT=Math.max(0,B.guardT-dt); if(B.guardT<=0)B.guardByOracle=false;
   B.focusT=Math.max(0,B.focusT-dt); B.saveOrder=Math.max(0,B.saveOrder-dt); B.comboLock=Math.max(0,B.comboLock-dt);
-  B.graceT=Math.max(0,B.graceT-dt); B.blessAtk=Math.max(0,B.blessAtk-dt);
+  B.graceT=Math.max(0,B.graceT-dt); B.blessAtk=Math.max(0,B.blessAtk-dt); B.songT=Math.max(0,(B.songT||0)-dt);
   for(const u of B.units){
     for(const c in u.cd)u.cd[c]=Math.max(0,u.cd[c]-dt);
     for(const c in u.scd)u.scd[c]=Math.max(0,u.scd[c]-dt);
@@ -1811,7 +2002,7 @@ function tick(dt){
   }
   if(B.waveWait>0){B.waveWait-=dt;if(B.waveWait<=0){B.waveWait=0;const f=B.nextFn;B.nextFn=null;if(f)f();}}
   else{
-    for(const u of B.units){if(u.state!=='ok'||u.busy>0)continue;u.gauge+=dt*u.spd/2.4;if(u.gauge>=1){u.gauge=0;actParty(u);}}
+    for(const u of B.units){if(u.state!=='ok'||u.busy>0)continue;u.gauge+=dt*u.spd*(B.songT>0?1.15:1)/2.4;if(u.gauge>=1){u.gauge=0;actParty(u);}}
     for(const e of B.enemies){
       if(e.state!=='ok'||e.frozen>0||e.stun>0)continue;
       if(e.wind>0){e.wind-=dt;if(e.wind<=0){e.wind=0;sweep(e);}continue;}
@@ -1937,9 +2128,13 @@ function worldAfterRun(kind){
   // 神威：町々の信仰の合計が120・240を超えるとそれぞれ1、新しい階の踏破で2、使徒の仲間を救えば1
   const sb=sumBelief();const gain=(sb>=120?1:0)+(sb>=240?1:0)+(B.newDepth?2:0)+(B.rivalSaved?1:0);
   S.divinity=(S.divinity||0)+gain;if(gain)notes.push(`町々の祈りが集まり、神威が${gain}増えた（いま${S.divinity}）`);
-  // 信者が仲間に加わる
+  // 来訪者は旅3回のあいだ待つ。迎えなければ去る（名のある者は、しばらくしてまた訪ねてくる）
+  for(const v of S.visitors)v.left--;
+  for(const v of S.visitors.filter(v=>v.left<=0))notes.push(declineVisitor(v.id).replace('一礼して','待ちくたびれて'));
+  // 信者は来訪者として神殿を訪ねてくる
   const th=hasP('p3')?45:60;
-  for(const [k,T] of Object.entries(TOWNS))if(!T.fixed&&S.belief[k]>=th&&!S.believers[k]){S.believers[k]=true;const id=makeChar({town:k});notes.push(`${T.name}から、信者の${CHAR_DB[id].name}（${ROLES[CHAR_DB[id].role]}）が神殿を訪ねてきた`);}
+  for(const [k,T] of Object.entries(TOWNS))if(!T.fixed&&S.belief[k]>=th&&!S.believers[k]){S.believers[k]=true;const id=makeChar({town:k});S.visitors.push({id,left:VISIT_STAY});notes.push(`${T.name}から、信者の${CHAR_DB[id].name}（${ROLES[CHAR_DB[id].role]}）が神殿を訪ねてきた`);}
+  arrivals(notes);
   // 隠居（年齢）
   for(const id of Object.keys(CHAR_DB))if(avail(id)&&ageOf(id)>=RETIRE_AGE)notes.push(retire(id,'age'));
   rollNext(S);
