@@ -3,9 +3,9 @@
    表の画面には、地面を奥行きのある床として描き（スーファミのモード7のように一行ずつ）、記録した絵を足もとの位置で奥行きに合わせて
    大きさを変えて立てる。カメラは一行の後ろ・少し上にいて、道の向きを見る（ゆっくり追う）。
    いまの絵は横向きしかないので、奥へ歩く一行は横を向いたまま。後ろ姿の絵を生成すれば本物らしくなる（次の段）。 */
-const TPS={D:96,H:96,F:132,HOR:36,FAR:480};   // オーナー「もう少し上からの見下ろしに」：カメラを高く（見下ろす角度 約45度）
+const TPS={D:82,H:142,F:98,HOR:-20,FAR:520};   // オーナー「もう少し上からの見下ろしに」：カメラを高く（見下ろす角度 約45度）
 function fTPS(G,cam,camY,focus,dir,now,o){
-  const FW=G.canvas.width,FH=G.canvas.height;const map=FLD.map;
+  const FW=G.canvas.width,FH=G.canvas.height;const map=(fLay()&&fLay().groundC)||FLD.map;   // 物を描く前の地面だけの絵
   if(!FLD.mapData||FLD.mapData.src!==map){FLD.mapData={src:map,d:map.getContext('2d').getImageData(0,0,map.width,map.height).data,w:map.width,h:map.height};}
   const M=FLD.mapData;
   // カメラの向きはゆっくり追う（道が曲がると、景色が回り込む）
@@ -27,7 +27,9 @@ function fTPS(G,cam,camY,focus,dir,now,o){
   // 立てる絵（足もとの位置を奥行きに直す）
   const proj=(sx,sy)=>{const wx=sx+cam-Cx,wy=sy+camY-Cy;const a=wx*fx+wy*fy,s=wx*rx+wy*ry;if(a<8)return null;const sc=TPS.F/a;return [FW/2+s*sc,TPS.HOR+TPS.H*sc,sc,a];};
   FLD.tpsProj=(sx,sy)=>{const q=proj(sx,sy);return q?[q[0],q[1],q[2]]:[sx,sy,1];};
-  const list=[];for(const r of FLD.rec||[]){const w=r.w||r.img.width,h=r.h||r.img.height;const q=proj(r.x+w/2,r.y+h-2);if(!q||q[3]>TPS.FAR)continue;list.push({r,w,h,q});}
+  const list=[];const objs=fLay()&&fLay().objs;
+  for(const r of FLD.rec||[]){if(objs&&!r.who)continue;const w=r.w||r.img.width,h=r.h||r.img.height;const q=proj(r.x+w/2,r.y+h-2);if(!q||q[3]>TPS.FAR)continue;list.push({r,w,h,q});}   // 人と敵（木や建物は下の一覧から立てる）
+  for(const o of objs||[]){const q=proj(o.x-cam,o.y-camY);if(!q||q[3]>TPS.FAR||q[0]<-200||q[0]>FW+200)continue;list.push({r:{img:o.c,al:1},w:o.c.width,h:o.c.height,q});}
   list.sort((a,b)=>b.q[3]-a.q[3]);
   G.imageSmoothingEnabled=false;
   for(const it of list){const {r,w,h,q}=it;const sc=q[2];const W2=w*sc,H2=h*sc;if(W2<1||H2<1||q[0]+W2/2<0||q[0]-W2/2>FW)continue;
@@ -47,3 +49,27 @@ function fTPS(G,cam,camY,focus,dir,now,o){
   else if(o.wk==='fog'){G.fillStyle='rgba(200,205,215,.22)';G.fillRect(0,0,FW,FH);}
   if(o.tod==='夕'){G.fillStyle='rgba(255,130,50,.12)';G.fillRect(0,0,FW,FH);}
 }
+
+/* 右上の小さな地図（2026-11-24、オーナー「地図は右上とかに表示させたい」）。北が上。
+   地面だけの絵を縮めて道筋・木や建物の点を描いた小さな地図（lay.mini、旅ごとに一度作る）から、一行のまわりを切り出す。
+   一行は黄色、敵は赤、野営地は白い点、行き先は白い四角。後ろから見る視点では、カメラの向きを三角で示す */
+function fMiniMap(G){const lay=fLay();if(!lay||!lay.wm||!FLD.map)return;const src=lay.groundC||FLD.map;const K=.12;
+  if(!lay.mini){const c=fCanvas(Math.ceil(src.width*K),Math.ceil(src.height*K));const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.drawImage(src,0,0,c.width,c.height);
+    x.fillStyle='rgba(0,0,0,.25)';x.fillRect(0,0,c.width,c.height);
+    for(const o of lay.objs||[]){x.fillStyle=o.c.height>60?'rgba(30,44,30,.9)':'rgba(40,50,40,.6)';const r=o.c.height>60?2:1;x.fillRect(Math.round(o.x*K)-r,Math.round(o.y*K)-r,r*2,r*2);}
+    const m=lay.wm;x.strokeStyle='rgba(236,214,150,.95)';x.lineWidth=1.6;x.beginPath();for(let s=0;s<m.N;s+=6){const X=m.cx[s]*K,Y=m.cy[s]*K;s?x.lineTo(X,Y):x.moveTo(X,Y);}x.stroke();
+    lay.mini=c;}
+  const FW=G.canvas.width,W=74,H=58,X0=FW-W-5,Y0=5;
+  const pts=Object.entries(FLD.P||{}).filter(([id])=>{const u=B.units.find(x=>x.id===id);return u&&u.state!=='lost';}).map(([,P])=>fWorld(P.x,P.y));
+  if(!pts.length)return;const cx=pts.reduce((a,p)=>a+p[0],0)/pts.length,cy=pts.reduce((a,p)=>a+p[1],0)/pts.length;
+  G.save();G.globalAlpha=.92;G.fillStyle='#0b0d14';G.fillRect(X0-2,Y0-2,W+4,H+4);G.beginPath();G.rect(X0,Y0,W,H);G.clip();
+  G.imageSmoothingEnabled=false;G.drawImage(lay.mini,Math.round(X0+W/2-cx*K),Math.round(Y0+H/2-cy*K));
+  const at=(wx,wy)=>[X0+W/2+(wx-cx)*K,Y0+H/2+(wy-cy)*K];
+  G.globalAlpha=1;
+  for(const c0 of lay.camps||[]){const [a,b]=at(...fWorld(c0+20,fPathY(c0+20)));G.fillStyle='#e8e4d8';G.fillRect(Math.round(a)-1,Math.round(b)-1,2,2);}
+  {const last=B.plan&&B.plan[B.plan.length-1];if(last&&last.x!=null){const [a,b]=at(...fWorld(last.x,fPathY(last.x)));G.strokeStyle='#fff';G.strokeRect(Math.round(a)-2.5,Math.round(b)-2.5,5,5);}}
+  for(const e of B.enemies||[]){if(e.state!=='ok')continue;const Q=FLD.E&&FLD.E[e.id];if(!Q)continue;const [a,b]=at(...fWorld(Q.x,Q.y));G.fillStyle='#ff5a4a';G.fillRect(Math.round(a)-1,Math.round(b)-1,2,2);}
+  for(const p of pts){const [a,b]=at(p[0],p[1]);G.fillStyle='#ffd84a';G.fillRect(Math.round(a)-1,Math.round(b)-1,2,2);}
+  if(FLD.tps&&FLD.tdir){const L=Math.hypot(FLD.tdir[0],FLD.tdir[1])||1;const fx=FLD.tdir[0]/L,fy=FLD.tdir[1]/L;const a=X0+W/2,b=Y0+H/2;G.fillStyle='rgba(255,216,74,.55)';G.beginPath();G.moveTo(a+fx*9,b+fy*9);G.lineTo(a-fy*4-fx*2,b+fx*4-fy*2);G.lineTo(a+fy*4-fx*2,b-fx*4-fy*2);G.closePath();G.fill();}
+  G.restore();G.strokeStyle='rgba(236,214,150,.8)';G.lineWidth=1;G.strokeRect(X0-1.5,Y0-1.5,W+3,H+3);
+  G.fillStyle='rgba(236,214,150,.9)';G.font='bold 6px sans-serif';G.fillText('N',X0+W-6,Y0+7);}

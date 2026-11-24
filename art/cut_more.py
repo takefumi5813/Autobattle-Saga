@@ -49,6 +49,17 @@ JOBS = [
     ("more-back-4-front.png", 5, ["zaid", "najma", "koko", "ilse", "dorn"], "pose:front", ("h", 37), set()),
     ("more-back-5-back.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:back", ("h", 37), set()),
     ("more-back-5-front.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:front", ("h", 37), set()),
+    # 後ろ向き・前向きの攻撃（2026-11-24、make_ref_atk.py の見本を添えて描かせたもの。上の段＝後ろ向き、下の段＝前向き）
+    ("more-atk-1-atkB.png", 5, ["gareth", "borg", "erin", "mira", "rio"], "pose:atkB", ("h", 37), set()),
+    ("more-atk-1-atkF.png", 5, ["gareth", "borg", "erin", "mira", "rio"], "pose:atkF", ("h", 37), set()),
+    ("more-atk-2-atkB.png", 5, ["raz", "aldo", "kei", "sera", "tohma"], "pose:atkB", ("h", 37), set()),
+    ("more-atk-2-atkF.png", 5, ["raz", "aldo", "kei", "sera", "tohma"], "pose:atkF", ("h", 37), set()),
+    ("more-atk-3-atkB.png", 5, ["noa", "sigrun", "halvar", "toki", "hozuki"], "pose:atkB", ("h", 37), set()),
+    ("more-atk-3-atkF.png", 5, ["noa", "sigrun", "halvar", "toki", "hozuki"], "pose:atkF", ("h", 37), set()),
+    ("more-atk-4-atkB.png", 5, ["zaid", "najma", "koko", "ilse", "dorn"], "pose:atkB", ("h", 37), set()),
+    ("more-atk-4-atkF.png", 5, ["zaid", "najma", "koko", "ilse", "dorn"], "pose:atkF", ("h", 37), set()),
+    ("more-atk-5-atkB.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:atkB", ("h", 37), set()),
+    ("more-atk-5-atkF.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:atkF", ("h", 37), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
@@ -79,8 +90,8 @@ for src, n, names, kind, size, _ in JOBS:
     scale = px / ((b0[3] - b0[1]) if axis == "h" else (b0[2] - b0[0]))
     for name, b, m in zip(names, boxes, masks):
         sc = scale
-        if kind in ("pose:back", "pose:front"):   # 後ろ姿・前向きは、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため）
-            try: sc = Image.open(f"{ART}/sprites/{name}.png").height / (b[3] - b[1])
+        if kind in ("pose:back", "pose:front", "pose:atkB", "pose:atkF"):   # 後ろ姿・前向き（とその攻撃）は、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため。攻撃は武器を振り上げるので少し高め）
+            try: sc = Image.open(f"{ART}/sprites/{name}.png").height * (1.08 if "atk" in kind else 1) / (b[3] - b[1])
             except FileNotFoundError: pass
         spr = shrink(a, m, b, sc, trim=4)
         if name.startswith("b_"):   # 信者の絵は明るい生成りの服が多く、フィールドで浮くので少し暗く・くすませる
