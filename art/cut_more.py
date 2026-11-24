@@ -24,6 +24,11 @@ JOBS = [
     ("more-heroes3-attack.png", 3, ["gareth", "borg", "erin"], "pose:atk", ("h", 32), set()),
     ("more-heroes3-down.png", 3, ["gareth", "borg", "erin"], "pose:down", ("w", 44), set()),
     ("more-heroes3-win.png", 3, ["gareth", "borg", "erin"], "pose:win", ("h", 41, 1), set()),
+    # 町から来る信者（職ごとに一人。剣士・重騎士・魔術師・狩人・神官・盗賊の順）
+    ("more-believers-stand.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "hero", ("h", 37), set()),
+    ("more-believers-attack.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:atk", ("h", 31), set()),
+    ("more-believers-down.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:down", ("w", 40), set()),
+    ("more-believers-win.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:win", ("h", 39, 3), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
@@ -54,6 +59,11 @@ for src, n, names, kind, size, _ in JOBS:
     scale = px / ((b0[3] - b0[1]) if axis == "h" else (b0[2] - b0[0]))
     for name, b, m in zip(names, boxes, masks):
         spr = shrink(a, m, b, scale, trim=4)
+        if name.startswith("b_"):   # 信者の絵は明るい生成りの服が多く、フィールドで浮くので少し暗く・くすませる
+            from PIL import ImageEnhance
+            al = spr.getchannel("A"); rgb = spr.convert("RGB")
+            rgb = ImageEnhance.Brightness(ImageEnhance.Color(rgb).enhance(0.8)).enhance(0.82)
+            spr = rgb.convert("RGBA"); spr.putalpha(al)
         if name in FLIP.get(src, set()): spr = spr.transpose(Image.FLIP_LEFT_RIGHT)
         spr.save(f"{ART}/sprites/{'en_' if kind == 'enemy' else ''}{name}{'' if kind in ('hero','enemy') else '_' + kind.split(':')[1]}.png")
         if kind == "hero": hero[name] = enc(spr)
