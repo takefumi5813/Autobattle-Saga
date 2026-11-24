@@ -1367,7 +1367,7 @@ function newSave(startK){
     spark:{},items:{},equip:{},books:['thunder','aim','wall'],master:{},teach:{},uid:0,written:{},graves:[],
     met:Object.fromEntries((startK?[ST.hero]:Object.values(ST.party).concat(ST.bench)).map(id=>[id,true])),visitors:[],declined:{},solo:!!startK,rankPt:0,seek:{},hints:{},
     start:startK||null,hero:ST.hero,align:ST.align,evSeen:{},reveal:{},altFor:{}};
-  if(startK){s.base=ST.cont&&ST.cont!=='c0'?contTown(ST.cont):ST.base;s.known=ST.cont&&ST.cont!=='c0'?startKnown(s.base):knownPathFor(s.base);if(!ST.cont||ST.cont==='c0'){let dn=null;for(const a of Object.keys(s.known))if(isArea(a))for(const d of NEIGH[a]||[])if(AREAS[d]&&AREAS[d].kind==='dungeon'&&AREAS[d].gen&&!AREAS[d].sealed&&(!dn||AREAS[d].lv<AREAS[dn].lv))dn=d;if(dn)s.known[dn]=true;}s.diveTo=Object.keys(s.known).find(x=>AREAS[x]&&AREAS[x].kind==='dungeon')||'great';}
+  if(startK){s.base=ST.cont&&ST.cont!=='c0'?contTown(ST.cont):ST.base;s.known=ST.cont&&ST.cont!=='c0'?startKnown(s.base):knownPathFor(s.base);if(!ST.cont||ST.cont==='c0'){let dn=null;for(const a of Object.keys(s.known))if(isArea(a))for(const d of NEIGH[a]||[])if(AREAS[d]&&AREAS[d].kind==='dungeon'&&AREAS[d].gen&&!AREAS[d].sealed&&(!dn||AREAS[d].lv<AREAS[dn].lv))dn=d;if(dn){s.known[dn]=true;s.diveTo=dn;}}s.diveTo=Object.keys(s.known).filter(x=>AREAS[x]&&AREAS[x].kind==='dungeon').sort((a,b)=>(a==='great')-(b==='great'))[0]||'great';}
   initWhere(s);
   for(const id of Object.values(s.party).filter(Boolean))outfit(s,id);
   for(const k of ['chain','frostring','runesword'])addItem(s,k);
@@ -1777,7 +1777,7 @@ function renderPrep(){
   // ---- 下に固定：道のり・潜る階・旅立つ ----
   const fls=[];if((S.diveTo||'great')==='great')for(let f=3;f<=S.depth;f++)fls.push(f);
   h+=`<div class="dock"><div class="route" title="拠点から大迷宮までの道のり。区画ごとに野営する">${diveNodes().map(k=>TOWNS[k]?`<span>${TOWNS[k].name.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'')}</span>`:isArea(k)?`<span>${AREAS[k].name}</span><span class="cp">${ico('野営')}</span>`:`<span class="dn">${k==='great'?floorName(S.floor):`${AREAS[k].name}（深さ${AREAS[k].lv}）`}</span>`).join('')}</div>
-    <div class="flr" role="radiogroup" aria-label="潜る階">${fls.map(f=>`<button role="radio" aria-checked="${f===S.floor}" class="${f===S.floor?'on':''}${f===S.depth?' new':''}" data-floor="${f}" title="${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}">B${f}<small>×${floorMul(f).toFixed(2)}</small></button>`).join('')}</div>
+    <div class="flr" role="radiogroup" aria-label="潜る階">${fls.map(f=>`<button role="radio" aria-checked="${f===S.floor}" class="${f===S.floor?'on':''}${f===S.depth?' new':''}" data-floor="${f}" title="${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}${rankIdx(rankOf())<rankIdx('C')?'。大迷宮は駆け出しの行く所ではない（Cランク未満の一行は、まず生きて帰れない）':''}">B${f}<small>×${floorMul(f).toFixed(2)}</small></button>`).join('')}</div>
     <span class="meta">潜行 ${S.runs}・帰還 ${S.wins}<br><span title="給金・食糧・野営・船賃・宿坊の控え">支度 金${tripCost(ids,diveNodes().filter(isArea).length,diveNodes())}${S.gold<tripCost(ids,diveNodes().filter(isArea).length,diveNodes())?'（足りない）':''}</span></span>
     <button class="go" id="go" ${over.length?'disabled':''}><b>旅立つ</b><small>DEPART</small></button></div>`;
   if(SKV&&CHAR_DB[SKV])h+=`<div class="ovl" id="ovl">${skillPanel(SKV)}</div>`;else SKV=null;
@@ -2893,8 +2893,12 @@ function makeAdvParty(){const nm=pick(ADV_NAMES);const roles=shuffle(['sword','t
   return {name:nm,units:roles.map(r=>Object.assign(makeEnemy('adv_'+r),{name:`${nm}の${ROLES[r]}`,adv:r,team:'gray'}))};}
 function makeRivalParty(){const v=Object.assign(makeEnemy('vald'),{adv:'tank',team:'white',leader:true});
   return [v].concat(['sword','mage','priest'].map(r=>Object.assign(makeEnemy('adv_'+r),{name:`白翼の${ROLES[r]}`,adv:r,team:'white',hp:Math.round(ENEMY_DB['adv_'+r].hp*1.35*((B&&B.emul)||1)),max:Math.round(ENEMY_DB['adv_'+r].hp*1.35*((B&&B.emul)||1)),atk:ENEMY_DB['adv_'+r].atk*1.2*((B&&B.amul)||1)})));}
-function makeEnemy(kind,suf){const d=ENEMY_DB[kind];const m=(B&&B.emul)||1,am=(B&&B.amul)||1;const hp=Math.round(d.hp*m*1.1*(['wolf','bandit','goblin','scout'].includes(kind)?1.25:1));   /* 動き回る戦いで小物が弱く見えたぶん、体力を足した */
-  return{id:'e'+(eid++),side:'e',kind,name:d.name+(suf||''),max:hp,hp,atk:d.atk*am*1.68,amul:am,spd:d.spd,fmul:(B&&B.fmul)||1,
+/* 浅い階（B3・B4）の迷宮は、敵をさらに強める（深い階との段差をならす。2026-11-24） */
+const SHALLOW_K={3:1.85,4:1.68,5:1.05};
+/* 大迷宮は駆け出しの行く所ではない（オーナーの方針）：新しい一行でB3から1割ほどしか帰れない。駆け出しは近くの小さな迷宮や雇われ仕事で腕を上げる */
+const GREAT_K=1.36;
+function makeEnemy(kind,suf){const d=ENEMY_DB[kind];const st0=B&&B.plan&&B.plan[B.si];const fk=st0&&st0.t==='dun'?(SHALLOW_K[B.floor]||1)*(B.dun?1:GREAT_K):1;const m=((B&&B.emul)||1)*(1+(fk-1)*.6),am=((B&&B.amul)||1)*fk;const hp=Math.round(d.hp*m*1.1*(['wolf','bandit','goblin','scout'].includes(kind)?1.25:1));   /* 動き回る戦いで小物が弱く見えたぶん、体力を足した */
+  return{id:'e'+(eid++),side:'e',kind,name:d.name+(suf||''),max:hp,hp,atk:d.atk*am*1.68,amul:am/fk,spd:d.spd,fmul:(B&&B.fmul)||1,
   gauge:Math.random()*0.4,frozen:0,stun:0,wind:0,cycle:0,state:'ok',pop:null,eva:d.eva||.05};}
 function spawnWave(n){
   const f=B.floor||3;B.place=floorName(f);B.emul=floorMul(f);B.amul=floorAtk(f);B.fmul=floorFlash(f);
