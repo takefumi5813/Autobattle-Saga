@@ -11,14 +11,15 @@
               magicHeal（魔の技を使うと全員をこの量回復）, hasteStart（戦いの始めに一行の加速をこの秒数）
    abil：[{k,name,lv,desc, stat, tr}]。lv はその職の★。stat は付けているあいだの値、tr は固有の癖。k だけなら試作の ABIL にある既存のもの */
 const CLASS_JP=[0,2,5,9,14,20];   // ★1〜★5 に必要な熟練度（帰還2・撤退1）
-const ARM_WEIGHT={'革鎧':'mid','鎖帷子':'heavy','板金鎧':'heavy','法衣':'light','外套':'light','綿入れ':'mid','鱗鎧':'heavy','胴丸':'mid'};
+const ARM_WEIGHT={'革鎧':'mid','鎖帷子':'heavy','板金鎧':'heavy','法衣':'light','外套':'light','綿入れ':'mid','鱗鎧':'heavy','胴丸':'mid',
+  '兜':'heavy','鉢金':'mid','帽子':'light','頭巾':'light','籠手':'heavy','手甲':'mid','手袋':'light','脛当て':'heavy','長靴':'mid','草鞋':'light'};
 /* 基本職：使える武具と特典 */
 const BASE_CLASS={
-  sword:{wt:['長剣','大剣','刀','曲刀','細剣','槍'],arm:['heavy','mid'],perk:{desc:'剣の心得：攻撃+2%/★。★3で反撃、★5で最初の一撃が2倍',per:{atk:.02},at:{3:['counter'],5:['first']}}},
+  sword:{wt:['長剣','大剣','刀','曲刀','細剣','槍','円盾','凧盾'],arm:['heavy','mid'],perk:{desc:'剣の心得：攻撃+2%/★。★3で反撃、★5で最初の一撃が2倍',per:{atk:.02},at:{3:['counter'],5:['first']}}},
   tank:{wt:['大盾','円盾','凧盾','戦鎚','長剣'],arm:['heavy','mid'],perk:{desc:'盾の心得：HP+3%/★。★3で挑発が1秒長く、★5で一度だけ踏みとどまる',per:{hp:.03},at:{3:['tauntLong'],5:['guts']}}},
-  mage:{wt:['杖','長杖','魔導書','宝珠'],arm:['light'],perk:{desc:'魔の心得：凍結+0.2秒/★。★3で技の威力+10%、★5で全体技+15%',per:{frost:.2},at:{3:['skillUp'],5:['aoeUp']}}},
-  hunter:{wt:['長弓','短弓','弩','和弓','短刀'],arm:['mid','light'],perk:{desc:'弓の心得：速さ+2%/★。★3で気絶した敵に+30%、★5で会心',per:{spd:.02},at:{3:['stunBite'],5:['critHit']}}},
-  priest:{wt:['聖印','錫杖','数珠','聖典','拳甲'],arm:['light','mid'],perk:{desc:'祈りの心得：回復+4%/★。★3で救命の祈りが速く、★5で再生',per:{heal:.04},at:{3:['rescueFast'],5:['regenT']}}},
+  mage:{wt:['杖','長杖','魔導書','宝珠'],arm:['light'],perk:{desc:'魔の心得：凍結+0.2秒/★・詠唱+2%/★。★3で技の威力+10%、★5で全体技+15%',per:{frost:.2,cast:.02},at:{3:['skillUp'],5:['aoeUp']}}},
+  hunter:{wt:['長弓','短弓','弩','和弓','短刀'],arm:['mid','light'],perk:{desc:'弓の心得：速さ+2%/★・弓を引く速さ+2%/★。★3で気絶した敵に+30%、★5で会心',per:{spd:.02,draw:.02},at:{3:['stunBite'],5:['critHit']}}},
+  priest:{wt:['聖印','錫杖','数珠','聖典','拳甲','円盾'],arm:['light','mid'],perk:{desc:'祈りの心得：回復+4%/★。★3で救命の祈りが速く、★5で再生',per:{heal:.04},at:{3:['rescueFast'],5:['regenT']}}},
   thief:{wt:['短刀','双剣','投げ刃','鉤爪','短弓'],arm:['mid','light'],perk:{desc:'影の心得：速さ+2%/★。★3でかわす、★5で倒すと次の行動が早まる',per:{spd:.02},at:{3:['dodge'],5:['killGauge']}}},
 };
 const CLASS_DATA={
@@ -73,7 +74,7 @@ const CLASS_DATA={
 
   // ===== 魔術師から =====
   sage:{name:'賢者',base:'mage',wt:['杖','長杖','聖典'],arm:['light'],apt:['祈'],req:[['line','魔',3,1],['faith',60]],
-    perk:{desc:'魔の技を使うたび、全員を少し癒やす（1.5/★）。★5で技の待ち時間-15%',per:{magicHeal:1.5},at:{5:['quickCd']}},
+    perk:{desc:'魔の技を使うたび、全員を少し癒やす（1.5/★）。★3で詠唱を崩されない、★5で技の待ち時間-15%',per:{magicHeal:1.5},at:{3:['steadyCast'],5:['quickCd']}},
     abil:[{k:'nijuu',lv:2},{k:'meisou',name:'瞑想',lv:4,desc:'1秒ごとに最大HPの1%回復',tr:['regenT']}]},
   warlock:{name:'呪術師',base:'mage',wt:['杖','魔導書'],arm:['light'],req:[['faithLo',30]],note:'異神の囁きを聞く者',
     perk:{desc:'吸血。閃き+4%/★。★3で2割の確率で出血させる',per:{flash:.04},at:{1:['vamp'],3:['bleedHit']}},
@@ -85,18 +86,18 @@ const CLASS_DATA={
     perk:{desc:'全体技+3%/★。★3で2割の確率で燃やす',per:{aoe:.03},at:{3:['bleedHit']}},
     abil:[{k:'shakunetsu',name:'灼熱',lv:2,desc:'全体技+10%',stat:{aoe:.1}},{k:'gouka',name:'業火',lv:4,desc:'2割の確率で敵を燃やす',tr:['bleedHit']}]},
   raijutsu:{name:'雷術師',base:'mage',wt:['長杖','魔導書'],arm:['light'],req:[['lv','mage',2]],
-    perk:{desc:'会心+2%/★。★3で1割の確率で気絶させる',per:{crit:.02},at:{3:['stunHit']}},
+    perk:{desc:'会心+2%/★・詠唱+3%/★。★3で1割の確率で気絶させる',per:{crit:.02,cast:.03},at:{3:['stunHit']}},
     abil:[{k:'raikou',name:'雷光',lv:2,desc:'会心の確率+6%',stat:{crit:.06}},{k:'shiden',name:'紫電',lv:4,desc:'1割の確率で敵を気絶させる',tr:['stunHit']}]},
   renkin:{name:'錬金術師',base:'mage',wt:['宝珠','杖','投げ刃'],arm:['light','mid'],req:[['lv','mage',2],['runs',6]],
     perk:{desc:'採集の心得（この職でいるときだけ）。回復+3%/★・閃き+3%/★。★3で再生',per:{heal:.03,flash:.03},at:{1:['gatherer'],3:['regenT']}},
     abil:[{k:'chougou',name:'調合',lv:2,desc:'回復+12%',stat:{heal:.12}},{k:'kinjutsu',name:'禁術',lv:4,desc:'技の威力+8%',stat:{skill:.08}}]},
   jijutsu:{name:'時術師',base:'mage',wt:['杖','長杖'],arm:['light'],req:[['lv','mage',3],['lv','sage',1]],
-    perk:{desc:'戦いの始めに一行を加速（1秒/★）。★5で技の待ち時間-15%',per:{hasteStart:1},at:{5:['quickCd']}},
+    perk:{desc:'戦いの始めに一行を加速（1秒/★）・詠唱+4%/★。★5で技の待ち時間-15%',per:{hasteStart:1,cast:.04},at:{5:['quickCd']}},
     abil:[{k:'kasoku',name:'加速',lv:2,desc:'速さ+10%',stat:{spd:.1}},{k:'jikan',name:'時の綻び',lv:4,desc:'技の待ち時間-15%',tr:['quickCd']}]},
 
   // ===== 狩人から =====
   archer:{name:'弓聖',base:'hunter',wt:['長弓','和弓'],arm:['mid','light'],req:[['lv','hunter',3],['line','弓',3,2]],
-    perk:{desc:'会心+2%/★・命中+2%/★。★3で大物に+30%',per:{crit:.02,hit:.02},at:{3:['giant'],5:['critHit']}},
+    perk:{desc:'会心+2%/★・命中+2%/★・弓を引く速さ+2%/★。★3で大物に+30%',per:{crit:.02,hit:.02,draw:.02},at:{3:['giant'],5:['critHit']}},
     abil:[{k:'sokusha',lv:2},{k:'meichuu',name:'百発百中',lv:4,desc:'命中+12%・会心の確率+5%',stat:{hit:.12,crit:.05}}]},
   shinobi:{name:'忍び',base:'hunter',wt:['刀','短刀','短弓','投げ刃'],arm:['light'],apt:['剣'],req:[['line','剣',1,1],['line','弓',1,1]],
     perk:{desc:'かわす。速さ+2%/★。★5で最初の一撃が2倍',per:{spd:.02},at:{1:['dodge'],5:['first']}},
@@ -109,10 +110,13 @@ const CLASS_DATA={
     abil:[{k:'takanome',name:'鷹の目',lv:2,desc:'命中+8%・会心の確率+3%',stat:{hit:.08,crit:.03}},{k:'yasei',name:'野生',lv:4,desc:'獣に+40%',tr:['beast']}]},
   dohei:{name:'弩兵',base:'hunter',wt:['弩'],arm:['heavy','mid'],req:[['lv','hunter',2]],
     perk:{desc:'攻撃+4%/★、速さ-1.5%/★。★3で大物に+30%',per:{atk:.04,spd:-.015},at:{3:['giant']}},
-    abil:[{k:'makiage',name:'巻き上げ',lv:2,desc:'攻撃+6%',stat:{atk:.06}},{k:'kantsuu',name:'貫通',lv:4,desc:'全体技+12%',stat:{aoe:.12}}]},
+    abil:[{k:'makiage',name:'巻き上げ',lv:2,desc:'攻撃+6%・弓を引く速さ+15%',stat:{atk:.06,draw:.15}},{k:'kantsuu',name:'貫通',lv:4,desc:'全体技+12%',stat:{aoe:.12}}]},
   nobuse:{name:'野伏',base:'hunter',wt:['和弓','短刀','刀'],arm:['light','mid'],req:[['lv','hunter',2],['runs',5]],
     perk:{desc:'マッパー・採集の心得（この職でいるときだけ）。HP+2%/★。★3で再生、★5でかわす',per:{hp:.02},at:{1:['mapper','gatherer'],3:['regenT'],5:['dodge']}},
     abil:[{k:'yaeijutsu',name:'野営術',lv:2,desc:'1秒ごとに最大HPの1%回復',tr:['regenT']},{k:'kehai',name:'気配',lv:4,desc:'8%でかわす',tr:['dodge']}]},
+  mazukai:{name:'魔獣使い',base:'hunter',wt:['短弓','長弓','短刀'],arm:['mid','light'],req:[['lv','hunter',2],['runs',3]],note:'獣と心を通わせる者',
+    perk:{desc:'倒した獣を手なずけ、魔獣として連れて戦える（この職でいるときだけ）。魔獣の強さ+6%/★。★3で魔獣が倒れそうな主を庇う',per:{pet:.06},at:{1:['tamer'],3:['petGuard']}},
+    abil:[{k:'kemonomichi',name:'獣道',lv:2,desc:'獣に+40%',tr:['beast']},{k:'yobigoe',name:'呼び声',lv:4,desc:'速さ+8%',stat:{spd:.08}}]},
   dokuyashi:{name:'毒矢師',base:'hunter',wt:['短弓','長弓'],arm:['light'],req:[['lv','hunter',2],['faithLo',60]],
     perk:{desc:'2割の確率で毒を与える。技の威力+2%/★',per:{skill:.02},at:{1:['bleedHit']}},
     abil:[{k:'dokugaku',name:'毒学',lv:2,desc:'2割の確率で敵を毒で蝕む',tr:['bleedHit']},{k:'mouhou',name:'猛毒',lv:4,desc:'技の威力+8%',stat:{skill:.08}}]},
@@ -125,10 +129,10 @@ const CLASS_DATA={
     perk:{desc:'攻撃+3%/★。★3で反撃、★5で再生',per:{atk:.03},at:{3:['counter'],5:['regenT']}},
     abil:[{k:'kentou',name:'拳の道',lv:2,desc:'攻撃+6%',stat:{atk:.06}},{k:'kikou',name:'気功',lv:4,desc:'1秒ごとに最大HPの1%回復',tr:['regenT']}]},
   miko:{name:'巫女',base:'priest',wt:['鈴','数珠','聖印'],arm:['light'],apt:['歌'],req:[['faith',85],['lv','priest',2]],
-    perk:{desc:'神託に従う+3%/★。★3で信仰が厚いほど攻撃が上がる',per:{obey:.03},at:{3:['faithAtk']}},
+    perk:{desc:'神託に従う+3%/★・詠唱+2%/★。★3で信仰が厚いほど攻撃が上がる',per:{obey:.03,cast:.02},at:{3:['faithAtk']}},
     abil:[{k:'kagura',name:'神楽',lv:2,desc:'神託に従う確率+10%',stat:{obey:.1}},{k:'kamigakari',name:'神懸かり',lv:4,desc:'信仰が厚いほど攻撃が上がる',tr:['faithAtk']}]},
   iyashite:{name:'癒し手',base:'priest',wt:['聖印','数珠'],arm:['light'],req:[['lv','priest',3]],
-    perk:{desc:'回復+5%/★。★3で倒れたときの猶予+3秒',per:{heal:.05},at:{3:['rescue']}},
+    perk:{desc:'回復+5%/★・詠唱+3%/★。★3で倒れたときの猶予+3秒',per:{heal:.05,cast:.03},at:{3:['rescue']}},
     abil:[{k:'kaigo',name:'介抱',lv:2,desc:'回復+12%',stat:{heal:.12}},{k:'inochinohi',name:'命の灯',lv:4,desc:'倒れたときの救命の猶予+3秒',tr:['rescue']}]},
   haraishi:{name:'祓い師',base:'priest',wt:['錫杖','聖典','数珠'],arm:['light','mid'],req:[['lv','priest',2],['runs',4]],
     perk:{desc:'人に+40%。攻撃+2%/★。★5で被ダメージ-8%',per:{atk:.02},at:{1:['human'],5:['guardT']}},

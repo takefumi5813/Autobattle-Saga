@@ -134,6 +134,8 @@ const SKILL_DATA={
   // ===== パッシブの技（2026-11-24）：使うのではなく、覚えているあいだ常に効く。技の枠（4つ）を一つ使う。
   //       stat は段階の強さ（啓示0.7〜体得1.15）を掛けた値、tr（固有の癖）は「訓練」の段階から効く。生還するたび少しずつ習熟する
   kenki:{name:'剣気',line:'剣',from:'slash',passive:true,desc:'攻撃+6%',stat:{atk:.06}},
+  nitouryuu:{name:'二刀流',line:'剣',from:'double',passive:true,desc:'左手にも片手武器を持てる（訓練から）。左手の武器の攻撃も半分加わる',tr:['dualWield']},
+  soutou:{name:'双刃の心得',line:'短',from:'sougeki',passive:true,desc:'左手にも片手武器を持てる（訓練から）。左手の武器の攻撃も半分加わる',tr:['dualWield']},
   shinsoku:{name:'心速',line:'剣',from:'double',passive:true,desc:'速さ+6%',stat:{spd:.06}},
   kesshin:{name:'決死',line:'剣',book:true,passive:true,desc:'一度だけ倒れずに踏みとどまる',tr:['guts']},
   kenatsu:{name:'剣圧',line:'剣',from:'yokonagi',passive:true,desc:'全体技+10%',stat:{aoe:.1}},

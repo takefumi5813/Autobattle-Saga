@@ -3,21 +3,32 @@
    毎回同じ顔ぶれの、名前の重ならない武具を作る。数は GEAR_COUNT で変えられる（増やしても前の品は同じまま残る）。
    格：1 粗末 / 2 並 / 3 良 / 4 名品 / 5 業物 / 6 伝説。4以上は銘（「夜鳴」など）、6は由来の一文が付く。
    固有の癖（tr）は持っているあいだ常に効く効果の部品。試作の TRAIT 表で意味を決め、パッシブの技にも使い回す。 */
-const GEAR_COUNT={wpn:300,arm:60,acc:40};
+const GEAR_COUNT={wpn:300,arm:60,acc:40,head:40,gloves:30,legs:30,ankle:20,ring:40,wrist:30};
 const GEAR_TIER=['','粗末','並','良','名品','業物','伝説'];
 const GEAR_TMUL=[0,.6,.85,1,1.15,1.3,1.5];
 /* 武器の型：系統ごと。数値は格3のときの値 */
 const WTYPES=[
   {n:'長剣',line:'剣',atk:3},{n:'大剣',line:'剣',atk:5,spd:-.08},{n:'刀',line:'剣',atk:3.5,spd:.04},{n:'曲刀',line:'剣',atk:3,spd:.06},{n:'細剣',line:'剣',atk:2.5,spd:.1},{n:'槍',line:'剣',atk:3.5},
   {n:'大盾',line:'盾',def:.1,hp:20},{n:'円盾',line:'盾',def:.07,hp:10,spd:.03},{n:'凧盾',line:'盾',def:.08,hp:15},{n:'戦鎚',line:'盾',atk:2,def:.05,hp:10},
-  {n:'杖',line:'魔',atk:2},{n:'長杖',line:'魔',atk:2.5,frost:.5},{n:'魔導書',line:'魔',atk:1.5,flash:.2},{n:'宝珠',line:'魔',atk:2,spd:.05},
-  {n:'長弓',line:'弓',atk:3},{n:'短弓',line:'弓',atk:2,spd:.08},{n:'弩',line:'弓',atk:4,spd:-.06},{n:'和弓',line:'弓',atk:3,flash:.1},
+  {n:'杖',line:'魔',atk:2,cast:.1},{n:'長杖',line:'魔',atk:2.5,frost:.5,cast:-.1},{n:'魔導書',line:'魔',atk:1.5,flash:.2,cast:.05},{n:'宝珠',line:'魔',atk:2,spd:.05,cast:.15},
+  {n:'長弓',line:'弓',atk:3,draw:-.1},{n:'短弓',line:'弓',atk:2,spd:.08,draw:.25},{n:'弩',line:'弓',atk:4,spd:-.06,draw:-.3},{n:'和弓',line:'弓',atk:3,flash:.1},
   {n:'聖印',line:'祈',heal:.2},{n:'錫杖',line:'祈',heal:.15,atk:1},{n:'数珠',line:'祈',heal:.1,obey:.05},{n:'聖典',line:'祈',heal:.15,flash:.15},{n:'拳甲',line:'祈',atk:2.5,heal:.05},
   {n:'短刀',line:'短',atk:2,spd:.05},{n:'双剣',line:'短',atk:2.5,spd:.06},{n:'投げ刃',line:'短',atk:2,spd:.08},{n:'鉤爪',line:'短',atk:3},
   {n:'竪琴',line:'歌',atk:1,heal:.1,spd:.05},{n:'笛',line:'歌',atk:1,spd:.1},{n:'鈴',line:'歌',heal:.1,obey:.05},
 ];
 const ATYPES=[{n:'革鎧',def:.05,hp:10},{n:'鎖帷子',def:.12,spd:-.05},{n:'板金鎧',def:.16,hp:15,spd:-.1},{n:'法衣',def:.03,heal:.1},{n:'外套',def:.03,flash:.25},{n:'綿入れ',def:.06,hp:20},{n:'鱗鎧',def:.1,hp:10,spd:-.03},{n:'胴丸',def:.09,spd:.02}];
-const CTYPES=[{n:'指輪',frost:1},{n:'首飾り',obey:.1},{n:'腕輪',hp:15},{n:'護符',def:.04},{n:'羽飾り',spd:.1},{n:'耳飾り',flash:.3},{n:'帯',hp:10,def:.02}];
+const CTYPES=[{n:'指輪',frost:1,part:'ring'},{n:'首飾り',obey:.1,part:'neck'},{n:'腕輪',hp:15,part:'wrist'},{n:'護符',def:.04,part:'neck'},{n:'羽飾り',spd:.1,part:'head'},{n:'耳飾り',flash:.3,part:'neck'},{n:'帯',hp:10,def:.02,part:'legs'}];
+/* 部位の防具と装飾（2026-11-24）：頭・腕（籠手・手袋）・足・足首。種を分けているので、前からの品は変わらない */
+const HTYPES=[{n:'兜',def:.04,hp:6,spd:-.02,part:'head'},{n:'鉢金',def:.03,hp:3,part:'head'},{n:'帽子',def:.01,flash:.1,part:'head'},{n:'頭巾',def:.02,spd:.03,part:'head'}];
+const GTYPES=[{n:'籠手',def:.03,hp:4,part:'gloves'},{n:'手甲',def:.02,atk:1,part:'gloves'},{n:'手袋',def:.01,spd:.03,part:'gloves'}];
+const LTYPES=[{n:'脛当て',def:.04,spd:-.02,part:'legs'},{n:'長靴',def:.03,hp:5,part:'legs'},{n:'草鞋',def:.01,spd:.05,part:'legs'}];
+const KTYPES=[{n:'足輪',spd:.05,part:'ankle'},{n:'鈴の足輪',obey:.05,part:'ankle'}];
+/* 指と手首の装飾を増やした（2026-11-24） */
+const RTYPES=[{n:'指輪',frost:.5,flash:.1,part:'ring'},{n:'印章指輪',obey:.06,part:'ring'},{n:'石の指輪',def:.02,hp:5,part:'ring'},{n:'骨の指輪',atk:1,part:'ring'},{n:'祈りの指輪',heal:.06,part:'ring'},{n:'詠唱の指輪',cast:.08,part:'ring'}];
+const XTYPES=[{n:'腕輪',hp:10,part:'wrist'},{n:'護り紐',def:.02,flash:.1,part:'wrist'},{n:'数珠の腕輪',heal:.05,obey:.03,part:'wrist'},{n:'革の手首当て',def:.02,atk:1,part:'wrist'},{n:'弓懸け',draw:.1,part:'wrist'}];
+/* 武器の持ち方：両手（2h）・片手（1h、既定）・左手に持つもの（off：盾・魔導書など） */
+const WEAPON_HANDS={'大剣':'2h','槍':'2h','戦鎚':'2h','長杖':'2h','長弓':'2h','短弓':'2h','和弓':'2h','弩':'2h','竪琴':'2h','双剣':'2h','拳甲':'2h','鉤爪':'2h',
+  '大盾':'off','円盾':'off','凧盾':'off','魔導書':'off','宝珠':'off','聖典':'off','聖印':'off','数珠':'off','鈴':'off'};
 /* 素材：格の下限（low）と、数値への掛け方 */
 const MATS=[
   {n:'青銅',low:1,m:.9},{n:'鉄',low:1,m:1},{n:'樫',low:1,m:1,lines:['盾','魔','弓','祈','歌']},{n:'鋼',low:2,m:1.1},{n:'黒鉄',low:2,m:1.05,def:.02},
@@ -53,11 +64,12 @@ function genGear(){
       const name=tier<=1?`${M.n}の${T.n}`:tier<=3?`${org}${mk}の${M.n}の${T.n}`:`${M.n}の${T.n}${mei}`;
       if(used.has(name)||(tier>=4&&used.has(mei)))continue;
       used.add(name);if(mei)used.add(mei);
-      const tm=GEAR_TMUL[tier]*M.m;const d={name,slot,tier,type:T.n,gen:true};if(T.line)d.line=T.line;
+      const tm=GEAR_TMUL[tier]*M.m;const d={name,slot,tier,type:T.n,gen:true};d.part=T.part||(slot==='arm'?'body':slot==='wpn'?'hand':'ring');if(T.line)d.line=T.line;
       for(const k of ['atk','def','hp','spd','flash','frost','heal','obey']){let v=(T[k]||0);
         if(k==='atk'||k==='hp')v*=tm;else if(k==='def'||k==='heal'||k==='flash'||k==='obey')v*=GEAR_TMUL[tier];
         v+=M[k]||0;if(v)d[k]=k==='atk'||k==='hp'?Math.max(1,Math.round(v)):round(v,100);}
-      const pool=Object.keys(GEAR_TRAITS).filter(t=>GEAR_TRAITS[t].includes(code));
+      if(T.cast)d.cast=T.cast;if(T.draw)d.draw=T.draw;
+      const tcode={h:'a',g:'a',l:'a',k:'c',r:'c',x:'c'}[code]||code;const pool=Object.keys(GEAR_TRAITS).filter(t=>GEAR_TRAITS[t].includes(tcode));
       const nTr=tier===1?0:tier===2?(rnd()<.3?1:0):tier<=4?(tier===4&&rnd()<.35?2:1):2;
       const tr=[];while(tr.length<nTr){const t=pk(pool);if(!tr.includes(t))tr.push(t);}
       if(tr.length)d.tr=tr;
@@ -68,6 +80,12 @@ function genGear(){
   seed=20261124;for(let i=0;i<GEAR_COUNT.wpn;i++)make('wpn',i,WTYPES,'w');
   seed=31415926;for(let i=0;i<GEAR_COUNT.arm;i++)make('arm',i,ATYPES,'a');
   seed=27182818;for(let i=0;i<GEAR_COUNT.acc;i++)make('acc',i,CTYPES,'c');
+  seed=16180339;for(let i=0;i<GEAR_COUNT.head;i++)make('arm',i,HTYPES,'h');
+  seed=14142135;for(let i=0;i<GEAR_COUNT.gloves;i++)make('arm',i,GTYPES,'g');
+  seed=17320508;for(let i=0;i<GEAR_COUNT.legs;i++)make('arm',i,LTYPES,'l');
+  seed=22360679;for(let i=0;i<GEAR_COUNT.ankle;i++)make('acc',i,KTYPES,'k');
+  seed=26457513;for(let i=0;i<GEAR_COUNT.ring;i++)make('acc',i,RTYPES,'r');
+  seed=24494897;for(let i=0;i<GEAR_COUNT.wrist;i++)make('acc',i,XTYPES,'x');
   return out;
 }
 const GEAR_DATA=genGear();
