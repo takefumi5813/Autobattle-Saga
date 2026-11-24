@@ -57,19 +57,8 @@ h1 span{color:var(--gold)}
 .div i{position:absolute;inset:0 auto 0 0;background:var(--gold)}
 .tiny{font-size:calc(var(--px)*8);color:#c8cbe8}
 .gold{color:var(--gold)} .warnc{color:var(--warn)} .healc{color:var(--heal)} .muted2{color:#9a9ec8}
-/* 拠点メニュー */
-.menu .mi{height:calc(var(--px)*15);display:flex;align-items:center;gap:calc(var(--px)*3)}
-.menu .mi .hand{width:calc(var(--px)*9);visibility:hidden}
-.menu .mi.on .hand{visibility:visible}
-.list .r{display:grid;grid-template-columns:calc(var(--px)*16) calc(var(--px)*44) calc(var(--px)*30) 1fr;align-items:center;gap:calc(var(--px)*3);height:calc(var(--px)*23);line-height:1.1}
-.list .r img{width:calc(var(--px)*16);height:calc(var(--px)*17);image-rendering:pixelated;object-fit:cover;object-position:top}
-.tagw{font-size:calc(var(--px)*8);padding:0 calc(var(--px)*2);border:var(--px) solid currentColor;border-radius:calc(var(--px)*2);justify-self:start}
-.bars{display:grid;grid-template-columns:auto 1fr;gap:0 calc(var(--px)*3);align-items:center;font-size:calc(var(--px)*6);line-height:1.05}
 .mbar{height:calc(var(--px)*3);background:#05061a;position:relative}
 .mbar i{position:absolute;inset:0 auto 0 0}
-.sect{color:var(--gold);font-size:calc(var(--px)*8);margin:calc(var(--px)*2) 0}
-.ledger{display:grid;grid-template-columns:1fr auto;gap:calc(var(--px)*1) calc(var(--px)*6);font-size:calc(var(--px)*8.5);font-variant-numeric:tabular-nums}
-.ledger .t{border-top:var(--px) solid #c8c8d8;padding-top:calc(var(--px)*2)}
 .notes{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 @media (max-width:640px){.notes{grid-template-columns:minmax(0,1fr)}}
 .note{background:#12152e;border:1px solid var(--line);border-radius:6px;padding:12px 14px;min-width:0}
@@ -79,6 +68,7 @@ h1 span{color:var(--gold)}
 .tryrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:.82rem;color:var(--muted)}
 .tryrow button{font-family:var(--f-dot);font-size:.95rem;padding:3px 12px;color:var(--ink);cursor:pointer;background:linear-gradient(var(--win-top),var(--win-bot));border:2px solid var(--win-edge2);border-radius:4px}
 .tryrow button:hover{border-color:var(--win-edge)}
+.tabs .tolink{margin-left:auto;align-self:center;font-size:.85rem;color:var(--gold);text-decoration:none;border-bottom:1px solid currentColor}
 .banner{left:50%;top:38%;transform:translateX(-50%);font-size:calc(var(--px)*12);letter-spacing:.2em;padding:calc(var(--px)*5) calc(var(--px)*14);white-space:nowrap}
 .bwin{transition:transform .35s steps(6)}
 .bwin.out{transform:translateY(110%)}
@@ -87,8 +77,8 @@ h1 span{color:var(--gold)}
 
 <div class="page">
   <h1><span>✶</span> 神託の迷宮　画面モック</h1>
-  <p class="lead">SNES相当の256×224ドットで描いた見た目のイメージです。冒険画面は、歩く・戦う・また歩くが同じマップ上で切れ目なくつながる、クロノ・トリガー風のシームレス戦闘にしています。絵はすべてコードで描いた仮のドットです。</p>
-  <div class="tabs" id="tabs"><button data-m="adv" class="on">冒険</button><button data-m="world">世界</button><button data-m="base">拠点</button><button data-m="skill">技能</button></div>
+  <p class="lead">SNES相当の256×224ドットで描いたフィールドの見た目のイメージです。冒険画面は、歩く・戦う・また歩くが同じマップ上で切れ目なくつながる、クロノ・トリガー風のシームレス戦闘にしています。絵は生成した立ち絵や素材を切り抜いて縮めたドットです。神殿・ステータスなどの管理画面は、試作（prototype/shintaku.html）で実際に動く形で見られます。</p>
+  <div class="tabs" id="tabs"><button data-m="adv" class="on">冒険</button><button data-m="world">世界</button><a class="tolink" href="../prototype/shintaku.html">神殿・ステータスの画面は試作で →</a></div>
   <div class="screen" id="screen"><canvas id="cv" width="256" height="224"></canvas><div class="ui" id="ui"></div></div>
   <div class="tryrow" id="tryrow"></div>
   <div class="notes" id="notes"></div>
@@ -680,116 +670,7 @@ function tryOracle(i){
   setTimeout(()=>{if(!A)return;const t2=(performance.now()-start)/1000;aSpeech('ガレス',A.battle||i!==4?lines[i]:'今は戦っていない。……先を急ごう',2.2,t2);if(i===0){A.guard=true;setTimeout(()=>{if(A)A.guard=false;},2500);}},800);
 }
 
-/* ================= 拠点 ================= */
-const ROSTER=[
-  {id:'gareth',st:'潜行',fat:.35,loy:78,fa:62,pay:90},
-  {id:'borg',st:'潜行',fat:.55,loy:84,fa:77,pay:80},
-  {id:'erin',st:'潜行',fat:.40,loy:52,fa:41,pay:110},
-  {id:'mira',st:'潜行',fat:.30,loy:70,fa:55,pay:70},
-  {id:'rio',st:'潜行',fat:.25,loy:95,fa:98,pay:40},
-  {id:'aldo',st:'控え',fat:.10,loy:61,fa:45,pay:85},
-  {id:'sera',st:'休養',fat:.80,loy:73,fa:71,pay:60},
-  {id:'kei',st:'控え',fat:.05,loy:18,fa:12,pay:100},
-];
-const REL=[['gareth','borg',70],['gareth','erin',-10],['erin','rio',45],['mira','gareth',40],['borg','tohma',0],['kei','erin',-60],['kei','borg',-25],['aldo','gareth',35],['sera','rio',55],['mira','kei',20],['borg','rio',30],['erin','sera',-30]];
-let BASE={tab:0};
-function baseInit(){BASE={tab:BASE.tab||0};renderBase();}
-const STC={潜行:'gold',控え:'muted2',休養:'healc',負傷:'warnc'};
-function renderBase(){
-  const tabs=['編成','収支','人間関係','拠点'];
-  let main='';
-  if(BASE.tab===0){
-    main=`<div class="sect">潜行メンバー　5/5　　控え　3/8部屋</div><div class="list">`+ROSTER.map(r=>{const c=CHARS[r.id];
-      return `<div class="r"><img src="${c.url}" alt=""><span>${c.name}<br><span class="tiny">${c.role}</span></span><span class="tagw ${STC[r.st]}">${r.st}</span>
-        <span class="bars"><span>疲労</span><span class="mbar"><i style="width:${r.fat*100}%;background:${r.fat>.7?'#ff8a6a':'#c8c8d8'}"></i></span>
-        <span>忠誠</span><span class="mbar"><i style="width:${r.loy}%;background:${r.loy<30?'#ff8a6a':'#f2d06b'}"></i></span>
-        <span>信仰</span><span class="mbar"><i style="width:${r.fa}%;background:#9ad8ff"></i></span></span></div>`;}).join('')+`</div>`;
-  }else if(BASE.tab===1){
-    const pay=ROSTER.reduce((a,r)=>a+r.pay,0);
-    main=`<div class="sect">第14週の収支（銀貨）</div><div class="ledger">
-      <span class="gold">収入</span><span></span>
-      <span>戦利品の売却（城塞の盾ほか）</span><span class="healc">+860</span>
-      <span>依頼報酬「回廊の掃討」</span><span class="healc">+400</span>
-      <span>神殿への寄進（信者から）</span><span class="healc">+120</span>
-      <span class="gold">支出</span><span></span>
-      <span>家賃（鍛冶屋通りの借家）</span><span class="warnc">-180</span>
-      <span>給金（8人）</span><span class="warnc">-${pay}</span>
-      <span>装備の修繕</span><span class="warnc">-95</span>
-      <span>書物『雷撃の書』購入</span><span class="warnc">-150</span>
-      <span class="t">差し引き</span><span class="t">${860+400+120-180-pay-95-150>0?'+':''}${860+400+120-180-pay-95-150}</span>
-    </div><div class="tiny" style="margin-top:calc(var(--px)*4)">給金を払えない週は、全員の忠誠が下がる。<br>控えにも給金はかかる。抱えすぎは家計を圧迫する。</div>`;
-  }else if(BASE.tab===2){
-    main=`<div class="sect">人間関係</div><canvas id="relcv" width="172" height="104" style="width:100%;image-rendering:pixelated"></canvas>
-      <div class="tiny" style="margin-top:calc(var(--px)*2)"><span class="warnc">！ ケイ：忠誠18・信仰12</span>　分け前でエリンと口論。<br>大神の使徒が酒場で接触していたという噂がある。</div>`;
-  }else{
-    main=`<div class="sect">鍛冶屋通りの借家</div><div class="ledger">
-      <span>部屋数（抱えられる人数）</span><span>8</span><span>家賃</span><span>180/週</span>
-      <span>礼拝所</span><span>小（信仰の回復 小）</span><span>訓練場</span><span>なし</span></div>
-      <div class="sect" style="margin-top:calc(var(--px)*6)">移れる拠点</div><div class="ledger">
-      <span>港の倉庫街（部屋10・訓練場）</span><span>260/週</span>
-      <span>古い修道院（部屋9・礼拝所 大）</span><span>240/週</span>
-      <span>迷宮入口の宿（部屋6・疲労回復 大）</span><span>150/週</span></div>`;
-  }
-  UI.innerHTML=`<div class="win" style="left:0;top:0;width:${pct(184,W)};height:100%;font-size:calc(var(--px)*8.5)">${main}</div>
-    <div class="win menu" style="left:${pct(183,W)};top:0;right:0;height:${pct(76,H)}">${tabs.map((n,i)=>`<div class="mi click ${i===BASE.tab?'on':''}" data-bt="${i}"><span class="hand">▶</span>${n}</div>`).join('')}</div>
-    <div class="win" style="left:${pct(183,W)};top:${pct(75,H)};right:0;height:${pct(46,H)}"><div class="tiny">所持銀</div><div style="text-align:right">2,340</div></div>
-    <div class="win" style="left:${pct(183,W)};top:${pct(120,H)};right:0;bottom:0;font-size:calc(var(--px)*8)"><div class="tiny">第14週</div><div>潜行 21回</div><div>墓碑 2</div><div class="tiny gold" style="margin-top:calc(var(--px)*4)">次の家賃まで<br>3日</div></div>`;
-  UI.querySelectorAll('[data-bt]').forEach(el=>el.onclick=()=>{BASE.tab=+el.dataset.bt;renderBase();});
-  if(BASE.tab===2)drawRel();
-}
-function drawRel(){
-  const c=$('#relcv');const x=c.getContext('2d');x.imageSmoothingEnabled=false;
-  const ids=ROSTER.map(r=>r.id);const pos={};
-  ids.forEach((id,i)=>{const a=i/ids.length*Math.PI*2-Math.PI/2;pos[id]=[86+Math.round(Math.cos(a)*62),52+Math.round(Math.sin(a)*38)];});
-  for(const [a,b,v] of REL){if(!pos[a]||!pos[b])continue;x.strokeStyle=v>=40?'#f2d06b':v>=0?'#8a8fb8':v>-40?'#ff8a6a':'#ff3a3a';x.lineWidth=v<=-40||v>=60?2:1;
-    if(v<0)x.setLineDash([3,2]);else x.setLineDash([]);x.beginPath();x.moveTo(pos[a][0],pos[a][1]);x.lineTo(pos[b][0],pos[b][1]);x.stroke();}
-  x.setLineDash([]);
-  for(const id of ids){const [px_,py]=pos[id];x.drawImage(CHARS[id].spr,6,1,16,16,px_-8,py-10,16,16);
-    x.fillStyle=id==='kei'?'#ff8a6a':'#e8e6f4';x.font='8px DotGothic16, monospace';x.textAlign='center';x.fillText(CHARS[id].name,px_,py+14);}
-}
-
-/* ================= 技能 ================= */
-let SK={tab:0};
-function skillInit(){SK={tab:SK.tab||0};renderSkill();}
-const TREE={nodes:[
-  {id:'slash',n:'斬撃',x:4,y:30,st:'base'},
-  {id:'double',n:'二段斬り',x:60,y:12,st:'got',src:'flash',p:4},
-  {id:'tsubame',n:'燕返し',x:116,y:12,st:'got',src:'flash',p:3},
-  {id:'mumyo',n:'無明剣',x:116,y:30,st:'lock',cls:'剣聖'},
-  {id:'nagi',n:'？？？',x:60,y:48,st:'unknown'},
-  {id:'parry',n:'受け流し',x:4,y:72,st:'got',src:'book',p:3},
-  {id:'mikiri',n:'？？？',x:60,y:72,st:'unknown'},
-  {id:'mahou',n:'魔法剣',x:60,y:92,st:'lock',cls:'魔法剣士'},
-  ],edges:[['slash','double','flash'],['double','tsubame','flash'],['double','mumyo','flash'],['slash','nagi','flash'],['parry','mikiri','eye'],['slash','mahou','teach']]};
-function renderSkill(){
-  const tabs=['系譜','流儀','職'];
-  let main=`<div style="display:flex;gap:calc(var(--px)*6);align-items:center;margin-bottom:calc(var(--px)*3)"><img src="${CHARS.gareth.url}" alt="" style="width:calc(var(--px)*24);image-rendering:pixelated"><div><div>ガレス　<span class="gold">剣士</span></div><div class="tiny">系統 剣・盾　技枠 3/4</div></div></div>`;
-  if(SK.tab===0){
-    main+=`<div class="sect">剣の系譜</div><div style="position:relative;height:calc(var(--px)*112)"><canvas id="trcv" width="172" height="112" style="position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated"></canvas>`+
-      TREE.nodes.map(n=>`<div style="position:absolute;left:${n.x/172*100}%;top:${n.y/112*100}%;width:${54/172*100}%;height:calc(var(--px)*15);font-size:calc(var(--px)*7);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;white-space:nowrap;
-        border:var(--px) solid ${n.st==='got'?'#f2d06b':n.st==='base'?'#c8c8d8':'#5a5f90'};background:${n.st==='unknown'?'#0a0c2a':'#141a5a'};color:${n.st==='unknown'||n.st==='lock'?'#8a8fb8':'#f4f4fa'};border-radius:calc(var(--px)*2)">${n.n}${n.p?`<span class="gold" style="font-size:calc(var(--px)*5)">${'◆'.repeat(n.p)}${'◇'.repeat(4-n.p)}</span>`:''}</div>`).join('')+`</div>
-      <div class="tiny"><span style="color:#fff27a">━ 閃き</span>　<span style="color:#9ad8ff">━ 書物・開眼</span>　<span style="color:#ff8a6a">━ 師弟</span>　暗い枠＝上級職で解禁</div>`;
-  }else if(SK.tab===1){
-    main+=`<div class="sect">流儀（技の組み合わせで発動）</div><div class="ledger" style="grid-template-columns:1fr">
-      <div><span class="gold">◆ 返し刃</span>　発動中<br><span class="tiny">受け流し＋二段斬り：受け流した直後、自動で反撃</span></div>
-      <div><span class="gold">◆ 燕の構え</span>　発動中<br><span class="tiny">二段斬り＋燕返し：連撃が途切れると次の燕返しが速くなる</span></div>
-      <div class="muted2">◇ 不動　（鉄壁＋大盾撃）<br><span class="tiny">盾の技を覚えれば狙える</span></div>
-      <div class="muted2">◇ ？？？　（受け流し＋？？？）<br><span class="tiny">見切りの先に何かある</span></div></div>`;
-  }else{
-    main+=`<div class="sect">職の系譜</div><div class="ledger" style="grid-template-columns:auto 1fr;gap:calc(var(--px)*3) calc(var(--px)*6)">
-      <span class="gold">剣士</span><span class="tiny">現在の職</span>
-      <span>→ 剣聖</span><span class="tiny">剣の技を2つ体得　<span class="healc">1/2</span>・ガルドの老剣士に認められる</span>
-      <span>→ 魔法剣士</span><span class="tiny">剣と魔の技を1つずつ体得　<span class="warnc">魔 0/1</span></span>
-      <span>→ 狂戦士</span><span class="tiny">信仰30以下・忠誠70以上（神に頼らぬ者）</span>
-      <span class="gold">✶ 使徒</span><span class="tiny">信仰100・神格3・神殿で儀式。一人だけ。神託が遅れずに届く</span></div>`;
-  }
-  UI.innerHTML=`<div class="win" style="left:0;top:0;width:${pct(196,W)};height:100%;font-size:calc(var(--px)*8.5)">${main}</div>
-    <div class="win menu" style="left:${pct(195,W)};top:0;right:0;height:${pct(62,H)}">${tabs.map((n,i)=>`<div class="mi click ${i===SK.tab?'on':''}" data-st="${i}"><span class="hand">▶</span>${n}</div>`).join('')}</div>
-    <div class="win" style="left:${pct(195,W)};top:${pct(61,H)};right:0;bottom:0;font-size:calc(var(--px)*7.5)"><div class="gold">技枠</div><div>受け流し</div><div>二段斬り</div><div>燕返し</div><div class="muted2">（空き）</div><div class="gold" style="margin-top:calc(var(--px)*4)">閃きの兆し</div><span class="mbar" style="display:block"><i style="width:64%;background:#fff27a"></i></span></div>`;
-  UI.querySelectorAll('[data-st]').forEach(el=>el.onclick=()=>{SK.tab=+el.dataset.st;renderSkill();});
-  if(SK.tab===0){const c=$('#trcv');const x=c.getContext('2d');const col={flash:'#fff27a',eye:'#9ad8ff',teach:'#ff8a6a'};
-    for(const [a,b,k] of TREE.edges){const A=TREE.nodes.find(n=>n.id===a),Bn=TREE.nodes.find(n=>n.id===b);x.strokeStyle=col[k];x.lineWidth=1;x.beginPath();x.moveTo(A.x+54,A.y+7.5);x.lineTo(A.x+55,A.y+7.5);x.lineTo(A.x+55,Bn.y+7.5);x.lineTo(Bn.x,Bn.y+7.5);x.stroke();}}
-}
+/* 拠点・技能などの管理画面は、試作（prototype/shintaku.html）の神殿の画面に一本化した（2026-11-24） */
 /* ================= 世界 ================= */
 const PLACES=[
   {id:'temple',x:22,y:26,kind:'temple',name:'忘れられた神殿',info:['あなたの神殿。家賃なし','信仰の回復 大・使徒の儀','大迷宮まで街道5区画'],faith:100},
@@ -871,20 +752,15 @@ function worldFrame(t){
 const NOTES={
   adv:[['シームレスな冒険',['歩く・戦う・また歩くが、同じマップの上で切れ目なくつながる（クロノ・トリガー方式）','敵はマップ上に見えている。接触するとその場で陣形を組み、下段にHPとATBの窓がせり上がる','戦闘が終わると窓が下がり、一行は隊列に戻って歩き出す。区画の境目では地名が出る（FF12方式）']],
     ['地形が戦術になる',['戒律「狭い所で迎え撃つ」に従って、道の細い場所で戦いを始めている','凍結の霧は範囲（青い円）、貫通矢は直線。敵の並びで連携技の効き方が変わる','オーガの大技は地面に赤い円で予告される。円が満ちる前に神託を間に合わせる']]],
-  base:[['拠点メニュー',['FF6のメニュー画面と同じ、右にコマンド・左に詳細の構成。右のコマンドはクリックで切り替えられる','編成：潜行5人と控えを入れ替える。疲労・忠誠・信仰の3本のゲージで状態を見る','収支：家賃と給金が毎週出ていく。控えを抱えすぎると家計が回らない']],
-    ['人間関係と離反',['線の色が関係の良し悪し。金は信頼、赤い点線は反目','忠誠（仲間・リーダーへ）と信仰（あなたへ）は別の値。両方が低い者は離反の候補','このモックではケイが危険な状態。大神の使徒が接触しているという噂が出ている']]],
   world:[['広い世界',['世界はいくつもの「地方」に分かれ、この画面はそのひとつ（王国西部）。右上の一覧のように、中原・諸島・凍土が続く','町と迷宮のあいだは「区画」（菱形）でつながる。区画の一つひとつが、冒険画面のような歩けるマップ','赤い印の区画は敵が多い。旅程は通る区画の数で決まり、日数・食費・疲労に効く']],
     ['拠点選び',['拠点（家の印）はどの町にも置ける。迷宮に近い町ほど家賃が高い','町ごとに「あなたへの信仰」が育つ。高い町では神力が回復しやすく、信者が仲間に加わる','王都は大神の膝元。仲間も書物も多いが、あなたの神力は弱まる']]],
-  skill:[['技の系譜と職',['右のコマンドで「系譜」「流儀」「職」を切り替える','系譜：線の色が覚え方（黄＝閃き、青＝書物・開眼、赤＝師弟）。？？？は未発見、暗い枠は上級職でしか閃けない技','職：上級職は技の体得・信仰・忠誠・町の師匠などが条件。転職しても技は残り、閃ける系譜が増える']],
-    ['流儀（個人の相乗効果）',['技枠4つの組み合わせで「流儀」が発動する。持たせる技の組み合わせそのものが育成の目標になる','流儀は最初は伏せられていて、発動して初めて名前がわかる','連携技（複数人）と流儀（一人）の二層で、コンボを覚えさせる楽しさを作る']]],
 };
 function setMode(m){
   mode=m;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
   start=performance.now();lastT=0;UI.innerHTML='';g.setTransform(1,0,0,1,0,0);A=null;
-  if(m==='adv')advInit();if(m==='base'){rect(g,0,0,W,H,'#000');baseInit();}
-  if(m==='world')worldInit();if(m==='skill'){rect(g,0,0,W,H,'#000');skillInit();}
+  if(m==='adv')advInit();if(m==='world')worldInit();
   $('#notes').innerHTML=NOTES[m].map(([h,l])=>`<div class="note"><h3>${h}</h3><ul>${l.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('');
-  $('#tryrow').innerHTML=m==='adv'?'神託を試す：'+ORC.map(([w],i)=>`<button data-try="${i}">${w}</button>`).join(''):(m==='base'||m==='skill'?'右のコマンドをクリックすると中身が切り替わります。':m==='world'?'町・迷宮・区画をクリックすると詳細が出ます。':'');
+  $('#tryrow').innerHTML=m==='adv'?'神託を試す：'+ORC.map(([w],i)=>`<button data-try="${i}">${w}</button>`).join(''):(m==='world'?'町・迷宮・区画をクリックすると詳細が出ます。':'');
   $('#tryrow').querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>tryOracle(+b.dataset.try));
 }
 function loop(now){
