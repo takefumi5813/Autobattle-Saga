@@ -1,0 +1,49 @@
+/* 一行の後ろから見る視点（試作、2026-11-24。オーナーの案「一行の後ろから見るTPS視点」）
+   いつもの見下ろしの絵は裏の画面（FLD.off）に描き、そこで人物・木・岩・敵の絵を描いた位置を記録しておく（FLD.rec）。
+   表の画面には、地面を奥行きのある床として描き（スーファミのモード7のように一行ずつ）、記録した絵を足もとの位置で奥行きに合わせて
+   大きさを変えて立てる。カメラは一行の後ろ・少し上にいて、道の向きを見る（ゆっくり追う）。
+   いまの絵は横向きしかないので、奥へ歩く一行は横を向いたまま。後ろ姿の絵を生成すれば本物らしくなる（次の段）。 */
+const TPS={D:96,H:96,F:132,HOR:36,FAR:480};   // オーナー「もう少し上からの見下ろしに」：カメラを高く（見下ろす角度 約45度）
+function fTPS(G,cam,camY,focus,dir,now,o){
+  const FW=G.canvas.width,FH=G.canvas.height;const map=FLD.map;
+  if(!FLD.mapData||FLD.mapData.src!==map){FLD.mapData={src:map,d:map.getContext('2d').getImageData(0,0,map.width,map.height).data,w:map.width,h:map.height};}
+  const M=FLD.mapData;
+  // カメラの向きはゆっくり追う（道が曲がると、景色が回り込む）
+  const T=FLD.tdir||(FLD.tdir=[dir[0],dir[1]]);const k=Math.min(1,(o.dt||.016)*1.6);T[0]+=(dir[0]-T[0])*k;T[1]+=(dir[1]-T[1])*k;const L=Math.hypot(T[0],T[1])||1;const fx=T[0]/L,fy=T[1]/L,rx=-fy,ry=fx;
+  const F2=FLD.tfoc||(FLD.tfoc=[focus[0],focus[1]]);F2[0]+=(focus[0]-F2[0])*Math.min(1,(o.dt||.016)*4);F2[1]+=(focus[1]-F2[1])*Math.min(1,(o.dt||.016)*4);
+  const Cx=F2[0]-fx*TPS.D,Cy=F2[1]-fy*TPS.D;
+  const img=FLD.tpsImg&&FLD.tpsImg.width===FW?FLD.tpsImg:(FLD.tpsImg=G.createImageData(FW,FH));const p=img.data;
+  const sky=o.dark?[10,10,16]:o.night>.3?[12,16,38]:o.tod==='夕'?[200,120,80]:[150,168,196];const sky2=o.dark?[6,6,10]:o.night>.3?[20,26,50]:o.tod==='夕'?[236,176,120]:[214,206,190];
+  const fog=o.dark?[6,6,10]:o.night>.3?[14,18,40]:sky2;
+  for(let sy=0;sy<FH;sy++){let i=sy*FW*4;
+    if(sy<=TPS.HOR){const t=sy/TPS.HOR;for(let sx=0;sx<FW;sx++,i+=4){p[i]=sky[0]+(sky2[0]-sky[0])*t;p[i+1]=sky[1]+(sky2[1]-sky[1])*t;p[i+2]=sky[2]+(sky2[2]-sky[2])*t;p[i+3]=255;}continue;}
+    const z=TPS.H*TPS.F/(sy-TPS.HOR);const per=z/TPS.F;const cx=Cx+fx*z,cy=Cy+fy*z;const fk=Math.min(1,Math.max(0,(z-TPS.FAR*.45)/(TPS.FAR*.55)));
+    for(let sx=0;sx<FW;sx++,i+=4){const l=(sx-FW/2)*per;const wx=Math.round(cx+rx*l),wy=Math.round(cy+ry*l);let r=fog[0],g=fog[1],b=fog[2];
+      if(wx>=0&&wy>=0&&wx<M.w&&wy<M.h){const j=(wy*M.w+wx)*4;r=M.d[j]+(fog[0]-M.d[j])*fk;g=M.d[j+1]+(fog[1]-M.d[j+1])*fk;b=M.d[j+2]+(fog[2]-M.d[j+2])*fk;}
+      p[i]=r;p[i+1]=g;p[i+2]=b;p[i+3]=255;}}
+  G.putImageData(img,0,0);
+  // 遠くの山なみ（屋外だけ）
+  if(!o.dark){G.fillStyle=o.night>.3?'#141a30':'#6c7690';G.beginPath();G.moveTo(0,TPS.HOR+1);const ph=Math.atan2(fy,fx)*60;for(let x=0;x<=FW;x+=8)G.lineTo(x,TPS.HOR-6-8*Math.abs(Math.sin((x+ph)/37))-5*Math.abs(Math.sin((x+ph)/13)));G.lineTo(FW,TPS.HOR+1);G.closePath();G.fill();}
+  // 立てる絵（足もとの位置を奥行きに直す）
+  const proj=(sx,sy)=>{const wx=sx+cam-Cx,wy=sy+camY-Cy;const a=wx*fx+wy*fy,s=wx*rx+wy*ry;if(a<8)return null;const sc=TPS.F/a;return [FW/2+s*sc,TPS.HOR+TPS.H*sc,sc,a];};
+  FLD.tpsProj=(sx,sy)=>{const q=proj(sx,sy);return q?[q[0],q[1],q[2]]:[sx,sy,1];};
+  const list=[];for(const r of FLD.rec||[]){const w=r.w||r.img.width,h=r.h||r.img.height;const q=proj(r.x+w/2,r.y+h-2);if(!q||q[3]>TPS.FAR)continue;list.push({r,w,h,q});}
+  list.sort((a,b)=>b.q[3]-a.q[3]);
+  G.imageSmoothingEnabled=false;
+  for(const it of list){const {r,w,h,q}=it;const sc=q[2];const W2=w*sc,H2=h*sc;if(W2<1||H2<1||q[0]+W2/2<0||q[0]-W2/2>FW)continue;
+    const tall=h>46;const near=q[3]<TPS.D-24;if(q[3]<TPS.D*.45&&!r.who)continue;   // カメラのすぐ前の草木は描かない
+    let al=r.al==null?1:r.al;if(near&&!r.who)al=Math.min(al,tall?.3:.5);   // 一行より手前の木や岩・草むらは透かす   // 一行より手前の木や岩は透かす
+    const fk=Math.min(1,Math.max(0,(q[3]-TPS.FAR*.45)/(TPS.FAR*.55)));
+    if(!tall&&h>20){G.globalAlpha=.35*al;G.fillStyle='#000';G.beginPath();G.ellipse(q[0],q[1],Math.max(2,7*sc),Math.max(1,2.4*sc),0,0,7);G.fill();}
+    G.globalAlpha=al*(1-fk*.8);G.drawImage(r.img,Math.round(q[0]-W2/2),Math.round(q[1]-H2),Math.round(W2),Math.round(H2));}
+  G.globalAlpha=1;
+  // 焚き火
+  if(o.night>.02&&o.fire){const q=proj(o.fire[0],o.fire[1]);G.globalAlpha=.55*o.night;G.fillStyle='#0a0e26';G.fillRect(0,0,FW,FH);G.globalAlpha=1;
+    if(q){const fl=.85+.15*Math.sin(now/90);G.globalCompositeOperation='lighter';const gr=G.createRadialGradient(q[0],q[1]-4,2,q[0],q[1]-4,70*fl*Math.min(2,q[2]));gr.addColorStop(0,`rgba(255,170,80,${.6*o.night})`);gr.addColorStop(1,'rgba(255,120,40,0)');G.fillStyle=gr;G.fillRect(0,0,FW,FH);G.globalCompositeOperation='source-over';
+      for(let i=0;i<6;i++){const h=(4+((Math.floor(now/80)+i*3)%5))*q[2];G.fillStyle=i%2?'#ffd060':'#ff7a30';G.fillRect(q[0]-4*q[2]+i*1.5*q[2],q[1]-h,2*q[2],h);}}}
+  else if(o.dark){const gr=G.createRadialGradient(FW/2,FH*.78,20,FW/2,FH*.78,190);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.7)');G.fillStyle=gr;G.fillRect(0,0,FW,FH);}
+  if(o.wk==='rain'){G.strokeStyle='rgba(170,195,230,.5)';G.beginPath();for(let i=0;i<70;i++){const x=((i*53+now*.22*(1+i%3))%(FW+20))-10,y=(i*97+now*.55)%FH;G.moveTo(x,y);G.lineTo(x-2,y+6);}G.stroke();}
+  else if(o.wk==='snow'){G.fillStyle='#f0f4ff';for(let i=0;i<60;i++){const x=((i*41+Math.sin(now/700+i)*8)%FW+FW)%FW,y=(i*73+now*.03*(1+i%3))%FH;G.fillRect(Math.round(x),Math.round(y),2,2);}}
+  else if(o.wk==='fog'){G.fillStyle='rgba(200,205,215,.22)';G.fillRect(0,0,FW,FH);}
+  if(o.tod==='夕'){G.fillStyle='rgba(255,130,50,.12)';G.fillRect(0,0,FW,FH);}
+}

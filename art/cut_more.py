@@ -36,6 +36,19 @@ JOBS = [
     ("more-named-b-stand.png", 4, ["najma", "koko", "ilse", "dorn"], "hero", ("h", 37), set()),
     ("more-named-b-attack.png", 4, ["najma", "koko", "ilse", "dorn"], "pose:atk", ("h", 33), set()),
     ("more-named-b-down.png", 4, ["najma", "koko", "ilse", "dorn"], "pose:down", ("w", 42), set()),
+    ("more-named-win-win1.png", 5, ["sigrun", "halvar", "toki", "hozuki", "zaid"], "pose:win", ("h", 41, 1), set()),
+    ("more-named-win-win2.png", 4, ["najma", "koko", "ilse", "dorn"], "pose:win", ("h", 40, 3), set()),
+    # 後ろ姿・前向き（2026-11-24）：いまの立ち姿を8倍にした見本（make_ref.py）を添えて、上の段に後ろ姿・下の段に前向きを描かせ、split_rows.py で分けたもの
+    ("more-back-1-back.png", 5, ["gareth", "borg", "erin", "mira", "rio"], "pose:back", ("h", 37), set()),
+    ("more-back-1-front.png", 5, ["gareth", "borg", "erin", "mira", "rio"], "pose:front", ("h", 37), set()),
+    ("more-back-2-back.png", 5, ["raz", "aldo", "kei", "sera", "tohma"], "pose:back", ("h", 37), set()),
+    ("more-back-2-front.png", 5, ["raz", "aldo", "kei", "sera", "tohma"], "pose:front", ("h", 37), set()),
+    ("more-back-3-back.png", 5, ["noa", "sigrun", "halvar", "toki", "hozuki"], "pose:back", ("h", 37), set()),
+    ("more-back-3-front.png", 5, ["noa", "sigrun", "halvar", "toki", "hozuki"], "pose:front", ("h", 37), set()),
+    ("more-back-4-back.png", 5, ["zaid", "najma", "koko", "ilse", "dorn"], "pose:back", ("h", 37), set()),
+    ("more-back-4-front.png", 5, ["zaid", "najma", "koko", "ilse", "dorn"], "pose:front", ("h", 37), set()),
+    ("more-back-5-back.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:back", ("h", 37), set()),
+    ("more-back-5-front.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:front", ("h", 37), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
@@ -65,7 +78,11 @@ for src, n, names, kind, size, _ in JOBS:
     b0 = boxes[ref]
     scale = px / ((b0[3] - b0[1]) if axis == "h" else (b0[2] - b0[0]))
     for name, b, m in zip(names, boxes, masks):
-        spr = shrink(a, m, b, scale, trim=4)
+        sc = scale
+        if kind in ("pose:back", "pose:front"):   # 後ろ姿・前向きは、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため）
+            try: sc = Image.open(f"{ART}/sprites/{name}.png").height / (b[3] - b[1])
+            except FileNotFoundError: pass
+        spr = shrink(a, m, b, sc, trim=4)
         if name.startswith("b_"):   # 信者の絵は明るい生成りの服が多く、フィールドで浮くので少し暗く・くすませる
             from PIL import ImageEnhance
             al = spr.getchannel("A"); rgb = spr.convert("RGB")

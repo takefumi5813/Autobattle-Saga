@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 
 src, head = sys.argv[1], sys.argv[2]
+NAMES = sys.argv[3].split(",") if len(sys.argv) > 3 else ["stand", "attack", "down"]   # 段の名前（2段なら 例 win1,win2）
 im = Image.open(src).convert("RGB")
 a = np.asarray(im).astype(int)
 bg = a[3, 3]
@@ -21,12 +22,12 @@ for y, v in enumerate(rows):
         start = None
 if start is not None: bands.append((start, len(rows)))
 # 近いかたまりはつなぐ（武器の先などで切れたもの）。3つになるまで、いちばん近いすき間からつなぐ
-while len(bands) > 3:
+while len(bands) > len(NAMES):
     gaps = [(bands[i + 1][0] - bands[i][1], i) for i in range(len(bands) - 1)]
     _, i = min(gaps)
     bands[i:i + 2] = [(bands[i][0], bands[i + 1][1])]
 print("bands", bands)
-for (y0, y1), name in zip(bands, ["stand", "attack", "down"]):
+for (y0, y1), name in zip(bands, NAMES):
     pad = 10
     out = im.crop((0, max(0, y0 - pad), im.width, min(im.height, y1 + pad)))
     out.save(f"{head}-{name}.png")
