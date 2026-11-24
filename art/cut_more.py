@@ -60,6 +60,13 @@ JOBS = [
     ("more-atk-4-atkF.png", 5, ["zaid", "najma", "koko", "ilse", "dorn"], "pose:atkF", ("h", 37), set()),
     ("more-atk-5-atkB.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:atkB", ("h", 37), set()),
     ("more-atk-5-atkF.png", 6, ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"], "pose:atkF", ("h", 37), set()),
+    # 敵の前向き・後ろ姿・前向きの攻撃（2026-11-24、make_ref_en.py の見本を添えて3段に描かせ、split_rows.py で front,back,atkF に分けたもの）
+    ("more-en-1-front.png", 4, ["goblin_front", "shaman_front", "wolf_front", "bandit_front"], "enemy4", ("h", 37), set()),
+    ("more-en-1-back.png", 4, ["goblin_back", "shaman_back", "wolf_back", "bandit_back"], "enemy4", ("h", 37), set()),
+    ("more-en-1-atkF.png", 4, ["goblin_atkF", "shaman_atkF", "wolf_atkF", "bandit_atkF"], "enemy4", ("h", 37), set()),
+    ("more-en-2-front.png", 3, ["ogre_front", "strayogre_front", "boss_front"], "enemy4", ("h", 37), set()),
+    ("more-en-2-back.png", 3, ["ogre_back", "strayogre_back", "boss_back"], "enemy4", ("h", 37), set()),
+    ("more-en-2-atkF.png", 3, ["ogre_atkF", "strayogre_atkF", "boss_atkF"], "enemy4", ("h", 37), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
@@ -93,6 +100,10 @@ for src, n, names, kind, size, _ in JOBS:
         if kind in ("pose:back", "pose:front", "pose:atkB", "pose:atkF"):   # 後ろ姿・前向き（とその攻撃）は、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため。攻撃は武器を振り上げるので少し高め）
             try: sc = Image.open(f"{ART}/sprites/{name}.png").height * (1.08 if "atk" in kind else 1) / (b[3] - b[1])
             except FileNotFoundError: pass
+        if kind == "enemy4":   # 敵の前向き・後ろ姿・前向きの攻撃：一体ずつ、横向きの立ち姿と同じ背丈に（狼は正面だと背が高く見えるので少し大きめ）
+            base = name.rsplit("_", 1)[0]
+            try: sc = Image.open(f"{ART}/sprites/en_{base}.png").height * (1.25 if base == "wolf" else 1) * (1.08 if name.endswith("atkF") else 1) / (b[3] - b[1])
+            except FileNotFoundError: pass
         spr = shrink(a, m, b, sc, trim=4)
         if name.startswith("b_"):   # 信者の絵は明るい生成りの服が多く、フィールドで浮くので少し暗く・くすませる
             from PIL import ImageEnhance
@@ -100,9 +111,9 @@ for src, n, names, kind, size, _ in JOBS:
             rgb = ImageEnhance.Brightness(ImageEnhance.Color(rgb).enhance(0.8)).enhance(0.82)
             spr = rgb.convert("RGBA"); spr.putalpha(al)
         if name in FLIP.get(src, set()): spr = spr.transpose(Image.FLIP_LEFT_RIGHT)
-        spr.save(f"{ART}/sprites/{'en_' if kind == 'enemy' else ''}{name}{'' if kind in ('hero','enemy') else '_' + kind.split(':')[1]}.png")
+        spr.save(f"{ART}/sprites/{'en_' if kind in ('enemy', 'enemy4') else ''}{name}{'' if kind in ('hero','enemy','enemy4') else '_' + kind.split(':')[1]}.png")
         if kind == "hero": hero[name] = enc(spr)
-        elif kind == "enemy": enemy[name] = enc(spr)
+        elif kind in ("enemy", "enemy4"): enemy[name] = enc(spr)
         else: pose.setdefault(name, {})[kind.split(":")[1]] = enc(spr)
         print(src, name, spr.size)
 
