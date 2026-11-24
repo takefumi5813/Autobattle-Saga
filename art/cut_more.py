@@ -19,6 +19,11 @@ JOBS = [
     ("more-heroes-attack.png", 2, ["tohma", "noa"], "pose:atk", ("h", 35), set()),
     ("more-heroes-down.png", 2, ["tohma", "noa"], "pose:down", ("w", 42), set()),
     ("more-heroes-win.png", 2, ["tohma", "noa"], "pose:win", ("h", 39, 1), set()),
+    # ガレス・ボルグ・エリン（2026-11-24、立ち絵の描き直しに合わせて描き直したもの。前の絵より後ろに置いて上書きする）
+    ("more-heroes3-stand.png", 3, ["gareth", "borg", "erin"], "hero", ("h", 37), set()),
+    ("more-heroes3-attack.png", 3, ["gareth", "borg", "erin"], "pose:atk", ("h", 32), set()),
+    ("more-heroes3-down.png", 3, ["gareth", "borg", "erin"], "pose:down", ("w", 44), set()),
+    ("more-heroes3-win.png", 3, ["gareth", "borg", "erin"], "pose:win", ("h", 41, 1), set()),
     # 敵は2体目（野盗）の大きさで縮尺を決める（人間の背丈を仲間とそろえる）
     ("more-enemies-stand.png", 3, ["wolf", "bandit", "boss"], "enemy", ("h", 37, 1), set()),
     ("more-enemies-attack.png", 3, ["wolf_atk", "bandit_atk", "boss_atk"], "enemy", ("h", 38, 1), set()),
