@@ -496,18 +496,18 @@ const ROAD_ENC={
 const RAIDS=[()=>['A','B','C'].map(s=>makeEnemy('wolf',s)),()=>['A','B','C'].map(s=>makeEnemy('bandit',s))];
 const RAID_N=['狼','野盗'];
 const POWERS={
-  v1:{br:'声',name:'通る声',cost:2,desc:'神託が0.2秒早く届く'},
-  v2:{br:'声',name:'澄んだ声',cost:3,req:'v1',desc:'神託に従う確率+8%'},
-  v3:{br:'声',name:'天啓',cost:4,req:'v2',desc:'神の気配（閃きやすい時間）が1.5倍に延びる'},
-  g1:{br:'守り',name:'加護',cost:2,desc:'神託「守れ」「救え」の神力-5'},
-  g2:{br:'守り',name:'延命',cost:3,req:'g1',desc:'救命の猶予+3秒'},
-  g3:{br:'守り',name:'蘇りの灯',cost:5,req:'g2',desc:'潜行ごとに一度、失われかけた仲間を神力50で引き戻す（神力が足りれば自動）'},
-  b1:{br:'恵み',name:'神力の器',cost:2,desc:'旅立ちの神力+20'},
-  b2:{br:'恵み',name:'湧泉',cost:3,req:'b1',desc:'神力の回復+20%'},
-  b3:{br:'恵み',name:'余力',cost:4,req:'b2',desc:'神の余力の上限が4になる'},
-  p1:{br:'布教',name:'奇跡の噂',cost:2,desc:'布教で上がる信仰が1.5倍'},
-  p2:{br:'布教',name:'巡礼路',cost:3,req:'p1',desc:'大神の使徒による信仰の目減りが半分になる'},
-  p3:{br:'布教',name:'信者の集い',cost:4,req:'p2',desc:'信仰45以上の町から信者が仲間に加わる（通常は60以上）'},
+  v1:{br:'声',name:'通る声',cost:4,desc:'神託が0.2秒早く届く'},
+  v2:{br:'声',name:'澄んだ声',cost:7,req:'v1',desc:'神託に従う確率+8%'},
+  v3:{br:'声',name:'天啓',cost:11,req:'v2',desc:'神の気配（閃きやすい時間）が1.5倍に延びる'},
+  g1:{br:'守り',name:'加護',cost:4,desc:'神託「守れ」「救え」の神力-5'},
+  g2:{br:'守り',name:'延命',cost:7,req:'g1',desc:'救命の猶予+3秒'},
+  g3:{br:'守り',name:'蘇りの灯',cost:12,req:'g2',desc:'潜行ごとに一度、失われかけた仲間を神力50で引き戻す（神力が足りれば自動）'},
+  b1:{br:'恵み',name:'神力の器',cost:4,desc:'旅立ちの神力+20'},
+  b2:{br:'恵み',name:'湧泉',cost:7,req:'b1',desc:'神力の回復+20%'},
+  b3:{br:'恵み',name:'余力',cost:11,req:'b2',desc:'神の余力の上限が4になる'},
+  p1:{br:'布教',name:'奇跡の噂',cost:4,desc:'布教で上がる信仰が1.5倍'},
+  p2:{br:'布教',name:'巡礼路',cost:7,req:'p1',desc:'大神の使徒による信仰の目減りが半分になる'},
+  p3:{br:'布教',name:'信者の集い',cost:11,req:'p2',desc:'信仰45以上の町から信者が仲間に加わる（通常は60以上）'},
 };
 const RUMOR_SRC=['酔った鉱夫','行商人','宿の女将','吟遊詩人','衛兵崩れ','鍛冶屋の徒弟'];
 const SEASONS=['春','夏','秋','冬'];
@@ -545,7 +545,7 @@ function migrate(s){
   for(const k in CHAR_DB){if(s.age[k]==null)s.age[k]=CHAR_DB[k].age;if(s.faith[k]==null)s.faith[k]=CHAR_DB[k].faith;if(s.loyal[k]==null)s.loyal[k]=LOYAL0[k]??60;}
   if(!s.abil.raz){s.abil.raz=['nusumu'];s.aslot.raz=['nusumu'];}
   s.belief=s.belief||Object.fromEntries(Object.entries(TOWNS).map(([k,t])=>[k,t.b]));
-  s.powers=s.powers||{};if(s.divinity==null)s.divinity=2;
+  s.powers=s.powers||{};if(s.divinity==null)s.divinity=4;
   s.rival=s.rival||{name:'白翼の一行',leader:'聖騎士ヴァルド',fame:30,debt:0};
   s.heirOf=s.heirOf||{};s.retired=s.retired||[];s.vacated=s.vacated||{};s.believers=s.believers||{};
   if(!s.policy.camp)s.policy.camp='watch';
@@ -601,7 +601,10 @@ const calTxt=()=>`第${1+Math.floor((S.turn||0)/4)}年・${SEASONS[(S.turn||0)%4
 const ageOf=id=>S.age&&S.age[id]!=null?S.age[id]:CHAR_DB[id].age;
 const decline=id=>Math.max(0,ageOf(id)-39)*0.02;
 const sumBelief=()=>Object.entries(S.belief).filter(([k])=>!TOWNS[k].fixed).reduce((a,[k,v])=>a+v,0);
-function addBelief(k,d){if(!TOWNS[k]||TOWNS[k].fixed)return 0;const o=S.belief[k];S.belief[k]=clamp(Math.round(o+d),0,100);return S.belief[k]-o;}
+/* 町の信仰も、高いほど上がりにくい（信仰・忠誠と同じ damp）。端数は町ごとに貯めて、整数になったら反映する */
+function addBelief(k,d){if(!TOWNS[k]||TOWNS[k].fixed)return 0;const o=S.belief[k];
+  S.beliefFrac=S.beliefFrac||{};const v=(S.beliefFrac[k]||0)+damp(o,d);const step=v>0?Math.floor(v):Math.ceil(v);S.beliefFrac[k]=v-step;
+  S.belief[k]=clamp(o+step,0,100);return S.belief[k]-o;}
 const costOf=o=>o.cost-(hasP('g1')&&(o.k==='guard'||o.k==='save')?5:0);
 const roleId=r=>{const id=S.party[r];return id&&CHAR_DB[id]&&CHAR_DB[id].role===r?id:null;};
 const avail=k=>!S.lost.includes(k)&&!S.defected.includes(k)&&!S.gone.includes(k);
@@ -1611,7 +1614,7 @@ function worldAfterRun(kind){
   if(S.turn%4===0){for(const id of Object.keys(CHAR_DB))if(avail(id))S.age[id]=ageOf(id)+1;notes.push('年が明け、皆ひとつ歳を重ねた');}
   if(B.treasureFound)notes.push('噂の書庫を見つけ、書物を持ち帰った');
   // 大迷宮：いちばん深い階で帰還すると、次の階が開く
-  if(kind==='win'&&(B.floor||3)>=S.depth){S.depth=(B.floor||3)+1;S.floor=S.depth;notes.push(`${floorName(B.floor)}を踏破した。${floorName(S.depth)}への道が開けた`);}
+  if(kind==='win'&&(B.floor||3)>=S.depth){B.newDepth=true;S.depth=(B.floor||3)+1;S.floor=S.depth;notes.push(`${floorName(B.floor)}を踏破した。${floorName(S.depth)}への道が開けた`);}
   // 信仰と忠誠は、旅のたびに少しずつ本来の値へ戻る（放っておくと冷める）
   for(const id of Object.keys(CHAR_DB)){if(!avail(id))continue;
     const fb=CHAR_DB[id].faith,lb=LOYAL0[id]??60;
@@ -1625,11 +1628,18 @@ function worldAfterRun(kind){
   const R=S.rival;
   if(B.rivalSaved){addBelief(BASE_TOWN,4);addBelief('liesen',2);R.fame=Math.max(0,R.fame-5);R.debt=(R.debt||0)+1;notes.push(`${R.name}の剣士を救った話が王都にまで届いた（ガルド+4・王都+2・使徒の名声-5）`);}
   if(S.next&&S.next.rival==='ahead'&&kind!=='win')R.fame+=2;
-  R.fame=clamp(R.fame+Math.floor(rnd(1,4)),0,100);
-  const t=pick(['liesen','liesen','seles','rou','nia',BASE_TOWN]);const loss=Math.max(1,Math.round(R.fame/25*(hasP('p2')?.5:1)));const lg=addBelief(t,-loss);
-  if(lg)notes.push(`${R.name}が${TOWNS[t].name}で大神の教えを説いた（信仰${lg}）`);
+  // 名声：あなたの一行が新しい階を踏破すれば奪い、潜らずにいれば伸びる
+  if(B.newDepth){R.fame=Math.max(0,R.fame-6);notes.push(`${R.name}より先に深層へ届いた。使徒の名声が陰った（名声-6）`);}
+  else R.fame=clamp(R.fame+Math.floor(rnd(1,4)),0,100);
+  // 布教：使徒の一行は、あなたの信仰がいちばん厚い町を狙う（半分の確率）。名声が高いほど、二つの町を回る
+  const towns=Object.keys(TOWNS).filter(k=>!TOWNS[k].fixed);
+  const strong=towns.slice().sort((a,b)=>S.belief[b]-S.belief[a])[0];
+  const targets=[Math.random()<.5?strong:pick(towns)];if(R.fame>=50)targets.push(pick(towns.filter(k=>k!==targets[0])));
+  for(const t of targets){const loss=Math.max(1,Math.round((2+R.fame/12)*(hasP('p2')?.5:1)));const lg=addBelief(t,-loss);
+    if(lg)notes.push(`${R.name}が${TOWNS[t].name}で大神の教えを説いた（信仰${lg}）`);}
   // 神威
-  const gain=Math.floor(sumBelief()/60)+(kind==='win'?1:0)+(B.rivalSaved?1:0);
+  // 神威：町々の信仰の合計が120・240を超えるとそれぞれ1、新しい階の踏破で2、使徒の仲間を救えば1
+  const sb=sumBelief();const gain=(sb>=120?1:0)+(sb>=240?1:0)+(B.newDepth?2:0)+(B.rivalSaved?1:0);
   S.divinity=(S.divinity||0)+gain;if(gain)notes.push(`町々の祈りが集まり、神威が${gain}増えた（いま${S.divinity}）`);
   // 信者が仲間に加わる
   const th=hasP('p3')?45:60;
