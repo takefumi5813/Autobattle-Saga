@@ -732,6 +732,11 @@ table{color:inherit;font-size:.84rem}
 .jabs{display:flex;gap:6px;flex-wrap:wrap}.jabs span{font-size:.68rem;padding:1px 8px;border:1px dashed var(--hair2);color:var(--muted)}.jabs span.got{border-style:solid;border-color:var(--gold);color:var(--fg)}.jabs small{margin-left:4px;opacity:.7}
 .jobt{grid-template-columns:minmax(0,1fr)!important}.jobt .jroot::after{display:none}.jkids{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))!important}
 .jtrk .jp{font-size:.8rem}
+.goldv{margin-left:14px;font-size:.72rem;letter-spacing:.12em;color:var(--muted)}.goldv b{font-family:var(--f-num);font-size:1.15rem;color:var(--fg);margin-left:4px}.goldv.neg b{color:var(--bad)}
+.smith{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.mats{display:flex;flex-wrap:wrap;gap:6px}.mats span{display:flex;align-items:center;gap:6px;font-size:.76rem;padding:3px 6px 3px 10px;border:1px solid var(--hair2)}.mats b{font-family:var(--f-num)}
+.row2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.row2 select{flex:1;min-width:140px}
+.fuse{margin-bottom:12px}.fz{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--hair2);font-size:.8rem}.fz:last-child{border-bottom:0}.fz i{font-style:normal;color:var(--acc)}.fz b{font-weight:900}
 /* ---- 帰還画面（rs） ---- */
 .rs{--rk:var(--fg)}
 .rs-retreat{--rk:#2a6c9c}.rs-wipe{--rk:#c8342b}.rs-arrive{--rk:#111}
@@ -827,6 +832,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/skills.js"></script>
 <script src="data/gear.js"></script>
 <script src="data/classes.js"></script>
+<script src="data/craft.js"></script>
 <script>
 "use strict";
 /* ============ データ ============ */
@@ -877,7 +883,7 @@ const BELIEVER_BIO=['奇跡の噂を聞いて、家を飛び出してきた','�
 const SKILLS=SKILL_DATA;   // 技のデータは data/skills.js（部品で組み立てる形。2026-11-24）
 const STAGE=['未習得','啓示','訓練','実戦','体得'];
 const POW=[0,.7,.85,1,1.15], SUCC=[0,.6,.78,.92,1], USE=[0,.12,.25,.35,.42], EXP_NEED={1:4,2:6,3:10};
-const SRC={base:'基本',book:'書',flash:'閃',teach:'伝',grant:'形見'};
+const SRC={base:'基本',book:'書',flash:'閃',teach:'伝',grant:'形見',fuse:'合'};
 const ITEMS={
   longsword:{name:'鉄の長剣',slot:'wpn',line:'剣',atk:3,txt:'攻撃+3'},
   runesword:{name:'刻印の剣',slot:'wpn',line:'剣',atk:2,flash:0.5,txt:'攻撃+2・閃き+50%'},
@@ -987,6 +993,26 @@ const STYLES={
   gekirin:{name:'逆鱗',req:['ab:haisui','sutemi'],desc:'背水の最中、捨て身で自分を傷つけない'},
   utakage:{name:'影の歌',req:['gaika','nage'],desc:'凱歌の最中、投げ短刀が3体に飛ぶ'},
   yasoukyoku:{name:'夜想曲',req:['komori','kyusho'],desc:'子守唄で眠らせた直後の敵には、急所突きが必ず急所に入る'},
+  // ---- 組み合わせの流儀（2026-11-24）：技・パッシブ・武具の癖・武器の型・職・アビリティをまたいで、そろうと常に効く（grant） ----
+  // req の書き方：技の名前／'ab:アビリティ'／'tr:固有の癖'（武具・パッシブ・職の特典・アビリティのどれから来てもよい）／'cls:職'／'wt:武器の型'
+  hyoukenjutsu:{name:'氷剣術',req:['cls:mahouken','tr:freezeHit'],grant:{tr:['frostBite'],stat:{skill:.1}},desc:'魔法剣士が凍てつく刃を振るうと、凍った敵に+40%・技の威力+10%'},
+  raijinnokago:{name:'雷神の加護',req:['thunder','tr:stunHit'],grant:{stat:{crit:.1}},desc:'雷撃としびれの力が重なり、会心+10%'},
+  kesshitai:{name:'決死隊',req:['tr:guts','tr:lowHp'],grant:{stat:{atk:.1}},desc:'踏みとどまる者が窮地で燃える。攻撃+10%'},
+  chinokeiyaku:{name:'血の契約',req:['tr:vamp','tr:bleedHit'],grant:{tr:['killHeal']},desc:'血を流させ、血を吸う。倒すとHPが戻る'},
+  kagenomai:{name:'影の舞',req:['tr:dodge','tr:counter'],grant:{stat:{spd:.08}},desc:'かわして斬り返す。速さ+8%'},
+  tetsunoshiro:{name:'鉄の城',req:['cls:jousai','tr:thornsP'],grant:{stat:{def:.06}},desc:'城塞兵が棘の鎧をまとう。防御+6%'},
+  karyuudou:{name:'狩人の道',req:['wt:長弓','karinokan'],grant:{tr:['giant']},desc:'長弓と狩りの勘。大物にも+30%'},
+  senpou:{name:'先鋒',req:['tr:first','ab:sentei'],grant:{stat:{crit:.1}},desc:'先手を取った最初の一撃に、会心+10%'},
+  shinkounoken:{name:'信仰の剣',req:['tr:faithAtk','cls:paladin'],grant:{stat:{skill:.12}},desc:'聖騎士の信仰が刃に宿る。技の威力+12%'},
+  iyashinowa:{name:'癒しの輪',req:['jiai','tr:regenT'],grant:{stat:{heal:.15}},desc:'慈愛と再生が重なり、回復+15%'},
+  enbu:{name:'炎舞',req:['cls:kenbushi','tr:bleedHit'],grant:{stat:{multi:.15}},desc:'剣舞士の刃が燃える。連撃+15%'},
+  jikuunouta:{name:'時空の歌',req:['cls:jijutsu','shingun'],grant:{stat:{hasteStart:3}},desc:'時術師の進軍歌。戦いの始めに一行を3秒加速'},
+  dokuja:{name:'毒蛇',req:['dokuha','tr:bleedHit'],grant:{stat:{skill:.1},tr:['stunBite']},desc:'二重の毒。技の威力+10%、動けない敵に+30%'},
+  kyojingari:{name:'巨人狩り',req:['tr:giant','wt:槍'],grant:{stat:{atk:.1}},desc:'槍で大物を仕留める。攻撃+10%'},
+  bushidou:{name:'武士道',req:['cls:samurai','iai'],grant:{stat:{crit:.12}},desc:'侍の居合。会心+12%'},
+  seijanokoushin:{name:'聖者の行進',req:['cls:bard','tr:faithAtk'],grant:{stat:{song:.2}},desc:'信仰を歌う吟遊詩人。歌の効果+20%'},
+  mugen:{name:'無限の構え',req:['tr:quickCd','maryoku'],grant:{stat:{skill:.08},tr:['aoeUp']},desc:'詠唱が速く、魔力が満ちる。技+8%・全体技+15%'},
+  kotetsu:{name:'鋼鉄の意志',req:['gankyou','tr:guardT'],grant:{stat:{hp:.08}},desc:'頑強な体に守りの力。HP+8%'},
 };
 /* ===== アビリティ（職で覚え、どの職でも付けられる。FF5方式） ===== */
 const JOBN=Object.assign({},ROLES);
@@ -1237,6 +1263,8 @@ function migrate(s){
   // 世界：拠点と、地図で知っている場所（FF12方式で歩いて広げる）
   s.base=s.base||'garde';s.known=s.known||Object.assign({},KNOWN0);
   if(!s.next||!s.next.enc||!s.rumors)rollNext(s);
+  // 収支・素材（2026-11-24）
+  if(s.gold==null)s.gold=ECON.start;s.mats=s.mats||{};
   return s;}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.party&&s.items)return migrate(s);}catch(e){}return migrate(newSave());}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -1354,11 +1382,28 @@ function declineVisitor(id){
   if(BASE_IDS.includes(id))S.declined[id]=S.turn;else S.gone.push(id);
   return `${CHAR_DB[id].name}は一礼して神殿を去った`;
 }
-function itemDef(uid){const it=S.items[uid];return it?Object.assign({},ITEMS[it.k],it.name?{name:it.name}:{},it.txt?{txt:it.txt}:{}):null;}
+function itemDef(uid){const it=S.items[uid];if(!it)return null;const d=Object.assign({},ITEMS[it.k],it.name?{name:it.name}:{},it.txt?{txt:it.txt}:{});
+  // 錬成：+1ごとに数値8%、+5で隠れた癖が目覚める
+  if(it.plus){const m=1+.08*it.plus;for(const k of ['atk','hp'])if(d[k])d[k]=Math.round(d[k]*m);for(const k of ['def','spd','flash','heal','obey'])if(d[k]>0)d[k]=Math.round(d[k]*m*100)/100;if(d.frost)d.frost=Math.round(d.frost*m*10)/10;
+    if(it.awk){d.tr=(d.tr||[]).concat(d.tr&&d.tr.includes(it.awk)?[]:[it.awk]);}d.name=d.name+'＋'+it.plus;d.txt=gearTxt(d);}
+  // 耐久：旅のたびに減る。4分の1を切ると傷み（数値7割）、0で壊れて効かない。鍛冶場で直す
+  d.durMax=durMax(it.k);d.dur=it.dur==null?d.durMax:it.dur;
+  if(d.dur<=0){for(const k of ['atk','def','hp','spd','flash','frost','heal','obey'])delete d[k];d.tr=[];d.name+='（壊れた）';d.broken=true;d.txt='壊れていて効かない';}
+  else if(d.dur<d.durMax/4){for(const k of ['atk','hp'])if(d[k])d[k]=Math.round(d[k]*.7);for(const k of ['def','spd','flash','heal','obey'])if(d[k]>0)d[k]=Math.round(d[k]*.7*100)/100;d.name+='（傷み）';d.txt=gearTxt(d);}
+  d.plus=it.plus||0;return d;}
+const durMax=k=>{const d=ITEMS[k];if(!d||k==='memento')return 999;return 15+5*(d.tier||(STARTER_SET.has(k)?2:3));};
+function repairCost(uid){const it=S.items[uid];const mx=durMax(it.k);const cur=it.dur==null?mx:it.dur;if(cur>=mx)return null;const t=ITEMS[it.k].tier||3;
+  return {gold:Math.ceil((mx-cur)*t*.8),mats:cur<=0?{meikyuutetsu:1}:{}};}
+/* 旅で装備が傷む：武器と防具は帰還2・それ以外1、装飾は1 */
+function wearGear(kind){if(kind==='wipe')return;for(const u of B.units){if(u.state==='lost')continue;const e=S.equip[u.id]||{};
+  for(const [sl,uid] of Object.entries(e)){if(!uid||!S.items[uid]||S.items[uid].k==='memento')continue;const it=S.items[uid];const mx=durMax(it.k);if(it.dur==null)it.dur=mx;
+    const w=sl==='acc'?1:(kind==='win'||kind==='arrive'?2:1);const before=it.dur;it.dur=Math.max(0,it.dur-w);
+    if(before>0&&it.dur<=0)(B.worldNotes||[]).push(`${u.name}の${ITEMS[it.k].name}が壊れた。鍛冶場で直すまで効かない`);
+    else if(before>=mx/4&&it.dur<mx/4)(B.worldNotes||[]).push(`${u.name}の${ITEMS[it.k].name}が傷んできた`);}}}
 function equipStats(id){
   const r={atk:0,def:0,hp:0,spd:0,flash:0,frost:0,heal:0,obey:0,grants:[],traits:[]};
   const e=S.equip[id]||{};
-  for(const sl of Object.keys(SLOTS)){const uid=e[sl];if(!uid||!S.items[uid])continue;const d=ITEMS[S.items[uid].k];
+  for(const sl of Object.keys(SLOTS)){const uid=e[sl];if(!uid||!S.items[uid])continue;const d=itemDef(uid);
     for(const k of ['atk','def','hp','spd','flash','frost','heal','obey'])r[k]+=d[k]||0;
     for(const t of d.tr||[])if(!r.traits.includes(t))r.traits.push(t);
     const g=S.items[uid].grant;if(g&&aptOf(id).includes(SKILLS[g.k].line))r.grants.push(g);}
@@ -1378,7 +1423,9 @@ const aptOf=id=>{const c=CLASSES[S.cls[id]];return CHAR_DB[id].apt.concat(c&&c.a
 const className=id=>{const c=CLASSES[S.cls[id]];return c?c.name:ROLES[CHAR_DB[id].role];};
 function apostleActive(){return S.apostle&&!S.lost.includes(S.apostle)&&partyIds().includes(S.apostle)&&(!B||B.over||B.units.some(u=>u.id===S.apostle&&u.state==='ok'));}
 const hasAb=(u,k)=>!!(u&&u.abs&&u.abs.includes(k));
-function hasStyle(u,k){return STYLES[k].req.every(r=>r[0]==='@'?u.role===r.slice(1):r.startsWith('ab:')?hasAb(u,r.slice(3)):u.skills.some(s=>s.k===r));}
+function styleReq(u,r){if(r[0]==='@')return u.role===r.slice(1);if(r.startsWith('ab:'))return hasAb(u,r.slice(3));if(r.startsWith('tr:'))return trait(u,r.slice(3));
+  if(r.startsWith('cls:'))return S.cls[u.id]===r.slice(4);if(r.startsWith('wt:')){const w=(S.equip[u.id]||{}).wpn;return !!w&&itemDef(w)&&itemDef(w).type===r.slice(3);}return u.skills.some(s=>s.k===r);}
+function hasStyle(u,k){return STYLES[k].req.every(r=>styleReq(u,r));}
 function triggerStyle(u,k){
   if(!S.styles[k]){S.styles[k]=true;log(`✧ ${u.name}の技が噛み合った。流儀【${STYLES[k].name}】`,'flash');B.styleNew.push({id:u.id,k});persist();}
   else log(`流儀【${STYLES[k].name}】`,'combo');
@@ -1494,14 +1541,14 @@ function renderPrep(){
   const canPw=Object.entries(POWERS).some(([k,p])=>!hasP(k)&&(!p.req||hasP(p.req))&&S.divinity>=p.cost);
   const TABS=[['depart','旅立ち','DEPART',''],['party','一行','PARTY',(warnN+S.visitors.length)||''],['world','世界','WORLD',canPw?'✶':''],['store','蔵','DEPOT','']];
   if(!TABS.some(t=>t[0]===PREP_TAB))PREP_TAB='depart';
-  h+=`<nav class="tm-nav" role="tablist"><div class="crest">${ico('信仰')}<b>神殿</b>${calTxt()}</div>${TABS.map(([k,n,en,b])=>`<button role="tab" aria-selected="${k===PREP_TAB}" class="tm-tab ${k===PREP_TAB?'on':''}" data-ptab="${k}"><b>${n}</b><small>${en}</small>${b!==''?`<span class="bdg">${b}</span>`:''}</button>`).join('')}</nav>`;
+  h+=`<nav class="tm-nav" role="tablist"><div class="crest">${ico('信仰')}<b>神殿</b>${calTxt()}<span class="goldv ${S.gold<0?'neg':''}" title="手持ちの金">金 <b>${S.gold}</b></span></div>${TABS.map(([k,n,en,b])=>`<button role="tab" aria-selected="${k===PREP_TAB}" class="tm-tab ${k===PREP_TAB?'on':''}" data-ptab="${k}"><b>${n}</b><small>${en}</small>${b!==''?`<span class="bdg">${b}</span>`:''}</button>`).join('')}</nav>`;
   if(msgs.length||over.length)h+=`<div class="tm-msg">${over.length?`<div class="bad">技は一人4つまで：${over.map(id=>CHAR_DB[id].name).join('、')}の技を整理してください（体得した書物の技は、伝書に書き残せる）</div>`:''}${msgs.map(m=>`<div>${m}</div>`).join('')}</div>`;
   h+={depart:()=>departHtml(ids),party:()=>partyHtml(ids),world:()=>worldHtml(ids),store:()=>storeHtml(ids,inv)}[PREP_TAB]();
   // ---- 下に固定：道のり・潜る階・旅立つ ----
   const fls=[];for(let f=3;f<=S.depth;f++)fls.push(f);
   h+=`<div class="dock"><div class="route" title="拠点から大迷宮までの道のり。区画ごとに野営する">${diveNodes().map(k=>TOWNS[k]?`<span>${TOWNS[k].name.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'')}</span>`:isArea(k)?`<span>${AREAS[k].name}</span><span class="cp">${ico('野営')}</span>`:`<span class="dn">${floorName(S.floor)}</span>`).join('')}</div>
     <div class="flr" role="radiogroup" aria-label="潜る階">${fls.map(f=>`<button role="radio" aria-checked="${f===S.floor}" class="${f===S.floor?'on':''}${f===S.depth?' new':''}" data-floor="${f}" title="${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}">B${f}<small>×${floorMul(f).toFixed(2)}</small></button>`).join('')}</div>
-    <span class="meta">潜行 ${S.runs}・帰還 ${S.wins}</span>
+    <span class="meta">潜行 ${S.runs}・帰還 ${S.wins}<br><span title="給金・食糧・野営・宿坊の控え">支度 金${tripCost(ids,diveNodes().filter(isArea).length)}${S.gold<tripCost(ids,diveNodes().filter(isArea).length)?'（足りない）':''}</span></span>
     <button class="go" id="go" ${over.length?'disabled':''}><b>旅立つ</b><small>DEPART</small></button></div>`;
   if(SKV&&CHAR_DB[SKV])h+=`<div class="ovl" id="ovl">${skillPanel(SKV)}</div>`;else SKV=null;
   h+='</div>';
@@ -1563,7 +1610,7 @@ function profileHtml(id,inParty){
   // 装備
   h+=`<div><div class="hd">装備<small>GEAR</small></div><div class="eqs">`;
   for(const sl of Object.keys(SLOTS)){const cur=e[sl];const opts=[cur,...inv].filter(Boolean).filter(u=>{const it=itemDef(u);return it&&it.slot===sl&&(u===cur||canEquip(id,it));});
-    h+=`<label class="eqb" title="${cur&&itemDef(cur)?itemDef(cur).txt:''}">${ico(SLOTS[sl])}<small>${SLOTS[sl]}</small><select id="eq-${id}-${sl}" data-eq="${id}|${sl}"><option value="">なし</option>${opts.map(u=>{const it=itemDef(u);return `<option value="${u}"${u===cur?' selected':''}>${it.name}（${it.txt}）</option>`;}).join('')}</select></label>`;}
+    h+=`<label class="eqb" title="${cur&&itemDef(cur)?itemDef(cur).txt:''}">${ico(SLOTS[sl])}<small>${SLOTS[sl]}</small><select id="eq-${id}-${sl}" data-eq="${id}|${sl}"><option value="">なし</option>${opts.map(u=>{const it=itemDef(u);return `<option value="${u}"${u===cur?' selected':''}>${it.name}（${it.txt}${it.durMax<999?`・耐久${Math.max(0,it.dur)}/${it.durMax}`:''}）</option>`;}).join('')}</select></label>`;}
   h+=`</div></div>`;
   // 関係図と、神の手
   h+=`<div class="two"><div><div class="hd">関係<small>BOND</small></div>${relGraph(id)}</div><div><div class="hd">神の手<small>ACT</small></div><div class="acts2">`;
@@ -1606,7 +1653,31 @@ function relGraph(id){
   others.forEach((o,i)=>{h+=node(o,pos[i][0],pos[i][1],0,'');});
   return h+`<style>.prof .two .fc{width:46px;height:46px;transform:rotate(45deg);border:1px solid var(--hair)}.prof .two .fc>.fi{transform:rotate(-45deg) scale(1.42)}.prof .two .fc.me{width:64px;height:64px;border:2px solid var(--gold);box-shadow:0 0 14px rgba(226,189,100,.4)}</style></div>`;}
 /* ---- 蔵 ---- */
-let STORE_F={slot:'all',line:'all',sort:'tier'};   // 蔵の武具の絞り込みと並べ順
+let STORE_F={slot:'all',line:'all',sort:'tier'};
+const canPay=c=>S.gold>=c.gold&&Object.entries(c.mats||{}).every(([k,n])=>(S.mats[k]||0)>=n);
+function pay(c){S.gold-=c.gold;for(const [k,n] of Object.entries(c.mats||{}))S.mats[k]-=n;}
+const costTxt=c=>`金${c.gold}`+Object.entries(c.mats||{}).map(([k,n])=>`・${MATERIALS[k].name}${n}`).join('');
+function sellValue(uid){const it=S.items[uid];if(!it||it.k==='memento')return 0;const d=ITEMS[it.k];const t=d.tier||(STARTER_SET.has(it.k)?2:3);return Math.round(ECON.sellTier[t]*(1+.3*(it.plus||0)));}
+const STARTER_SET=new Set(Object.values(STARTER).concat(['leather']));
+/* 鍛冶場：錬成（+1〜+5）と開発（型と格を選んで作る） */
+function refineItem(uid){const it=S.items[uid];const n=(it.plus||0)+1;if(n>5)return;const c=REFINE[n];if(!canPay(c))return;pay(c);it.plus=n;
+  if(n===5&&!it.awk){const d=ITEMS[it.k];const code=d.slot==='wpn'?'w':d.slot==='arm'?'a':'c';const pool=Object.keys(GEAR_TRAITS).filter(t=>GEAR_TRAITS[t].includes(code)&&!(d.tr||[]).includes(t));it.awk=pool[[...uid].reduce((a,ch)=>a+ch.charCodeAt(0),0)%pool.length];}
+  prepMsgs.push(`錬成：${itemDef(uid).name}${n===5?`。隠れた力【${TRAIT[it.awk]}】が目覚めた`:''}`);}
+function craftItem(type,tier){const c=CRAFT[tier];if(!canPay(c))return;let pool=Object.keys(GEAR_DATA).filter(k=>GEAR_DATA[k].type===type&&GEAR_DATA[k].tier===tier);
+  for(let d=1;!pool.length&&d<6;d++)pool=Object.keys(GEAR_DATA).filter(k=>GEAR_DATA[k].type===type&&Math.abs(GEAR_DATA[k].tier-tier)<=d);if(!pool.length)return;
+  pay(c);const k=pick(pool);addItem(S,k);prepMsgs.push(`開発：${GEAR_TIER[GEAR_DATA[k].tier]}の${ITEMS[k].name}を打ち上げた`);}
+let CRAFT_SEL={type:'長剣',tier:3};   // 蔵の武具の絞り込みと並べ順
+function smithyHtml(inv){let h=`<div class="hd" style="margin-top:18px">鍛冶場と素材<small>SMITHY</small></div><div class="smith">`;
+  const ms=Object.entries(S.mats).filter(([k,n])=>n>0);
+  h+=`<div class="fr"><div class="tl2">${ico('武器')}<b>素材</b></div>${ms.length?`<div class="mats">${ms.map(([k,n])=>`<span>${MATERIALS[k].name}<b>×${n}</b><button class="btn tiny" data-sellmat="${k}">売る ${MATERIALS[k].price}</button></span>`).join('')}</div>`:'<p class="mini2">素材はない。敵や迷宮の宝箱から手に入る</p>'}</div>`;
+  const eqd=Object.entries(S.equip).flatMap(([id,e])=>Object.values(e).filter(Boolean));const all=eqd.concat(inv).filter(u=>S.items[u]&&S.items[u].k!=='memento'&&(S.items[u].plus||0)<5);
+  h+=`<div class="fr"><div class="tl2">${ico('技能')}<b>錬成</b><small>＋1〜＋5。＋5で隠れた癖が目覚める</small></div>${all.length?`<div class="row2"><select id="rf-sel">${all.map(u=>{const d=itemDef(u);return `<option value="${u}">${d.name}（次 ${costTxt(REFINE[(S.items[u].plus||0)+1])}）</option>`;}).join('')}</select><button class="ab gold" id="rf-go">${ico('技能')}錬成</button></div>`:'<p class="mini2">鍛えられる品がない</p>'}</div>`;
+  const worn=eqd.filter(u=>S.items[u]&&repairCost(u));
+  h+=`<div class="fr"><div class="tl2">${ico('防具')}<b>修理</b><small>傷んだ装備（数値7割）と壊れた装備（効かない）</small></div>${worn.length?worn.map(u=>{const d=itemDef(u);const c=repairCost(u);return `<div class="fz"><span>${d.name}</span><span class="mini2">耐久 ${Math.max(0,d.dur)}/${d.durMax}</span><button class="btn tiny" data-repair="${u}" ${canPay(c)?'':'disabled'}>直す ${costTxt(c)}</button></div>`;}).join('')+(worn.length>1?`<button class="ab" id="repall">${ico('防具')}まとめて直す</button>`:''):'<p class="mini2">直す装備はない</p>'}</div>`;
+  const types=[...new Set(Object.values(GEAR_DATA).map(d=>d.type))];
+  h+=`<div class="fr"><div class="tl2">${ico('武器')}<b>開発</b><small>型と格を選ぶと、その型の固有の一品が生まれる</small></div><div class="row2"><select id="cf-type">${types.map(t=>`<option${t===CRAFT_SEL.type?' selected':''}>${t}</option>`).join('')}</select>`+
+    `<select id="cf-tier">${Object.keys(CRAFT).map(t=>`<option value="${t}"${+t===CRAFT_SEL.tier?' selected':''}>${GEAR_TIER[t]}（${costTxt(CRAFT[t])}）</option>`).join('')}</select><button class="ab gold" id="cf-go" ${canPay(CRAFT[CRAFT_SEL.tier])?'':'disabled'}>${ico('武器')}打つ</button></div></div>`;
+  return h+`</div>`;}
 function storeHtml(ids,inv){
   const bookGroups={};S.books.forEach((k,i)=>{(bookGroups[k]=bookGroups[k]||[]).push(i);});
   const itemGroups={};for(const u of inv){const it=S.items[u];const key=it.k+'|'+(it.name||'');(itemGroups[key]=itemGroups[key]||[]).push(u);}
@@ -1619,7 +1690,7 @@ function storeHtml(ids,inv){
   h+=`<div class="shelf">`;
   for(const [k,g] of Object.entries(bookGroups)){const i=g[0];const sk=SKILLS[k];const rd=ids.filter(id=>aptOf(id).includes(sk.line)&&!knows(id,k));
     h+=`<div class="it2" title="${sk.desc}。読むと「啓示」の段階で覚える（書物の技は「実戦」まで。読んだ書物はなくなる）"><div class="ii">${ico(sk.line)}<b>『${sk.name}の書』</b></div>${g.length>1?`<span class="ix">×${g.length}</span>`:''}<span class="eff">${sk.desc}</span>
-      <div class="row">${rd.length?`<select id="rd-${i}" data-reader="${i}">${rd.map(id=>`<option value="${id}">${CHAR_DB[id].name}</option>`).join('')}</select><button class="btn tiny" data-read="${i}">読む</button>`:'<span class="mini2">読める者なし</span>'}<button class="btn tiny" data-offerbook="${i}">奉納</button></div></div>`;}
+      <div class="row">${rd.length?`<select id="rd-${i}" data-reader="${i}">${rd.map(id=>`<option value="${id}">${CHAR_DB[id].name}</option>`).join('')}</select><button class="btn tiny" data-read="${i}">読む</button>`:'<span class="mini2">読める者なし</span>'}<button class="btn tiny" data-sellbook="${i}">売る ${ECON.sellBook}</button><button class="btn tiny" data-offerbook="${i}">奉納</button></div></div>`;}
   // 武具：種類で絞り込み、格・名前・種類で並べ替える（品が数百になっても探せるように。2026-11-24）
   const F=STORE_F;const lines=[...new Set(Object.values(itemGroups).map(g=>itemDef(g[0]).line).filter(Boolean))];
   const chip=(k,v,lab)=>`<button class="${F[k]===v?'on':''}" data-sf="${k}|${v}">${lab}</button>`;
@@ -1632,9 +1703,9 @@ function storeHtml(ids,inv){
   groups.sort((a,b)=>{const A=itemDef(a[0]),Bd=itemDef(b[0]);if(F.sort==='name')return A.name.localeCompare(Bd.name,'ja');if(F.sort==='slot')return A.slot.localeCompare(Bd.slot)||(A.line||'').localeCompare(Bd.line||'')||tierOf(Bd)-tierOf(A);return tierOf(Bd)-tierOf(A)||A.slot.localeCompare(Bd.slot);});
   h+=`<div class="shelf">`;
   for(const g of groups){const d=itemDef(g[0]);const t=d.tier||0;
-    h+=`<div class="it2${t?' gt'+t:''}" title="${d.lore||''}"><div class="ii">${ico(d.line||SLOTS[d.slot])}<b>${d.name}</b></div>${g.length>1?`<span class="ix">×${g.length}</span>`:''}${t?`<span class="gtier">${GEAR_TIER[t]}</span>`:''}<span class="eff">${SLOTS[d.slot]}・${d.txt}</span>${d.lore?`<span class="lore">${d.lore}</span>`:''}<div class="row"><span style="flex:1"></span><button class="btn tiny" data-offeritem="${g[0]}">奉納</button></div></div>`;}
+    h+=`<div class="it2${t?' gt'+t:''}" title="${d.lore||''}"><div class="ii">${ico(d.line||SLOTS[d.slot])}<b>${d.name}</b></div>${g.length>1?`<span class="ix">×${g.length}</span>`:''}${t?`<span class="gtier">${GEAR_TIER[t]}</span>`:''}<span class="eff">${SLOTS[d.slot]}・${d.txt}</span>${d.lore?`<span class="lore">${d.lore}</span>`:''}<div class="row"><span style="flex:1"></span>${sellValue(g[0])?`<button class="btn tiny" data-sell="${g[0]}" title="売る">売る ${sellValue(g[0])}</button>`:''}<button class="btn tiny" data-offeritem="${g[0]}">奉納</button></div></div>`;}
   if(inv.length&&!groups.length)h+='<p class="mini2">この条件の品はない</p>';
-  h+=`</div><div class="two" style="margin-top:18px"><div><div class="hd">神の知識<small>LORE</small></div><div class="fr"><ul class="know">`;
+  h+=`</div>`+smithyHtml(inv)+`<div class="two" style="margin-top:18px"><div><div class="hd">神の知識<small>LORE</small></div><div class="fr"><ul class="know">`;
   for(const k of Object.keys(KNOW))h+=S.discovered[k]?`<li>${KNOW[k].t}</li>`:`<li class="q">？？？（${KNOW[k].q}）</li>`;
   h+=`</ul><div class="hd" style="margin-top:10px;font-size:.85rem">閃きの系譜</div><ul class="know">${Object.entries(SKILLS).filter(([k,s])=>s.from).map(([k,s])=>{const seen=Object.values(S.skills).some(a=>a.some(x=>x.k===k));
       return seen?`<li>${SKILLS[s.from].name} → <b>${s.name}</b></li>`:`<li class="q">${SKILLS[s.from].name} → ？？？</li>`;}).join('')}</ul></div></div><div>`;
@@ -1724,8 +1795,15 @@ const modTxt=m=>Object.entries(m).map(([k,v])=>`${MODN[k][0]}${v>0?'+':''}${Math
 let SKT='skill';
 const reqBar=(label,v,need,inv)=>{const met=inv?v<=need:v>=need;const fill=inv?(met?100:clamp(100-(v-need)*2,5,95)):clamp(v/need*100,0,100);
   return `<div class="gg rq2"><span>${label}</span><div class="gb ${met?'':'dim'}"><i style="width:${fill}%"></i></div><b>${Math.round(v)}<small>/${inv?'≤':''}${need}</small></b></div>`;};
+/* 術の合成：二つとも実戦以上で覚えていれば合成できる。片方だけなら、相手は？？？で見せる */
+function fuseHtml(id){const st=k=>((S.skills[id]||[]).find(x=>x.k===k)||{}).st||0;const apt=aptOf(id);
+  const rows=FUSION.filter(([a,b,r])=>apt.includes(SKILLS[r].line)&&(st(a)||st(b)));if(!rows.length)return '';
+  let h=`<div class="fr fuse"><div class="tl2">${ico('連携')}<b>術の合成</b><small>二つの技を実戦以上に。${costTxt(FUSE_COST)}</small></div>`;
+  for(const [a,b,r] of rows){const ok=st(a)>=3&&st(b)>=3,got=knows(id,r);const nm=k=>st(k)||S.seen[k]?SKILLS[k].name:'？？？';
+    h+=`<div class="fz"><span>【${nm(a)}】＋【${nm(b)}】</span><i>→</i><b>${got||ok?SKILLS[r].name:'？？？'}</b>${got?'<span class="mini2">習得済み</span>':ok?`<button class="ab gold" data-fuse="${id}|${r}" ${canPay(FUSE_COST)?'':'disabled'} title="${SKILLS[r].desc}">${ico('連携')}合成</button>`:'<span class="mini2">両方を実戦以上に</span>'}</div>`;}
+  return h+'</div>';}
 function treeHtml(id){
-  const apt=aptOf(id);const role=CHAR_DB[id].role;let h='<div class="trees">';
+  const apt=aptOf(id);const role=CHAR_DB[id].role;let h=fuseHtml(id)+'<div class="trees">';
   for(const line of apt){
     const roots=Object.keys(SKILLS).filter(k=>SKILLS[k].line===line&&(SKILLS[k].base||SKILLS[k].book));
     h+=`<div class="tree fr"><div class="tl2">${ico(line)}<b>${line}</b><small>${line===ROLE_LINE[role]?'本来の系統':'もう一つの系統'}</small></div>`;
@@ -1776,12 +1854,14 @@ function abilHtml(id){
 function styleHtml(id){
   const known=new Set((S.skills[id]||[]).map(x=>x.k));const role=CHAR_DB[id].role;
   const eqA=(S.aslot[id]||[]).filter(k=>(S.abil[id]||[]).includes(k));
-  const has=r=>r[0]==='@'?role===r.slice(1):r.startsWith('ab:')?eqA.includes(r.slice(3)):known.has(r);
+  const trs=new Set(equipStats(id).traits.concat(classPerk(id).tr));for(const k of eqA)for(const t of (ABIL[k]&&ABIL[k].tr)||[])trs.add(t);for(const x of S.skills[id]||[]){const d=SKILLS[x.k];if(d&&d.passive&&x.st>=2)for(const t of d.tr||[])trs.add(t);}
+  const wpn=(S.equip[id]||{}).wpn;const wtype=wpn&&itemDef(wpn)?itemDef(wpn).type:null;
+  const has=r=>r[0]==='@'?role===r.slice(1):r.startsWith('ab:')?eqA.includes(r.slice(3)):r.startsWith('tr:')?trs.has(r.slice(3)):r.startsWith('cls:')?S.cls[id]===r.slice(4):r.startsWith('wt:')?wtype===r.slice(3):known.has(r);
   let h='';const other=[];
   for(const [k,st] of Object.entries(STYLES)){
     const n=st.req.filter(has).length;const disc=S.styles[k];
     if(n===0){if(disc)other.push(st.name);continue;}
-    const chip=r=>{const nm=r[0]==='@'?(ROLES[r.slice(1)]+'の固有技'):r.startsWith('ab:')?(((S.abil[id]||[]).includes(r.slice(3))||has(r))?ABIL[r.slice(3)].name:'？？？'):(S.seen[r]||has(r)?SKILLS[r].name:'？？？');return `<span class="${has(r)?'h':''}">${nm}</span>`;};
+    const chip=r=>{const nm=r.startsWith('tr:')?`癖「${TRAIT[r.slice(3)]}」`:r.startsWith('cls:')?`職「${CLASS_DATA[r.slice(4)].name}」`:r.startsWith('wt:')?`武器「${r.slice(3)}」`:r[0]==='@'?(ROLES[r.slice(1)]+'の固有技'):r.startsWith('ab:')?(((S.abil[id]||[]).includes(r.slice(3))||has(r))?ABIL[r.slice(3)].name:'？？？'):(S.seen[r]||has(r)?SKILLS[r].name:'？？？');return `<span class="${has(r)?'h':''}">${nm}</span>`;};
     const active=n===st.req.length;
     h+=`<div class="sty2 ${active?'on':''}"><b>${disc?st.name:'？？？'}</b><div class="rq">${st.req.map(chip).join('<i>＋</i>')}</div>${disc?`<p>${st.desc}</p>`:active?'<p>組み合わせがそろった。戦いの中で目覚める</p>':''}</div>`;
   }
@@ -1822,6 +1902,16 @@ function bindPrep(){
   // 奉納（1品ずつ／余りをまとめて）
   const offerMsg=(n,up)=>`${n}品を神殿に奉納した。${up?`${TOWNS[S.base].name}の信仰が${up}上がった`:'祭壇がまた少し賑やかになった'}`;
   document.querySelectorAll('[data-offerbook]').forEach(b=>b.onclick=()=>{S.books.splice(+b.dataset.offerbook,1);const up=offer(1);prepMsgs.push(offerMsg(1,up));persist();renderPrep();});
+  document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const u=b.dataset.sell;const v=sellValue(u);const n=itemDef(u).name;delete S.items[u];S.gold+=v;prepMsgs.push(`${n}を売った（+${v}）`);persist();renderPrep();});
+  document.querySelectorAll('[data-sellbook]').forEach(b=>b.onclick=()=>{const i=+b.dataset.sellbook;const k=S.books[i];S.books.splice(i,1);S.gold+=ECON.sellBook;prepMsgs.push(`『${SKILLS[k].name}の書』を売った（+${ECON.sellBook}）`);persist();renderPrep();});
+  document.querySelectorAll('[data-sellmat]').forEach(b=>b.onclick=()=>{const k=b.dataset.sellmat;if(!(S.mats[k]>0))return;S.mats[k]--;S.gold+=MATERIALS[k].price;persist();renderPrep();});
+  document.querySelectorAll('[data-repair]').forEach(b=>b.onclick=()=>{const u=b.dataset.repair;const c=repairCost(u);if(!c||!canPay(c))return;pay(c);S.items[u].dur=durMax(S.items[u].k);persist();renderPrep();});
+  if($('#repall'))$('#repall').onclick=()=>{for(const e of Object.values(S.equip))for(const u of Object.values(e)){if(!u||!S.items[u])continue;const c=repairCost(u);if(c&&canPay(c)){pay(c);S.items[u].dur=durMax(S.items[u].k);}}persist();renderPrep();};
+  if($('#rf-go'))$('#rf-go').onclick=()=>{refineItem($('#rf-sel').value);persist();renderPrep();};
+  if($('#cf-type'))$('#cf-type').onchange=e=>{CRAFT_SEL.type=e.target.value;renderPrep();};
+  if($('#cf-tier'))$('#cf-tier').onchange=e=>{CRAFT_SEL.tier=+e.target.value;renderPrep();};
+  if($('#cf-go'))$('#cf-go').onclick=()=>{craftItem(CRAFT_SEL.type,CRAFT_SEL.tier);persist();renderPrep();};
+  document.querySelectorAll('[data-fuse]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.fuse.split('|');if(!canPay(FUSE_COST)||knows(id,k))return;pay(FUSE_COST);learn(id,k,2,'fuse');prepMsgs.push(`術の合成。${CHAR_DB[id].name}は【${SKILLS[k].name}】を生み出した（訓練）`);persist();renderPrep();});
   document.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.sf.split('|');STORE_F[k]=v;renderPrep();});
   document.querySelectorAll('[data-offeritem]').forEach(b=>b.onclick=()=>{delete S.items[b.dataset.offeritem];const up=offer(1);prepMsgs.push(offerMsg(1,up));persist();renderPrep();});
   if($('#offerall'))$('#offerall').onclick=()=>{let n=0;
@@ -2217,6 +2307,8 @@ function applyAbStats(u){
   const P=classPerk(u.id);const st=Object.assign({},P.stat);u.traits=(u.traits||[]).slice();
   for(const k of u.abs){const a=ABIL[k];if(!a)continue;if(a.stat)for(const [x,v] of Object.entries(a.stat))st[x]=(st[x]||0)+v;for(const t of a.tr||[])if(!u.traits.includes(t))u.traits.push(t);}
   for(const t of P.tr)if(!u.traits.includes(t))u.traits.push(t);
+  // パッシブの技：数値は段階の強さを掛け、固有の癖は「訓練」から
+  for(const sk of u.skills){const d=SKILLS[sk.k];if(!d||!d.passive)continue;for(const [x,v] of Object.entries(d.stat||{}))st[x]=(st[x]||0)+v*POW[sk.st];if(sk.st>=2)for(const t of d.tr||[])if(!u.traits.includes(t))u.traits.push(t);}
   for(const a of P.ab)if(!u.abs.includes(a))u.abs.push(a);
   if(st.atk)u.atk*=1+st.atk; if(st.hp){u.max=Math.round(u.max*(1+st.hp));u.hp=u.max;} if(st.spd)u.spd*=1+st.spd; if(st.def)u.def=clamp(u.def+st.def,0,.75);
   u.healB+=st.heal||0; u.flashB+=st.flash||0; u.frost+=st.frost||0;
@@ -2226,6 +2318,12 @@ function applyAbStats(u){
   if(hasAb(u,'sokusha'))u.spd*=1.15; if(hasAb(u,'kagebashiri'))u.spd*=1.1;
   if(hasAb(u,'sentei'))u.gauge=Math.max(u.gauge,.5);
 }
+/* 組み合わせの流儀：そろっていれば戦いの始めから常に効く（そろったことは戦いの記録に残る） */
+function applyStyleGrants(u){for(const [k,st] of Object.entries(STYLES)){if(!st.grant||!hasStyle(u,k))continue;const g=st.grant;
+  for(const t of g.tr||[])if(!u.traits.includes(t))u.traits.push(t);const v=g.stat||{};
+  if(v.atk)u.atk*=1+v.atk;if(v.hp){u.max=Math.round(u.max*(1+v.hp));u.hp=u.max;}if(v.spd)u.spd*=1+v.spd;if(v.def)u.def=clamp(u.def+v.def,0,.75);
+  u.healB+=v.heal||0;u.critB=(u.critB||0)+(v.crit||0);u.skillB=(u.skillB||0)+(v.skill||0);u.multiB=(u.multiB||0)+(v.multi||0);u.songB=(u.songB||0)+(v.song||0);u.hasteStart=Math.max(u.hasteStart||0,v.hasteStart||0);
+  triggerStyle(u,k);}}
 function guardStart(){const h=okU().find(u=>hasAb(u,'inoritate'));if(h){for(const x of okU())heal(h,x,14);log(`${h.name}の祈りの盾が皆を癒やした`,'good');}}
 function trapStart(){const h=okU().find(u=>hasAb(u,'trap'));if(h){const e=pick(okE());if(e){e.stun=Math.max(e.stun,2);log(`${h.name}の仕掛けた罠に${e.name}がかかった`,'sys');}}}
 /* ===== 旅路：区画 → 野営 → 区画 → 野営 → 迷宮（2波）を、同じ戦闘の流れでつなぐ ===== */
@@ -2282,16 +2380,21 @@ function trySteal(u,e){
   const cap=hasAb(u,'nusumu')?2:1;
   if(B.stolen.length<cap&&Math.random()<ch){const k=rollGear(B.floor||S.depth||3);B.stolen.push(k);log(`${u.name}が${e.name}の懐から${ITEMS[k].name}を抜き取った`,'good');}
 }
+/* 旅の支度：一人あたり給金と食糧、野営の夜ごと、宿坊の控え。払えないと一行の忠誠が下がる */
+function tripCost(ids,nights){return ids.length*(ECON.wage+ECON.food+ECON.night*nights)+roomsUsed()*ECON.room;}
 function startBattle(trip){
   fillParty();
   const ids=partyIds();
   trip=trip&&trip.kind?trip:{kind:'dive'};const built=buildPlan(trip);
+  const cost=tripCost(ids,(built.layout.camps||[]).length);const short=S.gold<cost;S.gold-=cost;
+  if(short){for(const id of ids)S.loyal[id]=clamp(S.loyal[id]+ECON.unpaidLoyal,0,100);}
   B={t:0,speed:B?B.speed:1,units:ids.map(makeUnit),enemies:[],wave:0,place:'旅立ち',floor:S.floor||3,emul:1,fmul:1,plan:built.plan,layout:built.layout,trip:trip.kind,tripInfo:trip,si:-1,nextFn:null,stolen:[],rivalAhead:false,rivalNpc:false,rivalSaved:false,lampUsed:false,
     events:[],divine:60+(hasP('b1')?20:0),focus:null,focusT:0,guardT:0,guardByOracle:false,
     saveOrder:0,comboLock:0,pending:null,over:false,waveWait:0,leaderId:null,alert:null,graceT:0,blessAtk:0,songT:0,fq:[],pops:[],posX:40,travel:null,arrived:false,
     startFaith:Object.fromEntries(ids.map(i=>[i,S.faith[i]])),oracles:[],mast:[],disc:[],lostNow:[],combos:{ok:0,fail:0},
-    flashes:[],ups:[],wills:[],teachLog:[],loot:[],styleNew:[],styleUse:{},clsUnlock:[],abLog:[],relNotes:[],relDelta:{},reclaimed:[],traitorSeen:false,loyStart:Object.fromEntries(ids.map(i=>[i,S.loyal[i]]))};
+    flashes:[],ups:[],wills:[],teachLog:[],loot:[],gold:0,mats:{},cost,short,styleNew:[],styleUse:{},clsUnlock:[],abLog:[],relNotes:[],relDelta:{},reclaimed:[],traitorSeen:false,loyStart:Object.fromEntries(ids.map(i=>[i,S.loyal[i]]))};
   B.units.forEach(applyAbStats);
+  B.units.forEach(applyStyleGrants);
   setSteps('battle');
   $('#view').innerHTML=`<section class="battle"><div>
     <div class="bhead"><div class="wave" id="wave"></div><div class="clock" id="clock"></div>
@@ -2362,6 +2465,9 @@ function dmgEnemy(e,dmg,src,crit){
       if(trait(src,'stunHit')&&Math.random()<.1)e.stun=Math.max(e.stun,.8); if(trait(src,'freezeHit')&&Math.random()<.1)e.frozen=Math.max(e.frozen,1);}}
   if(e.hp<=0){e.hp=0;e.state='dead';e.wind=0;if(B.selected===e.id)B.selected=null;
     if(src&&src.side==='p'){if(trait(src,'killHeal'))heal(src,src,src.max*.08);if(trait(src,'killGauge'))src.gauge=Math.min(.95,src.gauge+.5);}
+    // 懐の金と素材
+    if(B.gold!=null&&e.kind!=='traitor'){B.gold+=Math.round(rnd(ECON.killGold[0],ECON.killGold[1])*(B.emul||1));
+      const ms=Object.entries(MATERIALS).filter(([k,m])=>m.kinds&&m.kinds.includes(e.kind));if(ms.length&&Math.random()<.4){const k=pick(ms)[0];B.mats[k]=(B.mats[k]||0)+1;}}
     if(e.kind==='traitor'){const f=okU().sort((a,b)=>relOf(b.id,e.tid)-relOf(a.id,e.tid))[0];const best=f?relOf(f.id,e.tid):-100;const nm=CHAR_DB[e.tid].name;
       if(f&&Math.random()<0.35+best/100){say(f,`戻ってこい、${nm}。まだ間に合う`);log(`${nm}は剣を下ろした。一行に戻る`,'good');B.reclaimed.push(e.tid);}
       else{log(`${nm}は膝をついたが、手を振り払って姿を消した`,'sys');}}
@@ -2448,7 +2554,7 @@ function gainExp(u,s,amt){
 function sparkCheck(u,usedK,tg){
   if(u.state!=='ok')return;
   const apt=aptOf(u.id);
-  const kids=Object.keys(SKILLS).filter(k=>SKILLS[k].from===usedK&&apt.includes(SKILLS[k].line)&&!knows(u.id,k)&&(!SKILLS[k].cls||S.cls[u.id]===SKILLS[k].cls));
+  const kids=Object.keys(SKILLS).filter(k=>SKILLS[k].from===usedK&&!SKILLS[k].fusion&&apt.includes(SKILLS[k].line)&&!knows(u.id,k)&&(!SKILLS[k].cls||S.cls[u.id]===SKILLS[k].cls));
   const eyes=(S.skills[u.id]||[]).filter(s=>s.k===usedK&&s.src==='book'&&s.st===3&&!s.eye);
   if(!kids.length&&!eyes.length)return;
   const em=tg?ENEMY_DB[tg.kind].flash*(tg.fmul||1):1;
@@ -2859,6 +2965,8 @@ function popHtml(x){if(!x.pop||B.t-x.pop.t>0.7*B.speed)return '';return `<span c
 
 /* ============ 帰還 ============ */
 /* 町へ移る旅・探索の旅の終わり。着けば地図が広がり、町なら拠点を移す */
+/* 旅の稼ぎを蔵に入れる（全滅したら何も持ち帰れない） */
+function bankEarnings(){if(B.kind==='wipe'){B.gold=0;B.mats={};}S.gold+=B.gold||0;for(const [k,n] of Object.entries(B.mats||{}))S.mats[k]=(S.mats[k]||0)+n;}
 function endTrip(kind){
   B.over=true;B.kind=kind;stopLoop();
   for(const u of B.units)if(u.state==='down'){if(kind==='wipe')loseUnit(u,true);else{u.state='ok';u.hp=1;}}
@@ -2872,7 +2980,8 @@ function endTrip(kind){
     else if(AREAS[to]&&AREAS[to].sealed)notes.push(`${AREAS[to].name}：${AREAS[to].sealed}。一行は${TOWNS[S.base].name}へ引き返した`);}
   else if(kind==='retreat')notes.push(`一行は${TOWNS[S.base].name}へ引き返した`);
   if(kind!=='wipe'){for(const u of B.units)if(u.state==='ok')addFaith(u.id,kind==='arrive'?1:0);relAfterRun(kind==='arrive'?'win':kind);}
-  worldAfterRun(kind==='arrive'?'trip':kind);
+  bankEarnings();
+  worldAfterRun(kind==='arrive'?'trip':kind);wearGear(kind);
   persist();render();setTimeout(renderResult,900);
 }
 function endBattle(kind){
@@ -2907,13 +3016,20 @@ function endBattle(kind){
     if(kind==='win'&&Math.random()<Math.min(.9,(B.rivalAhead?0.25:0.5)+0.08*(fl-3))){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);}
     if(kind==='win'&&S.next&&S.next.treasure&&!B.rivalAhead){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);B.loot.push(addItem(S,rollGear(fl+1)));B.treasureFound=true;}
     for(const k of B.stolen)B.loot.push(addItem(S,k));
+    // 宝箱の金と、階の素材（深い素材ほど出にくい）
+    if(kind==='win'){B.chest=ECON.chestGold*fl;B.gold+=B.chest;const cands=Object.entries(MATERIALS).filter(([k,m])=>m.floor&&m.floor<=fl);
+      for(let i=0;i<1+(Math.random()<.5?1:0);i++){let r=Math.random()*cands.reduce((a,[k,m])=>a+1/(m.floor-2),0);for(const [k,m] of cands){r-=1/(m.floor-2);if(r<=0){B.mats[k]=(B.mats[k]||0)+1;break;}}}}
   }
-  worldAfterRun(kind);
+  bankEarnings();
+  // パッシブの技は、生還するたび少しずつ習熟する
+  if(kind!=='wipe')for(const u of B.units)if(u.state==='ok')for(const sk of u.skills)if(SKILLS[sk.k]&&SKILLS[sk.k].passive)gainExp(u,sk,1);
+  worldAfterRun(kind);wearGear(kind);
   persist(); render(); setTimeout(renderResult,900);
 }
 /* 旅から戻るたびに世界が動く：季節・年齢と隠居・町の信仰・大神の使徒・神威・信者・次の旅の噂 */
 function worldAfterRun(kind){
   const notes=B.worldNotes=[];
+  {const ms=Object.entries(B.mats||{}).map(([k,n])=>`${MATERIALS[k].name}×${n}`);notes.push(`金：支度 −${B.cost||0}${B.short?'（払いきれず、一行の忠誠が下がった）':''}、稼ぎ +${B.gold||0}${B.chest?`（宝箱 ${B.chest}）`:''}。手持ち ${S.gold}`);if(ms.length)notes.push(`素材：${ms.join('・')}`);}
   S.turn=(S.turn||0)+1;notes.push(`季節が巡った（${calTxt()}）`);
   if(S.turn%4===0){for(const id of Object.keys(CHAR_DB))if(avail(id))S.age[id]=ageOf(id)+1;notes.push('年が明け、皆ひとつ歳を重ねた');}
   if(B.treasureFound)notes.push('噂の書庫を見つけ、書物を持ち帰った');
