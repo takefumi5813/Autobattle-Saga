@@ -737,6 +737,8 @@ table{color:inherit;font-size:.84rem}
 .mats{display:flex;flex-wrap:wrap;gap:6px}.mats span{display:flex;align-items:center;gap:6px;font-size:.76rem;padding:3px 6px 3px 10px;border:1px solid var(--hair2)}.mats b{font-family:var(--f-num)}
 .row2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.row2 select{flex:1;min-width:140px}
 .fuse{margin-bottom:12px}.fz{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--hair2);font-size:.8rem}.fz:last-child{border-bottom:0}.fz i{font-style:normal;color:var(--acc)}.fz b{font-weight:900}
+.spc{display:block;font-size:.58rem;color:var(--muted);font-weight:500}
+.ctabs{margin-bottom:8px}.ctabs button{font-size:.72rem}
 /* ---- 帰還画面（rs） ---- */
 .rs{--rk:var(--fg)}
 .rs-retreat{--rk:#2a6c9c}.rs-wipe{--rk:#c8342b}.rs-arrive{--rk:#111}
@@ -833,6 +835,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/gear.js"></script>
 <script src="data/classes.js"></script>
 <script src="data/craft.js"></script>
+<script src="data/world.js"></script>
 <script>
 "use strict";
 /* ============ データ ============ */
@@ -916,7 +919,7 @@ const TRAIT={
   vamp:'与えたダメージの6%を吸う',bleedHit:'2割で出血させる',stunHit:'1割で0.8秒気絶させる',freezeHit:'1割で1秒凍らせる',first:'戦いの最初の一撃が2倍',
   lowHp:'HP3割以下で攻撃+40%',fullHp:'HPが満ちていると攻撃+20%',faithAtk:'信仰が厚いほど攻撃が上がる（最大+20%）',deep:'深い階ほど攻撃が上がる（1階ごとに+4%）',quickCd:'技の待ち時間-15%',
   tauntLong:'挑発が1秒長く続く',guts:'一度だけ倒れずに踏みとどまる',skillUp:'技の威力+10%',aoeUp:'全体技+15%',critHit:'1割の確率で会心（1.5倍）',rescueFast:'救命の祈りが速く届く',killHeal:'敵を倒すと最大HPの8%が戻る',killGauge:'敵を倒すと次の行動が早まる',
-  accurate:'命中+10%',lucky:'幸運+10',
+  accurate:'命中+10%',lucky:'幸運+10',mapper:'旅で道に迷いにくく、着いた先の周りを地図に描く',porter:'持ち帰れる品と素材が増える',gatherer:'採集で多く集める',
   guardT:'被ダメージ-8%',dodge:'8%でかわす',regenT:'1秒ごとに最大HPの1%回復',rescue:'倒れたときの救命の猶予+3秒',counter:'攻撃を受けると15%で反撃',thornsP:'受けたダメージの1割を返す',sweepRes:'大技の薙ぎ払いを3割軽くする',
 };
 /* 命中と幸運（2026-11-24）。命中は外れにくさと急所への当てやすさ、幸運は急所・回避・拾い物に効く */
@@ -983,6 +986,10 @@ function canEquip(id,d){if(!d)return false;
   return true;}
 /* アビリティの枠：2つ。全部の職の★の合計が10で3つ、25で4つ（続けるほど組み合わせが広がる） */
 const totalStars=id=>Object.keys(S.jp&&S.jp[id]||{}).reduce((a,j)=>a+jobLv(id,j),0);
+/* 技の点（2026-11-24）：技は段階ごとに点を使い、使い込むほど軽くなる（体得で1）。上限は8、全部の職の★5つごとに+1 */
+const SP_COST=[0,3,2,2,1];
+const spUsed=id=>(S.skills[id]||[]).reduce((a,x)=>a+SP_COST[x.st||1],0);
+const spCap=id=>8+Math.floor(totalStars(id)/5);
 const abilSlots=id=>2+(totalStars(id)>=10?1:0)+(totalStars(id)>=25?1:0);
 /* 流儀：一人が持つ技の組み合わせで発動する相乗効果。@role は職の固有技（凍結の霧など）を表す */
 const STYLES={
@@ -1146,9 +1153,16 @@ const AREAS={
 };
 const LINKS=[['temple','pass'],['pass','ash'],['pass','garde'],['temple','plain'],['plain','liesen'],['plain','garde'],['garde','mine'],['liesen','north'],['north','great'],
   ['garde','hill'],['hill','rou'],['hill','north'],['garde','forest'],['forest','nia'],['nia','burnt'],['rou','marsh'],['marsh','seles'],['seles','abbey']];
+/* 世界の拡張（2026-11-24、data/world.js）：中つ国（c0）は手作り、ほかの5大陸と小さな迷宮は種から生まれる */
+for(const t of Object.values(TOWNS))t.cont=t.cont||'c0';for(const a of Object.values(AREAS)){a.cont=a.cont||'c0';if(a.kind==='area'&&!a.lv)a.lv=3;}
+Object.assign(TOWNS,GEN_WORLD.towns);Object.assign(AREAS,GEN_WORLD.areas);LINKS.push(...GEN_WORLD.links);
+const CONT=Object.fromEntries(CONTS.map(c=>[c.id,c]));
 const NEIGH={};for(const [a,b] of LINKS){(NEIGH[a]=NEIGH[a]||[]).push(b);(NEIGH[b]=NEIGH[b]||[]).push(a);}
 const PLACE=k=>TOWNS[k]||AREAS[k];
 const isArea=k=>!!(AREAS[k]&&AREAS[k].kind==='area');
+/* 地図で知っている場所：歩いた所（known）と、手に入れた地図に描かれた所（charted。2なら間違った地図） */
+const knownPlus=()=>Object.assign({},S.charted||{},S.known);
+const partyTrait=t=>partyIds().some(id=>classPerk(id).tr.includes(t));
 const KNOWN0={garde:true,hill:true,north:true,great:true};   // 最初に知っている場所：ガルドと、大迷宮までの道
 /* a から b への道筋（知っている場所だけを通る）。迷宮は行き止まりなので、行き先でなければ通り抜けない */
 function findPath(a,b,kn){
@@ -1157,7 +1171,14 @@ function findPath(a,b,kn){
     for(const n of NEIGH[c]||[]){if(n in prev)continue;if(n!==b&&(!kn[n]||(AREAS[n]&&AREAS[n].kind==='dungeon')))continue;prev[n]=c;q.push(n);}}
   if(!(b in prev))return null;const p=[];for(let c=b;c!=null;c=prev[c])p.unshift(c);return p;}
 /* 地図の「？」：知っている場所から一歩先の、まだ知らない場所 */
-function frontier(){const out=[];for(const k of Object.keys(S.known))for(const n of NEIGH[k]||[])if(!S.known[n]&&!out.some(f=>f.to===n))out.push({from:k,to:n});return out;}
+function frontier(){const out=[];for(const k of Object.keys(S.known))for(const n of NEIGH[k]||[])if(!S.known[n]&&!(AREAS[n]&&AREAS[n].gen&&AREAS[n].kind==='dungeon')&&!out.some(f=>f.to===n))out.push({from:k,to:n});return out;}
+/* 生まれた小さな迷宮は「？」にしない。区画を歩くたび、近くの入り口が一つ二つ見つかる */
+/* 拠点が別の大陸に移ったら、潜る先をその大陸のいちばん近い迷宮にする（なければ中つ国の大迷宮のまま） */
+function fixDiveTo(notes){const c=TOWNS[S.base].cont;const cur=AREAS[S.diveTo||'great'];if(cur&&cur.cont===c)return;
+  const kp=knownPlus();let best=null;for(const k of Object.keys(S.known)){const a=AREAS[k];if(!a||a.kind!=='dungeon'||a.sealed||a.cont!==c)continue;const p=findPath(S.base,k,kp);if(p&&(!best||p.length<best[1]))best=[k,p.length];}
+  if(best){S.diveTo=best[0];notes&&notes.push(`潜る先を${AREAS[best[0]].name}にした`);}}
+function revealDungeons(areas,notes){for(const a of [...new Set(areas)]){const ds=(NEIGH[a]||[]).filter(n=>AREAS[n]&&AREAS[n].kind==='dungeon'&&!S.known[n]);
+  for(const d of ds.slice(0,Math.random()<.5?1:2)){S.known[d]=true;notes.push(`${AREAS[a].name}で、迷宮の入り口を見つけた：${AREAS[d].name}（深さ${AREAS[d].lv}）`);}}}
 const wpick=a=>{let t=a.reduce((x,y)=>x+y[1],0)*Math.random();for(const [k,v] of a){t-=v;if(t<=0)return k;}return a[0][0];};
 function rollEnc(area,mult){const a=AREAS[area];if(!a||!a.enc)return null;const e=wpick(a.enc.map(([k,v])=>[k,k==='none'?v:v*(mult||1)]));return e==='none'?null:e;}
 const raidOf=area=>(AREAS[area].enc||[]).some(([k])=>k==='wolf')?'wolf':'bandit';
@@ -1174,9 +1195,11 @@ const RAID_N={wolf:'狼',bandit:'野盗'};
 const SEG_W={town:360,area:760,gate:140,dun:1100};
 function tripNodes(trip){
   const kn=S.known;
-  if(trip.kind==='dive')return findPath(S.base,'great',kn)||[S.base,'great'];
-  if(trip.kind==='travel')return findPath(S.base,trip.to,kn);
-  const p=findPath(S.base,trip.from,kn)||[S.base];const nodes=p.concat([trip.to]);
+  const kp=knownPlus();const dt=S.diveTo&&AREAS[S.diveTo]&&!AREAS[S.diveTo].sealed?S.diveTo:'great';
+  if(trip.kind==='dive')return findPath(S.base,dt,kp)||findPath(S.base,'great',kn)||[S.base,'great'];
+  if(trip.kind==='travel')return findPath(S.base,trip.to,kp);
+  if(trip.kind==='gather')return findPath(S.base,trip.to,kp)||[S.base,trip.to];
+  const p=findPath(S.base,trip.from,kp)||[S.base];const nodes=p.concat([trip.to]);
   // 未踏の区画を抜けた先：まだ知らない町を優先して、その先の場所まで行く
   if(isArea(trip.to)){const back=nodes[nodes.length-2];const nb=(NEIGH[trip.to]||[]).filter(n=>n!==back);
     const score=n=>(!kn[n]?4:0)+(TOWNS[n]?2:0)+(isArea(n)?0:1);nb.sort((a,b)=>score(b)-score(a));if(nb[0])nodes.push(nb[0]);}
@@ -1188,11 +1211,17 @@ function buildPlan(trip){
   seg('town',{place:nodes[0]});
   for(let i=1;i<nodes.length;i++){const k=nodes[i];const last=i===nodes.length-1;
     if(isArea(k)){const s=seg('area',{area:k,theme:AREAS[k].theme});
-      const enc=trip.kind==='dive'?((n.enc||{})[k]||null):rollEnc(k,trip.kind==='explore'&&!S.known[k]?1.3:1);
-      plan.push({t:'road',area:k,enc,x:s.x0+(enc?430:640)});
+      const enc=trip.kind==='dive'&&(n.enc||{})[k]!==undefined?((n.enc||{})[k]||null):rollEnc(k,trip.kind==='explore'&&!S.known[k]?1.3:1);
+      plan.push({t:'road',area:k,enc,x:s.x0+(enc?430:620)});
+      // 道に迷う：知らない区画、地図だけの区画、間違った地図。マッパーがいれば迷いにくい
+      const ch=(S.charted||{})[k];const lostP=S.known[k]?0:ch===2?1:(ch?.15:.3)-(partyTrait('mapper')?.15:0);
+      if(Math.random()<lostP)plan.push({t:'road',area:k,enc:rollEnc(k,1.2),lost:true,wrong:ch===2,x:s.x0+(enc?560:650)});
+      // 道中の出来事
+      if(SIGHTS[AREAS[k].theme]&&Math.random()<.4)plan.push({t:'sight',area:k,sight:pick(SIGHTS[AREAS[k].theme]),x:s.x0+675});
+      if(trip.kind==='gather'&&last){plan.push({t:'gather',area:k,n:0,x:s.x0+700},{t:'gather',area:k,n:1,x:s.x0+730},{t:'arrive',to:S.base,home:true,x:s.x0+750});continue;}
       const more=nodes.slice(i+1).some(isArea)||trip.kind==='dive';
       if(more){const raid=trip.kind==='dive'?(n.raid||{})[k]:Math.random()<.25;plan.push({t:'camp',area:k,night:night++,raid:raid?raidOf(k):null,x:s.x0+700});}}
-    else if(k==='great'&&trip.kind==='dive'){seg('gate',{place:k});const s=seg('dun');plan.push({t:'dun',w:1,x:s.x0+440},{t:'dun',w:2,x:s.x0+840});}
+    else if(AREAS[k]&&AREAS[k].kind==='dungeon'&&trip.kind==='dive'&&last){seg('gate',{place:k});const s=seg('dun');plan.push({t:'dun',w:1,x:s.x0+440},{t:'dun',w:2,x:s.x0+840});}
     else{const s=seg(TOWNS[k]?'town':'gate',{place:k});if(last)plan.push({t:'arrive',to:k,x:s.x0+(TOWNS[k]?150:60)});}}
   trip.nodes=nodes;
   return {plan,layout:{segs,W:x,trip,camps:plan.filter(p=>p.t==='camp').map(p=>p.x)}};}
@@ -1271,6 +1300,8 @@ function migrate(s){
   if(!s.next||!s.next.enc||!s.rumors)rollNext(s);
   // 収支・素材（2026-11-24）
   if(s.gold==null)s.gold=ECON.start;s.mats=s.mats||{};
+  // 世界（2026-11-24）：種・地図・潜る迷宮・踏破した迷宮・新しい町の信仰
+  s.wseed=s.wseed||WSEED;s.charted=s.charted||{};s.diveTo=s.diveTo||'great';s.cleared=s.cleared||{};for(const [k,t] of Object.entries(TOWNS))if(s.belief[k]==null)s.belief[k]=t.b;
   return s;}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.party&&s.items)return migrate(s);}catch(e){}return migrate(newSave());}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -1535,7 +1566,7 @@ function renderPrep(){
   stopLoop(); setSteps('prep'); installPortraits();
   const added=fillParty(); if(added.length)prepNotice=prepNotice.concat(added); persist();
   const ids=partyIds(); const P=S.policy;
-  const over=ids.filter(id=>(S.skills[id]||[]).length>4);
+  const over=ids.filter(id=>spUsed(id)>spCap(id));
   // ---- 知らせ（どのタブでも上に） ----
   const msgs=[];
   if(prepNotice.length){msgs.push(`新たな仲間：${prepNotice.map(id=>{const d=CHAR_DB[id];return `<b>${d.name}</b>（${ROLES[d.role]}${d.parent?`・${CHAR_DB[d.parent].name}の${d.rel}`:d.town?`・${TOWNS[d.town].name}の信者`:''}）`;}).join('、')}。前の仲間との連携技の習熟は引き継がれない`);prepNotice=[];}
@@ -1548,13 +1579,13 @@ function renderPrep(){
   const TABS=[['depart','旅立ち','DEPART',''],['party','一行','PARTY',(warnN+S.visitors.length)||''],['world','世界','WORLD',canPw?'✶':''],['store','蔵','DEPOT','']];
   if(!TABS.some(t=>t[0]===PREP_TAB))PREP_TAB='depart';
   h+=`<nav class="tm-nav" role="tablist"><div class="crest">${ico('信仰')}<b>神殿</b>${calTxt()}<span class="goldv ${S.gold<0?'neg':''}" title="手持ちの金">金 <b>${S.gold}</b></span></div>${TABS.map(([k,n,en,b])=>`<button role="tab" aria-selected="${k===PREP_TAB}" class="tm-tab ${k===PREP_TAB?'on':''}" data-ptab="${k}"><b>${n}</b><small>${en}</small>${b!==''?`<span class="bdg">${b}</span>`:''}</button>`).join('')}</nav>`;
-  if(msgs.length||over.length)h+=`<div class="tm-msg">${over.length?`<div class="bad">技は一人4つまで：${over.map(id=>CHAR_DB[id].name).join('、')}の技を整理してください（体得した書物の技は、伝書に書き残せる）</div>`:''}${msgs.map(m=>`<div>${m}</div>`).join('')}</div>`;
+  if(msgs.length||over.length)h+=`<div class="tm-msg">${over.length?`<div class="bad">技の点が足りない：${over.map(id=>`${CHAR_DB[id].name}（${spUsed(id)}/${spCap(id)}）`).join('、')}。技を忘れるか、使い込んで体得させてください（体得した書物の技は、伝書に書き残せる）</div>`:''}${msgs.map(m=>`<div>${m}</div>`).join('')}</div>`;
   h+={depart:()=>departHtml(ids),party:()=>partyHtml(ids),world:()=>worldHtml(ids),store:()=>storeHtml(ids,inv)}[PREP_TAB]();
   // ---- 下に固定：道のり・潜る階・旅立つ ----
-  const fls=[];for(let f=3;f<=S.depth;f++)fls.push(f);
-  h+=`<div class="dock"><div class="route" title="拠点から大迷宮までの道のり。区画ごとに野営する">${diveNodes().map(k=>TOWNS[k]?`<span>${TOWNS[k].name.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'')}</span>`:isArea(k)?`<span>${AREAS[k].name}</span><span class="cp">${ico('野営')}</span>`:`<span class="dn">${floorName(S.floor)}</span>`).join('')}</div>
+  const fls=[];if((S.diveTo||'great')==='great')for(let f=3;f<=S.depth;f++)fls.push(f);
+  h+=`<div class="dock"><div class="route" title="拠点から大迷宮までの道のり。区画ごとに野営する">${diveNodes().map(k=>TOWNS[k]?`<span>${TOWNS[k].name.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'')}</span>`:isArea(k)?`<span>${AREAS[k].name}</span><span class="cp">${ico('野営')}</span>`:`<span class="dn">${k==='great'?floorName(S.floor):`${AREAS[k].name}（深さ${AREAS[k].lv}）`}</span>`).join('')}</div>
     <div class="flr" role="radiogroup" aria-label="潜る階">${fls.map(f=>`<button role="radio" aria-checked="${f===S.floor}" class="${f===S.floor?'on':''}${f===S.depth?' new':''}" data-floor="${f}" title="${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}">B${f}<small>×${floorMul(f).toFixed(2)}</small></button>`).join('')}</div>
-    <span class="meta">潜行 ${S.runs}・帰還 ${S.wins}<br><span title="給金・食糧・野営・宿坊の控え">支度 金${tripCost(ids,diveNodes().filter(isArea).length)}${S.gold<tripCost(ids,diveNodes().filter(isArea).length)?'（足りない）':''}</span></span>
+    <span class="meta">潜行 ${S.runs}・帰還 ${S.wins}<br><span title="給金・食糧・野営・船賃・宿坊の控え">支度 金${tripCost(ids,diveNodes().filter(isArea).length,diveNodes())}${S.gold<tripCost(ids,diveNodes().filter(isArea).length,diveNodes())?'（足りない）':''}</span></span>
     <button class="go" id="go" ${over.length?'disabled':''}><b>旅立つ</b><small>DEPART</small></button></div>`;
   if(SKV&&CHAR_DB[SKV])h+=`<div class="ovl" id="ovl">${skillPanel(SKV)}</div>`;else SKV=null;
   h+='</div>';
@@ -1603,12 +1634,12 @@ function profileHtml(id,inParty){
    h+=`<div class="chips2" style="margin-top:6px" title="命中は外れにくさと急所への当てやすさ、幸運は急所・回避・拾い物に効く（アビリティの分は戦いで足される）"><span class="c">命中 ${Math.round(hit*100)}%</span><span class="c">幸運 ${lk}</span></div>`;}
   // 技：基本技＋4枠
   const sks=S.skills[id]||[];
-  h+=`<div><div class="hd">技<small>${sks.length}/4</small></div><div class="skt">`;
+  h+=`<div><div class="hd" title="技は段階ごとに点を使う（啓示3・訓練2・実戦2・体得1）。点の上限は8で、全部の職の★5つごとに1増える">技<small>技の点 ${spUsed(id)}/${spCap(id)}</small></div><div class="skt">`;
   const base=BASE_SKILL[d.role];
   h+=`<details class="st base"><summary><span class="ic">${ico(SKILLS[base].line)}<span class="sb src base">基本</span></span><span class="sn">${SKILLS[base].name}</span></summary><div class="pop2"><b>${SKILLS[base].name}</b><br>${SKILLS[base].desc}</div></details>`;
   for(const s of sks){const sk=SKILLS[s.k];const cap=skillCap(s);
     const canWrite=s.st>=4&&s.src!=='flash'&&!(s.src==='teach'&&!sk.book)&&!S.written[id+':'+s.k];
-    h+=`<details class="st"><summary><span class="ic">${ico(sk.line)}<span class="sb src ${s.src}">${SRC[s.src]}</span></span><span class="sn">${sk.name}</span>${pips(s.st,cap)}</summary>
+    h+=`<details class="st"><summary><span class="ic">${ico(sk.line)}<span class="sb src ${s.src}">${SRC[s.src]}</span></span><span class="sn">${sk.name}<small class="spc">${SP_COST[s.st]}点</small></span>${pips(s.st,cap)}</summary>
       <div class="pop2"><b>${sk.name}</b>　<span class="muted">${STAGE[s.st]}${s.st<cap?`・経験 ${s.exp}/${EXP_NEED[s.st]}`:''}${cap===3&&s.st===3?'・開眼待ち':''}</span><br>${sk.desc}${s.src==='flash'?'<br><span class="muted">閃いた技は書物にできず、師弟の口伝でしか継げない</span>':''}
       <div class="acts">${canWrite?`<button class="btn tiny" data-write="${id}|${s.k}">伝書を記す</button>`:''}<button class="btn tiny" data-forget="${id}|${s.k}">忘れる</button></div></div></details>`;}
   for(const g of st.grants){const sk=SKILLS[g.k];if(knows(id,g.k))continue;
@@ -1729,61 +1760,92 @@ let prepMsgs=[];
 let WSEL=null;
 const THEME_TXT={hill:'丘陵',river:'針葉樹の街道と川',plain:'平原',pass:'岩山の峠',forest:'深い森',marsh:'湿原'};
 const ENC_TXT={wolf:'狼',ogre:'はぐれオーガ',bandit:'野盗',goblin:'ゴブリン'};
+/* 世界地図（2026-11-24 作り直し）：行っていない所は真っ黒。歩いた所は地形が見え、地図で知っただけの所はセピアの線画で描く（間違っていることもある）。
+   大陸ごとに見る（WCONT）。中つ国だけ生成した地形の絵がある */
+let WCONT='c0';
+let worldMsgs=[];   // 世界タブでの操作の知らせ（布教・権能）
+const LAND_COL={hill:'#5d5a45',river:'#3e5a4a',plain:'#6a6b45',pass:'#57534d',forest:'#2f4a34',marsh:'#3d4a44'};
+const SEPIA='#c9ad7a';
+const shortName=n=>n.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'');
 function mapSvg(){
-  const kn=S.known;const P=k=>PLACE(k);const dive=diveNodes();const onDive=(a,b)=>dive.some((k,i)=>(k===a&&dive[i+1]===b)||(k===b&&dive[i+1]===a));
-  const T=(typeof WORLD_IMG!=='undefined')?WORLD_IMG:null;
-  let h=`<svg class="wmap" viewBox="0 0 256 224" role="img" aria-label="世界地図：歩いた区画と見つけた場所">`;
-  h+=`<defs><mask id="fog"><rect width="256" height="224" fill="#fff"/>`;
-  for(const k of Object.keys(kn)){const p=P(k);if(p)h+=`<circle cx="${p.x}" cy="${p.y}" r="${isArea(k)?24:18}" fill="#000"/>`;}
-  for(const [a,b] of LINKS)if(kn[a]&&kn[b])h+=`<line x1="${P(a).x}" y1="${P(a).y}" x2="${P(b).x}" y2="${P(b).y}" stroke="#000" stroke-width="16" stroke-linecap="round"/>`;
-  h+=`</mask><filter id="gl"><feGaussianBlur stdDeviation="1.2"/></filter></defs>`;
-  h+=T?`<image href="${T.terrain}" width="256" height="224" style="image-rendering:pixelated"/>`:`<rect width="256" height="224" fill="#1a1a1a"/>`;
-  h+=`<rect width="256" height="224" fill="#0b0b0b" opacity=".88" mask="url(#fog)"/>`;
-  // 道：知っている場所どうし。大迷宮への道は金で光らせる
-  for(const [a,b] of LINKS){if(!(kn[a]&&kn[b]))continue;const A=P(a),Bp=P(b);const d=onDive(a,b);
-    if(d)h+=`<line x1="${A.x}" y1="${A.y}" x2="${Bp.x}" y2="${Bp.y}" stroke="#ffd23a" stroke-width="3.2" opacity=".55" filter="url(#gl)"/>`;
-    h+=`<line x1="${A.x}" y1="${A.y}" x2="${Bp.x}" y2="${Bp.y}" stroke="${d?'#ffffff':'#d8d8d8'}" stroke-width="${d?1.8:1.3}" opacity=".9"/>`;}
-  // 未踏の道：知っている場所から、霧の中へ消える道と「？」
-  for(const f of frontier()){const A=P(f.from),Bp=P(f.to);const mx=A.x+(Bp.x-A.x)*.45,my=A.y+(Bp.y-A.y)*.45;const sel=WSEL==='?'+f.to;
-    h+=`<line x1="${A.x}" y1="${A.y}" x2="${mx}" y2="${my}" stroke="#d8d8d8" stroke-width="1.2" stroke-dasharray="2 2" opacity=".75"/>`;
-    h+=`<g class="wn" data-wsel="?${f.to}"><circle cx="${mx}" cy="${my}" r="6.5" fill="#111111" stroke="${sel?'#ffffff':'#8a8a8a'}" stroke-width="${sel?1.4:.9}"/><text x="${mx}" y="${my+3}" text-anchor="middle" class="q">？</text></g>`;}
+  const kn=S.known,ch=S.charted||{};const P=k=>PLACE(k);const inC=k=>P(k)&&P(k).cont===WCONT;
+  const seen=k=>kn[k]&&inC(k),drawn=k=>!kn[k]&&ch[k]&&inC(k),vis=k=>seen(k)||drawn(k);
+  const dive=diveNodes();const onDive=(a,b)=>dive.some((k,i)=>(k===a&&dive[i+1]===b)||(k===b&&dive[i+1]===a));
+  const T=WCONT==='c0'&&typeof WORLD_IMG!=='undefined'?WORLD_IMG:null;
+  let h=`<svg class="wmap" viewBox="0 0 256 224" role="img" aria-label="世界地図：歩いた所と地図で知った所だけが描かれる"><defs><mask id="seen"><rect width="256" height="224" fill="#000"/>`;
+  for(const k of Object.keys(kn))if(seen(k))h+=`<circle cx="${P(k).x}" cy="${P(k).y}" r="${isArea(k)?26:20}" fill="#fff"/>`;
+  for(const [a,b] of LINKS)if(seen(a)&&seen(b))h+=`<line x1="${P(a).x}" y1="${P(a).y}" x2="${P(b).x}" y2="${P(b).y}" stroke="#fff" stroke-width="18" stroke-linecap="round"/>`;
+  h+=`</mask><filter id="gl"><feGaussianBlur stdDeviation="1.2"/></filter><filter id="soft"><feGaussianBlur stdDeviation="5"/></filter></defs><rect width="256" height="224" fill="#000"/>`;
+  // 歩いた所の地形（中つ国は絵、ほかは土地の色）
+  if(T)h+=`<image href="${T.terrain}" width="256" height="224" style="image-rendering:pixelated" mask="url(#seen)"/>`;
+  else{h+=`<g mask="url(#seen)"><rect width="256" height="224" fill="#16232e"/><g filter="url(#soft)">`;for(const k of Object.keys(kn))if(seen(k)){const a=AREAS[k];h+=`<circle cx="${P(k).x}" cy="${P(k).y}" r="${isArea(k)?24:16}" fill="${a&&a.theme?LAND_COL[a.theme]:'#55553f'}"/>`;}h+=`</g></g>`;}
+  // 道
+  for(const [a,b] of LINKS){if(!(vis(a)&&vis(b)))continue;const A=P(a),Bp=P(b);const sk=drawn(a)||drawn(b);const d=onDive(a,b);
+    if(d&&!sk)h+=`<line x1="${A.x}" y1="${A.y}" x2="${Bp.x}" y2="${Bp.y}" stroke="#ffd23a" stroke-width="3.2" opacity=".55" filter="url(#gl)"/>`;
+    h+=`<line x1="${A.x}" y1="${A.y}" x2="${Bp.x}" y2="${Bp.y}" stroke="${sk?SEPIA:d?'#ffffff':'#d8d8d8'}" stroke-width="${d?1.8:1.2}" ${sk?'stroke-dasharray="3 2"':''} opacity=".85"/>`;}
+  // 未踏の道と「？」（この大陸の中、または海路）
+  for(const f of frontier()){if(!inC(f.from)||(!inC(f.to)&&!(AREAS[f.to]&&AREAS[f.to].sea)))continue;if(ch[f.to])continue;const A=P(f.from),Bp=inC(f.to)?P(f.to):{x:Math.min(250,A.x+18),y:Math.min(218,A.y+10)};
+    const mx=A.x+(Bp.x-A.x)*.45,my=A.y+(Bp.y-A.y)*.45;const sel=WSEL==='?'+f.to;
+    h+=`<line x1="${A.x}" y1="${A.y}" x2="${mx}" y2="${my}" stroke="#d8d8d8" stroke-width="1.1" stroke-dasharray="2 2" opacity=".7"/>`;
+    h+=`<g class="wn" data-wsel="?${f.to}"><circle cx="${mx}" cy="${my}" r="6.5" fill="#111" stroke="${sel?'#fff':'#8a8a8a'}" stroke-width="${sel?1.4:.9}"/><text x="${mx}" y="${my+3}" text-anchor="middle" class="q">？</text></g>`;}
   // 区画
-  for(const [k,a] of Object.entries(AREAS)){if(!kn[k]||a.kind!=='area')continue;const sel=WSEL===k;
-    h+=`<g class="wn" data-wsel="${k}"><rect x="${a.x-9}" y="${a.y-5}" width="18" height="10" rx="2" fill="#111111" stroke="${sel?'#ffffff':'#8a8a8a'}" stroke-width="${sel?1.4:.8}"/>
-      <text x="${a.x}" y="${a.y+2.5}" text-anchor="middle" class="an">${a.name.length>3?a.name.slice(0,3):a.name}</text></g>`;}
-  // 町と迷宮
-  const icon=(k,p)=>T&&T.icons&&T.icons[p.icon]?`<image href="${T.icons[p.icon]}" x="${p.x-8}" y="${p.y-12}" width="16" height="16" style="image-rendering:pixelated"/>`:`<rect x="${p.x-4}" y="${p.y-4}" width="8" height="8" fill="#ffd23a"/>`;
-  for(const [k,t] of Object.entries(TOWNS)){if(!kn[k])continue;const sel=WSEL===k;const b=S.belief[k];const base=S.base===k;
-    h+=`<g class="wn" data-wsel="${k}"><circle cx="${t.x}" cy="${t.y-3}" r="${7+b/14}" fill="#ffd23a" fill-opacity="${(.06+b/400).toFixed(2)}" stroke="${sel?'#ffffff':'none'}" stroke-width="1.2"/>${icon(k,t)}
-      <text x="${t.x}" y="${t.y+11}" text-anchor="middle" class="tn">${t.name.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'')}</text>
-      ${base?`<g transform="translate(${t.x+7},${t.y-16})"><rect x="0" y="0" width="1" height="9" fill="#ffffff"/><path d="M1 0h6l-2 2.5 2 2.5h-6z" fill="#ffd23a"/></g>`:''}</g>`;}
-  for(const [k,a] of Object.entries(AREAS)){if(!kn[k]||a.kind!=='dungeon')continue;const sel=WSEL===k;
-    h+=`<g class="wn" data-wsel="${k}">${sel?`<circle cx="${a.x}" cy="${a.y-3}" r="10" fill="none" stroke="#ffffff"/>`:''}${icon(k,a)}<text x="${a.x}" y="${a.y+11}" text-anchor="middle" class="tn" style="fill:${a.sealed?'#9692aa':'#e0605a'}">${a.name.replace(/^(東の|閉ざされた|沈んだ|焼けた森の)/,'')}</text></g>`;}
+  for(const [k,a] of Object.entries(AREAS)){if(a.kind!=='area'||!vis(k))continue;const sel=WSEL===k;const sk=drawn(k);
+    h+=`<g class="wn" data-wsel="${k}"><rect x="${a.x-9}" y="${a.y-5}" width="18" height="10" rx="2" fill="${sk?'#1a1610':'#111'}" stroke="${sel?'#fff':sk?SEPIA:'#8a8a8a'}" stroke-width="${sel?1.4:.8}" ${sk?'stroke-dasharray="2 1"':''}/>
+      <text x="${a.x}" y="${a.y+2.5}" text-anchor="middle" class="an" ${sk?`style="fill:${SEPIA}"`:''}>${a.name.length>3?a.name.slice(0,3):a.name}</text></g>`;}
+  const icon=(p)=>T&&T.icons&&T.icons[p.icon]?`<image href="${T.icons[p.icon]}" x="${p.x-8}" y="${p.y-12}" width="16" height="16" style="image-rendering:pixelated"/>`:`<rect x="${p.x-3.5}" y="${p.y-7}" width="7" height="7" fill="${p.kind==='dungeon'?'#c8342b':'#f2f2ef'}" transform="rotate(45 ${p.x} ${p.y-3.5})"/>`;
+  // 町
+  for(const [k,t] of Object.entries(TOWNS)){if(!vis(k))continue;const sel=WSEL===k;const b=S.belief[k]||0;const base=S.base===k;const sk=drawn(k);
+    h+=`<g class="wn" data-wsel="${k}">${sk?'':`<circle cx="${t.x}" cy="${t.y-3}" r="${7+b/14}" fill="#ffd23a" fill-opacity="${(.06+b/400).toFixed(2)}" stroke="${sel?'#fff':'none'}" stroke-width="1.2"/>`}${sk?`<circle cx="${t.x}" cy="${t.y-3}" r="5" fill="none" stroke="${SEPIA}" stroke-dasharray="2 1"/>`:icon(t)}
+      <text x="${t.x}" y="${t.y+11}" text-anchor="middle" class="tn" ${sk?`style="fill:${SEPIA}"`:''}>${shortName(t.name)}</text>
+      ${base?`<g transform="translate(${t.x+7},${t.y-16})"><rect x="0" y="0" width="1" height="9" fill="#fff"/><path d="M1 0h6l-2 2.5 2 2.5h-6z" fill="#ffd23a"/></g>`:''}</g>`;}
+  // 迷宮
+  for(const [k,a] of Object.entries(AREAS)){if(a.kind!=='dungeon'||!vis(k))continue;const sel=WSEL===k;const sk=drawn(k);const tgt=(S.diveTo||'great')===k;
+    h+=`<g class="wn" data-wsel="${k}">${sel||tgt?`<circle cx="${a.x}" cy="${a.y-3}" r="10" fill="none" stroke="${tgt?'#ffd23a':'#fff'}"/>`:''}${sk?`<path d="M${a.x-4} ${a.y}h8l-4-7z" fill="none" stroke="${SEPIA}"/>`:a.gen?`<rect x="${a.x-2.5}" y="${a.y-5}" width="5" height="5" fill="${(S.cleared||{})[k]?'#9a9a9a':'#c8342b'}" transform="rotate(45 ${a.x} ${a.y-2.5})"/>`:icon(a)}${a.gen&&!sel&&!tgt?'':`<text x="${a.x}" y="${a.y+11}" text-anchor="middle" class="tn" style="fill:${sk?SEPIA:a.sealed?'#9692aa':(S.cleared||{})[k]?'#cfcfcf':'#e0605a'}">${a.gen?a.name.slice(0,6):a.name.replace(/^(東の|閉ざされた|沈んだ|焼けた森の)/,'')}</text>`}</g>`;}
   return h+`</svg>`;}
-/* 選んだ場所の札：町なら「ここへ旅する」、？なら「探しに行く」 */
+/* 大陸の切り替え：知っている（地図を含む）場所がある大陸だけ */
+function contTabs(){const kp=knownPlus();const has=c=>Object.keys(kp).some(k=>PLACE(k)&&PLACE(k).cont===c.id);
+  return `<div class="seg ctabs">${CONTS.map(c=>has(c)||c.id==='c0'?`<button class="${WCONT===c.id?'on':''}" data-wcont="${c.id}">${c.name}</button>`:`<button disabled title="まだ知らない大陸">？？？</button>`).join('')}</div>`;}
+/* 地図屋：拠点の町で地図を買う。安い地図ほど間違っていることがある */
+const MAP_SHOP=[
+  {k:'near',name:'近隣の地図',gold:40,wrong:.25,desc:'拠点から三つ先までの土地を描いた地図'},
+  {k:'cont',name:'大陸の地図',gold:150,wrong:.15,desc:'拠点のある大陸の町と土地をすべて描いた地図'},
+  {k:'sea',name:'海図',gold:60,wrong:.1,desc:'港から各大陸への海路と、その先の港',port:true},
+];
+function buyMap(kind){const m=MAP_SHOP.find(x=>x.k===kind);if(!m||S.gold<m.gold)return;const base=S.base;const cont=TOWNS[base].cont;let ks=[];
+  if(kind==='near'){const seen=new Set([base]);let fr=[base];for(let d=0;d<3;d++){const nx=[];for(const a of fr)for(const n of NEIGH[a]||[])if(!seen.has(n)&&PLACE(n).cont===cont){seen.add(n);nx.push(n);}fr=nx;}ks=[...seen];}
+  if(kind==='cont')ks=Object.keys(TOWNS).concat(Object.keys(AREAS)).filter(k=>PLACE(k).cont===cont&&(TOWNS[k]||isArea(k)));
+  if(kind==='sea')ks=Object.keys(AREAS).filter(k=>AREAS[k].sea).flatMap(k=>[k].concat(NEIGH[k]||[]));
+  let n=0;for(const k of ks){if(S.known[k]||S.charted[k])continue;S.charted[k]=isArea(k)&&Math.random()<m.wrong?2:1;n++;}
+  S.gold-=m.gold;prepMsgs.push(`${m.name}を買った（金${m.gold}）。${n}か所を地図に書き込んだ。ただし地図が正しいとは限らない`);}
+/* 選んだ場所の札 */
 function wInfoHtml(){
-  const sel=WSEL||S.base;const kn=S.known;
-  const chips=nodes=>nodes.map(k=>`<span class="c ${isArea(k)?'':'g'}">${PLACE(k).name.replace(/^(鉱山町|王都|港町|森の集落|宿場町)/,'')}</span>`).join('<i>›</i>');
-  if(sel[0]==='?'){const to=sel.slice(1);const f=frontier().find(x=>x.to===to);if(!f)return '';const nodes=(findPath(S.base,f.from,kn)||[S.base]);
-    const nights=nodes.filter(isArea).length;
-    return `<div class="wi"><div class="wt">？　未踏の地<small>${PLACE(f.from).name}の先</small></div><p class="mini2">何があるかは、歩いてみないとわからない。見つけたのが町なら、そこに拠点を移す</p>
+  const sel=WSEL||S.base;const kn=S.known,kp=knownPlus();
+  const chips=nodes=>nodes.map(k=>`<span class="c ${isArea(k)?'':'g'}">${shortName(PLACE(k).name)}</span>`).join('<i>›</i>');
+  if(sel[0]==='?'){const to=sel.slice(1);const f=frontier().find(x=>x.to===to);if(!f)return '';const nodes=(findPath(S.base,f.from,kp)||[S.base]);
+    const nights=nodes.filter(isArea).length;const sea=AREAS[to]&&AREAS[to].sea;
+    return `<div class="wi"><div class="wt">？　未踏の地<small>${PLACE(f.from).name}の先</small></div><p class="mini2">${sea?'海の向こうに何があるかは、船を出さないとわからない':'何があるかは、歩いてみないとわからない。道に迷うこともある。見つけたのが町なら、そこに拠点を移す'}</p>
       <div class="chips2 rt">${chips(nodes)}<i>›</i><span class="c b">？</span></div>
-      <button class="ab gold" data-trip="explore|${f.from}|${to}">${ico('門')}探しに行く<small>${nights?`野営${nights}夜〜`:''}</small></button></div>`;}
-  const p=PLACE(sel);if(!p)return '';
-  if(TOWNS[sel]){const b=S.belief[sel];const base=S.base===sel;const path=findPath(S.base,sel,kn);const nights=path?Math.max(0,path.filter(isArea).length-1):0;
-    return `<div class="wi"><div class="wt">${p.name}${base?'<small class="g">拠点</small>':''}</div>${gg('信仰',b)}
-      ${base?`<p class="mini2">大迷宮まで：${chips(diveNodes())}</p>`:path?`<div class="chips2 rt">${chips(path)}</div><button class="ab gold" data-trip="travel|${sel}">${ico('撤退')}ここへ旅する<small>拠点を移す・野営${nights}夜</small></button>`:'<p class="mini2">ここへの道はまだわからない</p>'}</div>`;}
-  if(isArea(sel)){const a=AREAS[sel];const encs=(a.enc||[]).filter(([k])=>k!=='none').map(([k])=>ENC_TXT[k]);
-    return `<div class="wi"><div class="wt">${a.name}<small>区画・${THEME_TXT[a.theme]}</small></div><p class="mini2">出没：${encs.join('・')}</p>${diveNodes().includes(sel)?'<p class="mini2">大迷宮への道すじ</p>':''}</div>`;}
-  return `<div class="wi"><div class="wt">${p.name}<small>迷宮</small></div><p class="mini2">${p.sealed||`いまは${floorName(S.depth)}まで開けている`}</p></div>`;}
-let worldMsgs=[];
+      <button class="ab gold" data-trip="explore|${f.from}|${to}">${ico('門')}${sea?'船を出す':'探しに行く'}<small>${nights?`野営${nights}夜〜`:''}${sea?`・船賃 一人${AREAS[to].fare}`:''}</small></button></div>`;}
+  const p=PLACE(sel);if(!p)return '';const drawnOnly=!kn[sel]&&(S.charted||{})[sel];const mapNote=drawnOnly?'<p class="mini2" style="color:#c9ad7a">地図で知っているだけ。行ってみないと本当かわからない</p>':'';
+  if(TOWNS[sel]){const b=S.belief[sel]||0;const base=S.base===sel;const path=findPath(S.base,sel,kp);const nights=path?Math.max(0,path.filter(isArea).length-1):0;
+    return `<div class="wi"><div class="wt">${p.name}${base?'<small class="g">拠点</small>':''}<small>${CONT[p.cont].name}</small></div>${drawnOnly?'':gg('信仰',b)}${mapNote}
+      ${base?`<p class="mini2">潜る先まで：${chips(diveNodes())}</p>`:path?`<div class="chips2 rt">${chips(path)}</div><button class="ab gold" data-trip="travel|${sel}">${ico('撤退')}ここへ旅する<small>拠点を移す・野営${nights}夜</small></button>`:'<p class="mini2">ここへの道はまだわからない</p>'}</div>`;}
+  if(isArea(sel)){const a=AREAS[sel];const encs=(a.enc||[]).filter(([k])=>k!=='none').map(([k])=>ENC_TXT[k]);const path=findPath(S.base,sel,kp);
+    const mats=Object.values(MATERIALS).filter(m=>m.gather&&m.gather.includes(a.theme)).map(m=>m.name);
+    return `<div class="wi"><div class="wt">${a.name}<small>${a.sea?'海路':'区画・'+THEME_TXT[a.theme]}${a.lv>3?`・危険度${a.lv}`:''}</small></div>${mapNote}<p class="mini2">出没：${encs.join('・')}${a.fare?`。船賃 一人${a.fare}`:''}</p>
+      ${!a.sea&&mats.length?`<p class="mini2">採れるもの：${mats.join('・')}</p>${path?`<button class="ab" data-trip="gather|${sel}">${ico('野営')}採集に行く<small>採集の得意な職がいると多い</small></button>`:''}`:''}</div>`;}
+  const tgt=(S.diveTo||'great')===sel;const path=findPath(S.base,sel,kp);
+  return `<div class="wi"><div class="wt">${p.name}<small>迷宮${p.gen?`・深さ${p.lv}`:''}${(S.cleared||{})[sel]?'・踏破':''}</small></div>${mapNote}<p class="mini2">${p.sealed||(p.gen?`${{goblin:'ゴブリンの巣',beast:'獣の巣',bandit:'野盗のねぐら',ogre:'オーガの住処'}[p.dtheme]||''}`:`いまは${floorName(S.depth)}まで開けている`)}</p>
+    ${p.sealed?'':tgt?'<span class="chips2"><span class="c g">潜る先</span></span>':path?`<button class="ab gold" data-dive="${sel}">${ico('門')}ここに潜る<small>旅立ちの行き先にする</small></button>`:'<p class="mini2">ここへの道はまだわからない</p>'}</div>`;}
+function mapShopHtml(){const port=!!TOWNS[S.base].port||S.base==='seles';
+  return `<div class="fr"><div class="tl2">${ico('門')}<b>地図屋</b><small>${TOWNS[S.base].name}</small></div>${MAP_SHOP.filter(m=>!m.port||port).map(m=>`<div class="fz"><span title="${m.desc}">${m.name}</span><span class="mini2">${m.desc}</span><button class="btn tiny" data-map="${m.k}" ${S.gold<m.gold?'disabled':''}>買う 金${m.gold}</button></div>`).join('')}</div>`;}
 function worldHtml(ids){
   const R=S.rival;const th=hasP('p3')?45:60;
-  let h=`<div class="wld"><div><div class="hd">世界地図<small>WORLD</small></div><div class="fr" title="歩いた区画と見つけた場所だけが地図に残る。町の光の大きさが、その町のあなたへの信仰。信仰${th}以上の町からは信者が仲間に加わる">${mapSvg()}
-    <div class="tw2"><select id="preachsel">${Object.entries(TOWNS).filter(([k,t])=>!t.fixed&&S.known[k]).map(([k,t])=>`<option value="${k}">${t.name}（${S.belief[k]}）</option>`).join('')}</select><button class="ab gold" id="preach" ${S.grace<1?'disabled':''}>${ico('信仰')}布教する<small>✶1</small></button><span class="grace" style="margin-left:auto">余力 <b>${'✶'.repeat(S.grace||0)}${'・'.repeat(Math.max(0,graceMax()-(S.grace||0)))}</b></span></div></div></div>`;
+  let h=`<div class="wld"><div><div class="hd">世界地図<small>WORLD</small></div>${contTabs()}<div class="fr" title="歩いた所だけ地形が見え、地図で知った所はセピアの線で描かれる。町の光の大きさが、その町のあなたへの信仰。信仰${th}以上の町からは信者が仲間に加わる">${mapSvg()}
+    <div class="tw2"><select id="preachsel">${Object.entries(TOWNS).filter(([k,t])=>!t.fixed&&S.known[k]&&t.cont===WCONT).map(([k,t])=>`<option value="${k}">${t.name}（${S.belief[k]}）</option>`).join('')}</select><button class="ab gold" id="preach" ${S.grace<1?'disabled':''}>${ico('信仰')}布教する<small>✶1</small></button><span class="grace" style="margin-left:auto">余力 <b>${'✶'.repeat(S.grace||0)}${'・'.repeat(Math.max(0,graceMax()-(S.grace||0)))}</b></span></div></div></div>`;
   // 大神の使徒と、酒場の噂
   const kiki=ids.find(i=>(S.aslot[i]||[]).includes('kikimimi')&&(S.abil[i]||[]).includes('kikimimi'));const n=kiki?4:3;
-  h+=`<div style="display:flex;flex-direction:column;gap:16px"><div><div class="hd">場所<small>PLACE</small></div><div class="fr">${wInfoHtml()}</div></div><div><div class="hd">大神の使徒<small>RIVAL</small></div><div class="fr" title="率いるのは${R.leader}。名声が高いほど、町々のあなたへの信仰が削られる。迷宮で彼らの仲間を救えば名声が下がる">
+  h+=`<div style="display:flex;flex-direction:column;gap:16px"><div><div class="hd">場所<small>PLACE</small></div><div class="fr">${wInfoHtml()}</div></div><div>${mapShopHtml()}</div><div><div class="hd">大神の使徒<small>RIVAL</small></div><div class="fr" title="率いるのは${R.leader}。名声が高いほど、町々のあなたへの信仰が削られる。迷宮で彼らの仲間を救えば名声が下がる">
     <div style="display:flex;align-items:flex-end;gap:16px"><div><div style="font-family:var(--f-display);font-weight:800;font-size:1.2rem;letter-spacing:.1em">${R.name}</div><div class="mini2">${R.leader}</div></div><div style="margin-left:auto;text-align:right"><div class="mini2" style="letter-spacing:.3em">名声</div><div class="big" style="color:var(--frost)">${R.fame}</div></div></div>
     <div class="gg" style="grid-template-columns:minmax(0,1fr);margin-top:8px"><div class="gb"><i style="width:${R.fame}%;background:linear-gradient(90deg,#3d5b73,var(--frost))"></i></div></div>
     <div class="chips2" style="margin-top:8px">${R.debt?`<span class="c g">救った恩 ${R.debt}</span>`:''}${S.defected.length?`<span class="c b">離反 ${S.defected.map(i=>CHAR_DB[i]?CHAR_DB[i].name:'').join('・')}</span>`:''}</div></div></div>
@@ -1931,7 +1993,10 @@ function bindPrep(){
     $('#rsy').onclick=()=>{S=migrate(newSave());persist();renderPrep();};$('#rsn').onclick=renderPrep;};
   // 世界：布教・権能・控えとの入れ替え・継承
   document.querySelectorAll('[data-wsel]').forEach(b=>b.onclick=()=>{WSEL=b.dataset.wsel;renderPrep();});
-  document.querySelectorAll('[data-trip]').forEach(b=>b.onclick=()=>{const [kind,a,c]=b.dataset.trip.split('|');WSEL=null;startBattle(kind==='travel'?{kind,to:a}:{kind,from:a,to:c});});
+  document.querySelectorAll('[data-trip]').forEach(b=>b.onclick=()=>{const [kind,a,c]=b.dataset.trip.split('|');WSEL=null;startBattle(kind==='travel'||kind==='gather'?{kind,to:a}:{kind,from:a,to:c});});
+  document.querySelectorAll('[data-wcont]').forEach(b=>b.onclick=()=>{WCONT=b.dataset.wcont;WSEL=null;renderPrep();});
+  document.querySelectorAll('[data-dive]').forEach(b=>b.onclick=()=>{S.diveTo=b.dataset.dive;prepMsgs.push(`旅立ちの行き先を${AREAS[S.diveTo].name}にした`);rollNext(S);persist();renderPrep();});
+  document.querySelectorAll('[data-map]').forEach(b=>b.onclick=()=>{buyMap(b.dataset.map);persist();renderPrep();});
   if($('#preach'))$('#preach').onclick=()=>{if(S.grace<1)return;const k=$('#preachsel').value;S.grace--;
     const pious=partyIds().filter(i=>CHAR_DB[i].pers==='敬虔');const g=addBelief(k,Math.round(6*(hasP('p1')?1.5:1))+pious.length*2);
     worldMsgs.push(`${pious.length?CHAR_DB[pious[0]].name+'が':'神殿の灯明を頼りに、'}${TOWNS[k].name}であなたの名を説いた。信仰+${g}`);persist();renderPrep();};
@@ -2297,10 +2362,11 @@ function spawnWave(n){
   const f=B.floor||3;B.place=floorName(f);B.emul=floorMul(f);B.amul=floorAtk(f);B.fmul=floorFlash(f);
   if(n===1){B.rivalAhead=!!(S.next&&S.next.rival==='ahead');
     B.enemies=B.rivalAhead?[makeEnemy('goblin','A'),makeEnemy('shaman'),makeEnemy('goblin','B')]:[makeEnemy('goblin','A'),makeEnemy('goblin','B'),makeEnemy('shaman'),makeEnemy('goblin','C'),makeEnemy('goblin','D')];
+    if(B.dtheme==='beast')B.enemies=['A','B','C','D'].map(x=>makeEnemy('wolf',x));if(B.dtheme==='bandit')B.enemies=[makeEnemy('bandit','A'),makeEnemy('bandit','B'),makeEnemy('bandit','C')];
     // 深い階ほど群れが大きい
     if(f>=5)B.enemies.push(makeEnemy('shaman','Ⅱ'));
     if(f>=7)B.enemies.push(makeEnemy('goblin','E'));}
-  else{B.enemies=[makeEnemy('goblin','E'),makeEnemy('ogre'),makeEnemy('goblin','F')];B.rivalNpc=!!(S.next&&S.next.rival==='trouble');
+  else{B.enemies=B.dtheme==='beast'?[makeEnemy('wolf','E'),makeEnemy('strayogre'),makeEnemy('wolf','F')]:B.dtheme==='bandit'?[makeEnemy('bandit','D'),makeEnemy('boss'),makeEnemy('bandit','E')]:[makeEnemy('goblin','E'),makeEnemy('ogre'),makeEnemy('goblin','F')];B.rivalNpc=!!(S.next&&S.next.rival==='trouble');
     if(f>=6)B.enemies.push(makeEnemy('shaman'));
     if(f>=8)B.enemies.push(makeEnemy('goblin','G'));
     if(f>=10)B.enemies.push(makeEnemy('strayogre'));   // 二体目の大物は、十分に育ってから
@@ -2352,17 +2418,41 @@ function advance(){
     const L=getLeader();if(L)say(L,L.pers==='皮肉屋'?'貸しにしておくわ。大神様によろしく':'立てるか。地上まで送ろう');}
   B.si++;const st=B.plan[B.si];
   if(!st){endBattle('win');return;}
-  if(st.t!=='dun'){B.emul=1;B.amul=1;B.fmul=1;}
+  if(st.t!=='dun'){const lv=(st.area&&AREAS[st.area]&&AREAS[st.area].lv)||3;B.emul=floorMul(lv);B.amul=floorAtk(lv);B.fmul=1;}
+  if(st.t==='road'&&st.lost){const L=getLeader();log(st.wrong?`地図と違う。${AREAS[st.area].name}で道を見失った`:`${AREAS[st.area].name}で道に迷った。同じ景色を何度も見る`,'warn');if(L)say(L,st.wrong?'……この地図、描いた奴は来たことがないな':'さっきもこの木を見た気がする');if(S.charted&&S.charted[st.area]===2)S.charted[st.area]=1;}
+  if(st.t==='sight'){doSight(st);return;}
+  if(st.t==='gather'){doGather(st);return;}
   if(st.t==='road'){B.place=AREAS[st.area].name;B.wave=0;
     if(st.enc&&ROAD_ENC[st.enc]){B.enemies=ROAD_ENC[st.enc].make();B.selected=null;log(ROAD_ENC[st.enc].msg(AREAS[st.area].name,st.area),'warn');waveStart(false);}
     else{B.enemies=[];log(`${AREAS[st.area].name}を越えた。敵影はない`,'sys');B.waveWait=1.2;B.nextFn=advance;}
   }else if(st.t==='camp'){camp(st);}
-  else if(st.t==='arrive'){B.enemies=[];B.place=PLACE(st.to).name;log(TOWNS[st.to]?`${PLACE(st.to).name}に着いた`:`${PLACE(st.to).name}にたどり着いた`,'good');B.waveWait=2;B.nextFn=()=>endBattle('arrive');}
+  else if(st.t==='arrive'){B.enemies=[];B.place=PLACE(st.to).name;log(st.home?`採集を終え、${PLACE(st.to).name}へ戻った`:TOWNS[st.to]?`${PLACE(st.to).name}に着いた`:`${PLACE(st.to).name}にたどり着いた`,'good');B.waveWait=2;B.nextFn=()=>endBattle('arrive');}
   else if(st.w===1){spawnWave(1);log(B.rivalAhead?`${B.place}。${S.rival.name}が先に通った跡がある。敵影は${B.enemies.length}つ――宝も荒らされているだろう`:`${B.place}。前方に敵影が${B.enemies.length}つ。`,'sys');waveStart(false);}
   else{B.enemies=[];log('回廊の奥から地響きが近づいてくる……','warn');B.waveWait=3;
     B.nextFn=()=>{spawnWave(2);log('オーガが姿を現した。ゴブリンが2体従っている','warn');
       if(B.rivalNpc)log(`オーガの足元に、${S.rival.name}の若い剣士が倒れている。オーガに追われてきたらしい`,'warn');waveStart(false);};}
 }
+/* 道中の出来事：見つけたもの・出会った人。効き目は小さく、旅に色を付ける */
+function doSight(st){const sg=st.sight;B.enemies=[];B.place=AREAS[st.area].name;log(sg.t,'good');const L=getLeader();
+  const [fx,a,b]=sg.fx.split(':');
+  if(fx==='faith')for(const u of okU())addFaith(u.id,1);
+  else if(fx==='mat'){B.mats[a]=(B.mats[a]||0)+(+b);log(`${MATERIALS[a].name}×${b}を手に入れた`,'sys');}
+  else if(fx==='gold'){B.gold+=+a;log(`金${a}を拾った`,'sys');}
+  else if(fx==='heal')for(const u of okU())heal(null,u,u.max*.2);
+  else if(fx==='chart'){const ns=(NEIGH[st.area]||[]).concat((NEIGH[st.area]||[]).flatMap(n=>NEIGH[n]||[])).filter(n=>!S.known[n]&&!(S.charted||{})[n]);for(const n of ns.slice(0,3)){S.charted[n]=1;}if(ns.length)log(`地図に${ns.slice(0,3).map(n=>PLACE(n).name).join('・')}を書き足した`,'sys');}
+  else if(fx==='belief'){const t=TOWNS[S.base];addBelief(S.base,1);}
+  else if(fx==='loyal')for(const u of okU())S.loyal[u.id]=clamp(S.loyal[u.id]+1,0,100);
+  else if(fx==='item'){B.loot.push(addItem(S,rollGear(Math.max(3,(AREAS[st.area].lv||3)))));log('使えそうな品を拾った','sys');}
+  else if(fx==='sellmat'){let g=0;for(const [k,n] of Object.entries(B.mats)){g+=Math.round(MATERIALS[k].price*n*.8);B.mats[k]=0;}if(g){B.gold+=g;log(`素材を売って金${g}`,'sys');}}
+  if(L&&Math.random()<.5)say(L,pick(['少し休もう','いい場所だ','忘れないうちに書き留めておく','先を急ぐぞ']));
+  B.waveWait=2.4;B.nextFn=advance;}
+/* 採集：区画に分け入って、その土地の素材を集める。採集の得意な職がいると多い。物音で敵を呼ぶこともある */
+function doGather(st){const th=AREAS[st.area].theme;const ms=Object.entries(MATERIALS).filter(([k,m])=>m.gather&&m.gather.includes(th));
+  B.enemies=[];B.place=`${AREAS[st.area].name}・採集`;const g=okU().some(u=>trait(u,'gatherer'));let got=[];
+  const n=Math.round((2+Math.random()*3)*(g?1.6:1));for(let i=0;i<n&&ms.length;i++){const k=pick(ms)[0];B.mats[k]=(B.mats[k]||0)+1;got.push(k);}
+  const cnt={};for(const k of got)cnt[k]=(cnt[k]||0)+1;log(`${th==='forest'?'森の奥に分け入り':th==='marsh'?'湿地を歩き回り':th==='river'?'川辺で':th==='plain'?'野で':'岩場で'}、${Object.entries(cnt).map(([k,v])=>`${MATERIALS[k].name}×${v}`).join('・')||'何も見つからなかった'}${g?'（採集の心得が役に立った）':''}`,'good');
+  const e=Math.random()<.35?rollEnc(st.area,1.2):null;if(e&&ROAD_ENC[e]){B.enemies=ROAD_ENC[e].make();log('物音を聞きつけて、敵が寄ってきた！','warn');waveStart(false);return;}
+  B.waveWait=2.6;B.nextFn=advance;}
 function fireTalk(alive,amt){
   const a=pick(alive);const b=pick(alive.filter(x=>x!==a));
   const c=COMPAT[[a.pers,b.pers].sort().join('|')]||0;const p=clamp(.5+relOf(a.id,b.id)/200+c*.06,.1,.9);
@@ -2390,12 +2480,12 @@ function trySteal(u,e){
   if(B.stolen.length<cap&&Math.random()<ch){const k=rollGear(B.floor||S.depth||3);B.stolen.push(k);log(`${u.name}が${e.name}の懐から${ITEMS[k].name}を抜き取った`,'good');}
 }
 /* 旅の支度：一人あたり給金と食糧、野営の夜ごと、宿坊の控え。払えないと一行の忠誠が下がる */
-function tripCost(ids,nights){return ids.length*(ECON.wage+ECON.food+ECON.night*nights)+roomsUsed()*ECON.room;}
+function tripCost(ids,nights,nodes){const fare=(nodes||[]).reduce((a,k)=>a+((AREAS[k]&&AREAS[k].fare)||0),0);return ids.length*(ECON.wage+ECON.food+ECON.night*nights+fare)+roomsUsed()*ECON.room;}
 function startBattle(trip){
   fillParty();
   const ids=partyIds();
   trip=trip&&trip.kind?trip:{kind:'dive'};const built=buildPlan(trip);
-  const cost=tripCost(ids,(built.layout.camps||[]).length);const short=S.gold<cost;S.gold-=cost;
+  const cost=tripCost(ids,(built.layout.camps||[]).length,trip.nodes);const short=S.gold<cost;S.gold-=cost;
   if(short){for(const id of ids)S.loyal[id]=clamp(S.loyal[id]+ECON.unpaidLoyal,0,100);}
   B={t:0,speed:B?B.speed:1,units:ids.map(makeUnit),enemies:[],wave:0,place:'旅立ち',floor:S.floor||3,emul:1,fmul:1,plan:built.plan,layout:built.layout,trip:trip.kind,tripInfo:trip,si:-1,nextFn:null,stolen:[],rivalAhead:false,rivalNpc:false,rivalSaved:false,lampUsed:false,
     events:[],divine:60+(hasP('b1')?20:0),focus:null,focusT:0,guardT:0,guardByOracle:false,
@@ -2403,6 +2493,8 @@ function startBattle(trip){
     startFaith:Object.fromEntries(ids.map(i=>[i,S.faith[i]])),oracles:[],mast:[],disc:[],lostNow:[],combos:{ok:0,fail:0},
     flashes:[],ups:[],wills:[],teachLog:[],loot:[],gold:0,mats:{},cost,short,styleNew:[],styleUse:{},clsUnlock:[],abLog:[],relNotes:[],relDelta:{},reclaimed:[],traitorSeen:false,loyStart:Object.fromEntries(ids.map(i=>[i,S.loyal[i]]))};
   B.units.forEach(applyAbStats);
+  // 生まれた迷宮に潜るときは、その迷宮の深さと顔ぶれで
+  {const last=(trip.nodes||[])[trip.nodes.length-1];if(trip.kind==='dive'&&last&&last!=='great'&&AREAS[last]){B.dun=last;B.floor=AREAS[last].lv||3;B.dtheme=AREAS[last].dtheme;}}
   B.units.forEach(applyStyleGrants);
   setSteps('battle');
   $('#view').innerHTML=`<section class="battle"><div>
@@ -2421,7 +2513,7 @@ function startBattle(trip){
     if(e&&e.state==='ok'){B.selected=(B.selected===e.id?null:e.id);render();}});
   document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>issue(b.dataset.o));
   document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{B.speed=+b.dataset.sp;render();});
-  log(`${calTxt()}。${TOWNS[S.base].name}を発つ。${trip.kind==='dive'?'目指すは東の大迷宮':trip.kind==='travel'?`${TOWNS[trip.to].name}へ向かう`:`${PLACE(trip.from).name}の先の、まだ知らない土地を探しに行く`}`,'sys');
+  log(`${calTxt()}。${TOWNS[S.base].name}を発つ。${trip.kind==='dive'?`目指すは${PLACE(trip.nodes[trip.nodes.length-1]).name}`:trip.kind==='travel'?`${TOWNS[trip.to].name}へ向かう`:trip.kind==='gather'?`${AREAS[trip.to].name}へ採集に行く`:`${PLACE(trip.from).name}の先の、まだ知らない土地を探しに行く`}`,'sys');
   const L=getLeader(); if(L){B.leaderId=L.id; say(L, L.pers==='慎重'?'戒律どおりに行く。陣形を崩すな':'行くぞ！');}
   fStart();
   advance();
@@ -2987,9 +3079,11 @@ function endTrip(kind){
   // 歩いた区画は地図に残る（撤退しても、そこまでの道は覚えている）
   const walked=B.plan.slice(0,B.si+1).filter(p=>p.t==='road').map(p=>p.area);
   for(const k of walked)if(!S.known[k]){S.known[k]=true;notes.push(`${AREAS[k].name}を地図に書き加えた`);}
-  if(kind==='arrive'){const to=T.nodes[T.nodes.length-1];
+  if(kind==='arrive'&&T.kind==='gather')notes.push(`${AREAS[T.to]?AREAS[T.to].name:''}での採集を終えた`);
+  else if(kind==='arrive'){const to=T.nodes[T.nodes.length-1];
+    if(partyTrait('mapper'))for(const n of NEIGH[to]||[])if(!S.known[n]&&!(S.charted||{})[n]){S.charted[n]=1;notes.push(`マッパーが${PLACE(n).name}を地図に描いた`);}
     if(!S.known[to]){S.known[to]=true;notes.push(`${PLACE(to).name}を見つけた`);}
-    if(TOWNS[to]&&to!==S.base){S.base=to;notes.push(`拠点を${TOWNS[to].name}に移した`);}
+    if(TOWNS[to]&&to!==S.base){S.base=to;notes.push(`拠点を${TOWNS[to].name}に移した`);fixDiveTo(notes);}
     else if(AREAS[to]&&AREAS[to].sealed)notes.push(`${AREAS[to].name}：${AREAS[to].sealed}。一行は${TOWNS[S.base].name}へ引き返した`);}
   else if(kind==='retreat')notes.push(`一行は${TOWNS[S.base].name}へ引き返した`);
   if(kind!=='wipe'){for(const u of B.units)if(u.state==='ok')addFaith(u.id,kind==='arrive'?1:0);relAfterRun(kind==='arrive'?'win':kind);}
@@ -3029,6 +3123,10 @@ function endBattle(kind){
     if(kind==='win'&&Math.random()<Math.min(.9,(B.rivalAhead?0.25:0.5)+0.08*(fl-3))){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);}
     if(kind==='win'&&S.next&&S.next.treasure&&!B.rivalAhead){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);B.loot.push(addItem(S,rollGear(fl+1)));B.treasureFound=true;}
     for(const k of B.stolen)B.loot.push(addItem(S,k));
+    // 持ち帰れる量：品4つ・素材12。荷物持ちがいると品+3・素材+12
+    {const por=B.units.some(u=>u.state==='ok'&&trait(u,'porter'));const capI=4+(por?3:0),capM=12+(por?12:0);const its=B.loot.filter(x=>typeof x==='string'&&S.items[x]);
+     if(its.length>capI){for(const x of its.slice(capI)){delete S.items[x];B.loot=B.loot.filter(y=>y!==x);}B.leftBehind=its.length-capI;}
+     let m=Object.values(B.mats).reduce((a,v)=>a+v,0);for(const k of Object.keys(B.mats))while(m>capM&&B.mats[k]>0){B.mats[k]--;m--;B.matsLeft=(B.matsLeft||0)+1;}}
     // 宝箱の金と、階の素材（深い素材ほど出にくい）
     if(kind==='win'&&Math.random()<partyLuck()/200){B.loot.push(addItem(S,rollGear(fl+1)));B.lucky=true;}   // 幸運の拾い物
     if(kind==='win'){B.chest=Math.round(ECON.chestGold*fl*(1+partyLuck()/200));B.gold+=B.chest;const cands=Object.entries(MATERIALS).filter(([k,m])=>m.floor&&m.floor<=fl);
@@ -3043,12 +3141,14 @@ function endBattle(kind){
 /* 旅から戻るたびに世界が動く：季節・年齢と隠居・町の信仰・大神の使徒・神威・信者・次の旅の噂 */
 function worldAfterRun(kind){
   const notes=B.worldNotes=[];
-  {const ms=Object.entries(B.mats||{}).map(([k,n])=>`${MATERIALS[k].name}×${n}`);notes.push(`金：支度 −${B.cost||0}${B.short?'（払いきれず、一行の忠誠が下がった）':''}、稼ぎ +${B.gold||0}${B.chest?`（宝箱 ${B.chest}）`:''}。手持ち ${S.gold}`);if(ms.length)notes.push(`素材：${ms.join('・')}`);}
+  if(kind!=='wipe'){revealDungeons(B.plan.slice(0,B.si+1).filter(p=>p.t==='road'||p.t==='gather').map(p=>p.area),notes);fixDiveTo(notes);}
+  {const ms=Object.entries(B.mats||{}).map(([k,n])=>`${MATERIALS[k].name}×${n}`);notes.push(`金：支度 −${B.cost||0}${B.short?'（払いきれず、一行の忠誠が下がった）':''}、稼ぎ +${B.gold||0}${B.chest?`（宝箱 ${B.chest}）`:''}。手持ち ${S.gold}`);if(ms.length)notes.push(`素材：${ms.join('・')}`);if(B.leftBehind||B.matsLeft)notes.push(`持ちきれず、${B.leftBehind?`品${B.leftBehind}つ`:''}${B.matsLeft?`素材${B.matsLeft}つ`:''}を置いてきた（荷物持ちがいれば運べた）`);}
   S.turn=(S.turn||0)+1;notes.push(`季節が巡った（${calTxt()}）`);
   if(S.turn%4===0){for(const id of Object.keys(CHAR_DB))if(avail(id))S.age[id]=ageOf(id)+1;notes.push('年が明け、皆ひとつ歳を重ねた');}
   if(B.treasureFound)notes.push('噂の書庫を見つけ、書物を持ち帰った');
   // 大迷宮：いちばん深い階で帰還すると、次の階が開く
-  if(kind==='win'&&B.trip==='dive'&&(B.floor||3)>=S.depth){B.newDepth=true;S.depth=(B.floor||3)+1;S.floor=S.depth;notes.push(`${floorName(B.floor)}を踏破した。${floorName(S.depth)}への道が開けた`);}
+  if(kind==='win'&&B.dun){S.cleared=S.cleared||{};if(!S.cleared[B.dun]){S.cleared[B.dun]=true;notes.push(`${AREAS[B.dun].name}を踏破した`);}}
+  if(kind==='win'&&B.trip==='dive'&&!B.dun&&(B.floor||3)>=S.depth){B.newDepth=true;S.depth=(B.floor||3)+1;S.floor=S.depth;notes.push(`${floorName(B.floor)}を踏破した。${floorName(S.depth)}への道が開けた`);}
   // 信仰と忠誠は、旅のたびに少しずつ本来の値へ戻る（放っておくと冷める）
   for(const id of Object.keys(CHAR_DB)){if(!avail(id))continue;
     const fb=CHAR_DB[id].faith,lb=LOYAL0[id]??60;

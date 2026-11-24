@@ -29,6 +29,14 @@ const MATERIALS={
   hoshitetsu:{name:'星鉄片',price:50,floor:6},
   gekkin:{name:'月銀',price:70,floor:7},
   ryuukotsu:{name:'竜骨片',price:90,floor:8},
+  // 採集（区画に入って集める。森が多い）。gather は採れる土地の見た目
+  yakusou:{name:'薬草',price:5,gather:['forest','marsh','plain']},
+  kinoko:{name:'茸',price:4,gather:['forest']},
+  jueki:{name:'樹液',price:7,gather:['forest']},
+  kouseki:{name:'鉱石',price:6,gather:['hill','pass']},
+  shio:{name:'塩',price:4,gather:['marsh']},
+  kawazakana:{name:'川魚の干物',price:5,gather:['river']},
+  mugi:{name:'野麦',price:3,gather:['plain']},
 };
 /* 錬成：+1〜+5。数値が1段ごとに8%上がり、+5で隠れた癖が一つ目覚める。金と素材を使う */
 const REFINE=[null,
