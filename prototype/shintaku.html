@@ -727,6 +727,11 @@ table{color:inherit;font-size:.84rem}
 .it2.gt4{border-color:rgba(255,255,255,.35)}.it2.gt5{border-color:var(--acc)}.it2.gt5 .gtier{color:var(--acc)}
 .it2.gt6{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc),0 0 14px rgba(255,210,58,.25)}.it2.gt6 .gtier{color:var(--acc);font-weight:700}
 .it2 .lore{font-size:.66rem;color:var(--muted);font-style:italic;line-height:1.45}
+.perk{margin:0;font-size:.76rem;display:flex;gap:6px;align-items:flex-start;line-height:1.5}.perk svg{width:14px;height:14px;flex:none;margin-top:3px;color:var(--acc)}
+.stars{display:inline-flex;gap:1px;margin-left:auto;font-size:.7rem;color:rgba(255,255,255,.22)}.stars i{font-style:normal}.stars i.on{color:var(--acc)}
+.jabs{display:flex;gap:6px;flex-wrap:wrap}.jabs span{font-size:.68rem;padding:1px 8px;border:1px dashed var(--hair2);color:var(--muted)}.jabs span.got{border-style:solid;border-color:var(--gold);color:var(--fg)}.jabs small{margin-left:4px;opacity:.7}
+.jobt{grid-template-columns:minmax(0,1fr)!important}.jobt .jroot::after{display:none}.jkids{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))!important}
+.jtrk .jp{font-size:.8rem}
 /* ---- 帰還画面（rs） ---- */
 .rs{--rk:var(--fg)}
 .rs-retreat{--rk:#2a6c9c}.rs-wipe{--rk:#c8342b}.rs-arrive{--rk:#111}
@@ -821,6 +826,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 </script>
 <script src="data/skills.js"></script>
 <script src="data/gear.js"></script>
+<script src="data/classes.js"></script>
 <script>
 "use strict";
 /* ============ データ ============ */
@@ -893,6 +899,8 @@ const ITEMS={
   kris:{name:'波刃の短剣',slot:'wpn',line:'短',atk:3,flash:0.3,txt:'攻撃+3・閃き+30%'},
 };
 const STARTER_ROLE={};
+/* 前からの品の型（職ごとに使える型が違うため） */
+Object.entries({longsword:'長剣',runesword:'長剣',oakshield:'大盾',towershield:'大盾',oldstaff:'杖',froststaff:'長杖',longbow:'長弓',windbow:'短弓',sigil:'聖印',dagger:'短刀',kris:'短刀',leather:'革鎧',chain:'鎖帷子',mantle:'外套'}).forEach(([k,t])=>{if(ITEMS[k])ITEMS[k].type=t;});
 const SLOTS={wpn:'武器',arm:'防具',acc:'装飾'};
 const STARTER={剣:'longsword',盾:'oakshield',魔:'oldstaff',弓:'longbow',祈:'sigil',短:'dagger'};
 const LOOT=['runesword','towershield','froststaff','windbow','chain','mantle','frostring','eldersigil','feather','kris'];
@@ -901,6 +909,7 @@ const TRAIT={
   frostBite:'凍った敵に+40%',stunBite:'気絶した敵に+30%',giant:'大物に+30%',beast:'獣に+40%',goblin:'ゴブリンに+40%',human:'人に+40%',
   vamp:'与えたダメージの6%を吸う',bleedHit:'2割で出血させる',stunHit:'1割で0.8秒気絶させる',freezeHit:'1割で1秒凍らせる',first:'戦いの最初の一撃が2倍',
   lowHp:'HP3割以下で攻撃+40%',fullHp:'HPが満ちていると攻撃+20%',faithAtk:'信仰が厚いほど攻撃が上がる（最大+20%）',deep:'深い階ほど攻撃が上がる（1階ごとに+4%）',quickCd:'技の待ち時間-15%',
+  tauntLong:'挑発が1秒長く続く',guts:'一度だけ倒れずに踏みとどまる',skillUp:'技の威力+10%',aoeUp:'全体技+15%',critHit:'1割の確率で会心（1.5倍）',rescueFast:'救命の祈りが速く届く',killHeal:'敵を倒すと最大HPの8%が戻る',killGauge:'敵を倒すと次の行動が早まる',
   guardT:'被ダメージ-8%',dodge:'8%でかわす',regenT:'1秒ごとに最大HPの1%回復',rescue:'倒れたときの救命の猶予+3秒',counter:'攻撃を受けると15%で反撃',thornsP:'受けたダメージの1割を返す',sweepRes:'大技の薙ぎ払いを3割軽くする',
 };
 const KIND_TAG={wolf:'beast',goblin:'goblin',scout:'goblin',shaman:'goblin',bandit:'human',boss:'human',traitor:'human'};
@@ -940,22 +949,30 @@ const R_FAITHLO=n=>['信仰（低いほど）',id=>Math.round(S.faith[id]),n,tru
 const R_LOYAL=n=>['忠誠',id=>Math.round(S.loyal[id]),n];
 const R_RUNS=n=>['潜行',id=>cruns(id),n];
 const reqMet=(id,r)=>r[3]?r[1](id)<=r[2]:r[1](id)>=r[2];
-const CLASSES={
-  kensei:{name:'剣聖',base:'sword',mod:{atk:4,spd:0.1},req:[R_LINE('剣',3,2)]},
-  berserk:{name:'狂戦士',base:'sword',mod:{atk:6,def:-0.08},req:[R_FAITHLO(30),R_RUNS(5)],note:'神に頼らぬ者'},
-  guardian:{name:'守護騎士',base:'tank',mod:{hp:40,def:0.1},req:[R_LINE('盾',3,2)]},
-  paladin:{name:'聖騎士',base:'tank',mod:{hp:20,def:0.05},apt:['祈'],req:[R_FAITH(80),R_RUNS(3)]},
-  sage:{name:'賢者',base:'mage',mod:{atk:2,heal:0.2},apt:['祈'],req:[R_LINE('魔',3,1),R_FAITH(60)]},
-  warlock:{name:'呪術師',base:'mage',mod:{atk:3},req:[R_FAITHLO(30)],note:'異神の囁きを聞く者'},
-  archer:{name:'弓聖',base:'hunter',mod:{atk:3,spd:0.1},req:[R_LINE('弓',3,2)]},
-  shinobi:{name:'忍び',base:'hunter',mod:{spd:0.2},apt:['剣'],req:[R_LINE('剣',1,1),R_LINE('弓',1,1)]},
-  bishop:{name:'司教',base:'priest',mod:{heal:0.3,hp:10},req:[R_FAITH(95),R_LINE('祈',1,2)]},
-  // 盗賊の上級職（2026-11-24）。吟遊詩人は新しい系統「歌」を開く
-  assassin:{name:'暗殺者',base:'thief',mod:{atk:4,spd:0.05},req:[R_LINE('短',3,2)]},
-  bard:{name:'吟遊詩人',base:'thief',mod:{spd:0.05,hp:10},apt:['歌'],req:[R_LOYAL(70),R_RUNS(4)],note:'一行の心をつかんだ者'},
-};
+/* 職（2026-11-24 から data/classes.js。基本職6・派生職44）。派生職は「上の職」ではなく、武具の型・系統・その職でいるあいだの特典が違う職 */
+const DERIVED='派生職';
+const jobLv=(id,j)=>{const p=(S.jp&&S.jp[id]&&S.jp[id][j])||0;let l=0;while(l<5&&p>=CLASS_JP[l+1])l++;return l;};
+const REQ_MK={lv:(j,n)=>[`${ROLES[j]||(CLASS_DATA[j]&&CLASS_DATA[j].name)||j}の熟練度★`,id=>jobLv(id,j),n],line:(l,st,n)=>R_LINE(l,st,n),faith:n=>R_FAITH(n),faithLo:n=>R_FAITHLO(n),loyal:n=>R_LOYAL(n),runs:n=>R_RUNS(n)};
+const CLASSES={};
+for(const [k,c] of Object.entries(CLASS_DATA))CLASSES[k]=Object.assign({},c,{req:c.req.map(r=>REQ_MK[r[0]](...r.slice(1)))});
 for(const c of Object.values(CLASSES)){c.ok=id=>c.req.every(r=>reqMet(id,r));
-  c.cond=c.req.map(r=>`${r[0]}${r[3]?r[2]+'以下':r[2]+(r[0].startsWith('潜行')?'回':'')+'以上'}`).join('・')+(c.apt?`。${c.apt.join('・')}の系統を得る`:'');}/* 流儀：一人が持つ技の組み合わせで発動する相乗効果。@role は職の固有技（凍結の霧など）を表す */
+  c.cond=c.req.map(r=>`${r[0]}${r[3]?r[2]+'以下':r[2]+(r[0].startsWith('潜行')?'回':'')+'以上'}`).join('・')+(c.apt?`。${c.apt.join('・')}の系統を得る`:'');}
+/* 職の特典：いまの職の熟練度★で強くなる。派生職でいるあいだは基本職の特典はない */
+function classPerk(id){const ck=S.cls[id];const role=CHAR_DB[id].role;const P=ck?CLASS_DATA[ck].perk:(BASE_CLASS[role]||{}).perk;
+  const L=jobLv(id,ck||role);const r={stat:{},tr:[],ab:[],L};if(!P)return r;
+  for(const [k,v] of Object.entries(P.per||{}))r.stat[k]=v*L;
+  for(const [lv,ts] of Object.entries(P.at||{}))if(L>=+lv)for(const t of ts)if(!r.tr.includes(t))r.tr.push(t);
+  if(L>=1)r.ab=(P.ab||[]).slice();return r;}
+const classWeapons=id=>S.cls[id]?CLASS_DATA[S.cls[id]].wt:(BASE_CLASS[CHAR_DB[id].role]||{}).wt||[];
+const classArmor=id=>S.cls[id]?CLASS_DATA[S.cls[id]].arm:(BASE_CLASS[CHAR_DB[id].role]||{}).arm||['heavy','mid','light'];
+function canEquip(id,d){if(!d)return false;
+  if(d.slot==='wpn')return d.type?classWeapons(id).includes(d.type):(!d.line||aptOf(id).includes(d.line));
+  if(d.slot==='arm'){const w=ARM_WEIGHT[d.type];return !w||classArmor(id).includes(w);}
+  return true;}
+/* アビリティの枠：2つ。全部の職の★の合計が10で3つ、25で4つ（続けるほど組み合わせが広がる） */
+const totalStars=id=>Object.keys(S.jp&&S.jp[id]||{}).reduce((a,j)=>a+jobLv(id,j),0);
+const abilSlots=id=>2+(totalStars(id)>=10?1:0)+(totalStars(id)>=25?1:0);
+/* 流儀：一人が持つ技の組み合わせで発動する相乗効果。@role は職の固有技（凍結の霧など）を表す */
 const STYLES={
   kaeshi:{name:'返し刃',req:['parry','double'],desc:'受け流しの最中に攻撃を受けると、即座に斬り返す'},
   tsubamek:{name:'燕の構え',req:['double','tsubame'],desc:'二段斬りのあと、燕返しの待ち時間が半分になる'},
@@ -1000,6 +1017,9 @@ const ABIL={
   kyoumei:{name:'共鳴',job:'bard',jp:3,desc:'歌の効果が5割長く続く'},
 };
 const MULTI=Object.keys(SKILLS).filter(k=>SKILLS[k].multi);
+/* 派生職のアビリティ（data/classes.js）。既存のものは習得の★だけ合わせる。stat と tr は付けているあいだ効く */
+for(const [ck,c] of Object.entries(CLASS_DATA))for(const a of c.abil||[]){if(ABIL[a.k]){ABIL[a.k].jp=CLASS_JP[a.lv];ABIL[a.k].job=ck;continue;}
+  ABIL[a.k]={name:a.name,job:ck,jp:CLASS_JP[a.lv],desc:a.desc,stat:a.stat,tr:a.tr};}
 const SONGS=['gaika','komori','chinkon'];
 /* ===== 人間関係 ===== */
 const LOYAL0={gareth:75,borg:80,erin:50,mira:65,rio:90,aldo:60,tohma:70,noa:65,kei:35,sera:70,raz:45};
@@ -1342,11 +1362,12 @@ function equipStats(id){
     for(const k of ['atk','def','hp','spd','flash','frost','heal','obey'])r[k]+=d[k]||0;
     for(const t of d.tr||[])if(!r.traits.includes(t))r.traits.push(t);
     const g=S.items[uid].grant;if(g&&aptOf(id).includes(SKILLS[g.k].line))r.grants.push(g);}
-  const c=CLASSES[S.cls[id]];if(c)for(const k in c.mod)r[k]+=c.mod[k];
   return r;
 }
+function dropIllegal(id){const e=S.equip[id]||{};for(const sl of Object.keys(e))if(e[sl]&&!canEquip(id,itemDef(e[sl])))e[sl]=null;}
 function inventory(){const used=new Set();for(const e of Object.values(S.equip))for(const v of Object.values(e))if(v)used.add(v);return Object.keys(S.items).filter(u=>!used.has(u));}
-function obeyRate(id){return clamp(0.4+S.faith[id]/100*0.55+equipStats(id).obey+(apostleActive()&&S.apostle!==id?0.12:0)+(S.apostle===id?0.2:0)+(hasP('v2')?0.08:0),0,0.98);}
+function extraObey(id){let v=classPerk(id).stat.obey||0;for(const k of (S.aslot[id]||[]).filter(x=>(S.abil[id]||[]).includes(x)))v+=(ABIL[k]&&ABIL[k].stat&&ABIL[k].stat.obey)||0;return v;}
+function obeyRate(id){return clamp(0.4+S.faith[id]/100*0.55+equipStats(id).obey+extraObey(id)+(apostleActive()&&S.apostle!==id?0.12:0)+(S.apostle===id?0.2:0)+(hasP('v2')?0.08:0),0,0.98);}
 function mkey(c){return c+':'+COMBOS[c].roles.map(r=>roleId(r)||'-').join(',');}
 function getM(c){return S.mastery[mkey(c)]||0;}
 function pips(n,cap){let h='<span class="pips">';for(let i=0;i<4;i++)h+=`<b class="${i<n?'on':(cap!=null&&i>=cap?'cap':'')}"></b>`;return h+'</span>';}
@@ -1541,7 +1562,7 @@ function profileHtml(id,inParty){
   h+=`</div></div>`;
   // 装備
   h+=`<div><div class="hd">装備<small>GEAR</small></div><div class="eqs">`;
-  for(const sl of Object.keys(SLOTS)){const cur=e[sl];const opts=[cur,...inv].filter(Boolean).filter(u=>{const it=itemDef(u);return it&&it.slot===sl&&(!it.line||aptOf(id).includes(it.line));});
+  for(const sl of Object.keys(SLOTS)){const cur=e[sl];const opts=[cur,...inv].filter(Boolean).filter(u=>{const it=itemDef(u);return it&&it.slot===sl&&(u===cur||canEquip(id,it));});
     h+=`<label class="eqb" title="${cur&&itemDef(cur)?itemDef(cur).txt:''}">${ico(SLOTS[sl])}<small>${SLOTS[sl]}</small><select id="eq-${id}-${sl}" data-eq="${id}|${sl}"><option value="">なし</option>${opts.map(u=>{const it=itemDef(u);return `<option value="${u}"${u===cur?' selected':''}>${it.name}（${it.txt}）</option>`;}).join('')}</select></label>`;}
   h+=`</div></div>`;
   // 関係図と、神の手
@@ -1718,18 +1739,24 @@ function treeHtml(id){
       return `<div class="tr"><details class="tn2 ${st}${locked?' lock':''}"><summary><span class="dm2">${ico(line)}</span><span class="tnm">${seen?sk.name:'？？？'}</span>${mine?pips(mine.st,skillCap(mine)):`<span class="how">${how}</span>`}</summary><div class="pop2">${pop}</div></details>${kids.length?`<div class="trk">${kids.map(node).join('')}</div>`:''}</div>`;};
     h+=`<div class="trk0">${roots.map(node).join('')}</div></div>`;}
   return h+'</div>';}
+function stars(n){let h='<span class="stars">';for(let i=1;i<=5;i++)h+=`<i class="${i<=n?'on':''}">★</i>`;return h+'</span>';}
+const ARM_TXT={heavy:'重',mid:'中',light:'軽'};
 function classHtml(id){
-  const role=CHAR_DB[id].role;const cur=S.cls[id];
-  let h=`<div class="jobt"><div class="jroot ${cur?'':'cur'}">${ico(ROLE_LINE[role])}<b>${ROLES[role]}</b><small>基本職</small>${cur?`<button class="ab" data-cc="${id}|" title="上級職の技は手元に残るが、閃きの系譜は閉じる">${ico('撤退')}基本職に戻る</button>`:'<span class="chips2"><span class="c g">現職</span></span>'}</div><div class="jkids">`;
+  const role=CHAR_DB[id].role;const cur=S.cls[id];const B0=BASE_CLASS[role]||{};
+  const card=(k,c,isBase)=>{const lv=jobLv(id,isBase?role:k);const isCur=isBase?!cur:cur===k;const ok=isBase||c.ok(id);
+    const own=isBase?[]:Object.entries(SKILLS).filter(([sk,v])=>v.cls===k).map(([sk,v])=>S.seen[sk]?v.name:'？？？');
+    const abs=isBase?Object.entries(ABIL).filter(([ak,a])=>a.job===role):(c.abil||[]).map(a=>[a.k,ABIL[a.k]]);
+    return `<div class="jc ${isCur?'cur':ok?'ok':''}"><div class="jh">${ico(!isBase&&c.apt?c.apt[0]:ROLE_LINE[role])}<b>${isBase?ROLES[role]:c.name}</b><small>${isBase?'基本職':DERIVED}${!isBase&&c.note?'・'+c.note:''}</small>${stars(lv)}</div>
+      <p class="perk" title="特典はこの職でいるあいだだけ。★が上がるほど強くなる">${ico('技能')}${(isBase?B0.perk:c.perk).desc}</p>
+      <div class="chips2">${(isBase?B0.wt:c.wt).map(t=>`<span class="c">${t}</span>`).join('')}<span class="c w">防具 ${(isBase?B0.arm:c.arm).map(a=>ARM_TXT[a]).join('・')}</span>${(!isBase&&c.apt||[]).map(a=>`<span class="c g">${ico(a)}系統「${a}」</span>`).join('')}</div>
+      <div class="jabs">${abs.map(([ak,a])=>{const got=(S.abil[id]||[]).includes(ak);return `<span class="${got?'got':''}" title="${got?a.desc:'熟練度'+a.jp+'で覚える'}">${got?a.name:'？？？'}<small>★${CLASS_JP.findIndex(x=>x>=a.jp)}</small></span>`;}).join('')}</div>
+      ${isBase?'':`<div class="jreq">${c.req.map(r=>reqBar(r[0],r[1](id),r[2],r[3])).join('')}</div>`}
+      ${own.length?`<div class="jown" title="この職でしか閃けない技">${ico('技能')}${own.join('・')}</div>`:''}
+      <div>${isCur?'<span class="chips2"><span class="c g">現職</span></span>':isBase?`<button class="ab" data-cc="${id}|" title="技とアビリティは手元に残る。この職の閃きの系譜は閉じ、使えない武具は外れる">${ico('撤退')}基本職に戻る</button>`:ok?`<button class="ab gold" data-cc="${id}|${k}" ${S.grace<1?'disabled':''} title="技とアビリティは手元に残る。使えない武具は外れる。神の余力を1使う">${ico('技能')}転職の儀<small>✶1</small></button>`:''}</div></div>`;};
+  let h=`<p class="mini2" style="margin:0 0 10px">${DERIVED}は上の職ではない。素の強さは同じで、使える武具と、その職でいるあいだの特典が違う。修行で覚えたアビリティは、どの職に戻っても付けられる</p>`;
+  h+=`<div class="jobt"><div>${card(role,null,true)}</div><div class="jkids">`;
   const mine=Object.entries(CLASSES).filter(([k,c])=>c.base===role);
-  if(!mine.length)h+='<p class="mini2">この職の上級職は、まだ見つかっていない</p>';
-  for(const [k,c] of mine){const ok=c.ok(id),isCur=cur===k;
-    const own=Object.entries(SKILLS).filter(([sk,v])=>v.cls===k).map(([sk,v])=>S.seen[sk]?v.name:'？？？');
-    h+=`<div class="jc ${isCur?'cur':ok?'ok':''}"><div class="jh">${ico(c.apt?c.apt[0]:ROLE_LINE[role])}<b>${c.name}</b>${c.note?`<small>${c.note}</small>`:''}</div>
-      <div class="chips2">${Object.entries(c.mod).map(([mk,v])=>`<span class="c ${v>0?'g':'w'}">${modTxt({[mk]:v})}</span>`).join('')}${(c.apt||[]).map(a=>`<span class="c g">${ico(a)}系統「${a}」</span>`).join('')}</div>
-      <div class="jreq">${c.req.map(r=>reqBar(r[0],r[1](id),r[2],r[3])).join('')}</div>
-      <div class="jown" title="この職でしか閃けない技">${ico('技能')}${own.join('・')}</div>
-      <div>${isCur?'<span class="chips2"><span class="c g">現職</span></span>':ok?`<button class="ab gold" data-cc="${id}|${k}" ${S.grace<1?'disabled':''} title="技は手元に残る。神の余力を1使う">${ico('技能')}転職の儀<small>✶1</small></button>`:''}</div></div>`;}
+  for(const [k,c] of mine)h+=card(k,c,false);
   h+=`</div></div>`;
   const apOk=S.faith[id]>=100&&cruns(id)>=5;
   h+=`<div class="jc apo ${S.apostle===id?'cur':apOk&&!S.apostle?'ok':''}" title="一行にいると神託が0.35秒で届き、ほかの仲間も神託に従いやすくなる。本人はほぼ必ず従う"><div class="jh">${ico('信仰')}<b>使徒</b><small>あなたが選ぶ、ただ一人の称号</small></div>
@@ -1740,11 +1767,11 @@ function abilHtml(id){
   const cur=S.cls[id]||CHAR_DB[id].role;const tr=(S.train[id]&&(!CLASSES[S.train[id]]||S.train[id]===cur))?S.train[id]:cur;
   const learned=S.abil[id]||[];const eq=(S.aslot[id]||[]).filter(k=>learned.includes(k));
   const jobs=BASE_JOBS.concat(S.cls[id]?[S.cls[id]]:[]);
-  let h=`<div class="aslots">${[0,1].map(i=>{const k=eq[i];return k?`<button class="aslot on" data-ab="${id}|${k}" title="${ABIL[k].desc}（押すと外す）">${ico('技能')}<b>${ABIL[k].name}</b><small>${JOBNAME(ABIL[k].job)}</small></button>`:`<div class="aslot">空き</div>`;}).join('')}</div>`;
+  const nSlot=abilSlots(id);let h=`<div class="aslots" style="grid-template-columns:repeat(${nSlot},minmax(0,1fr))">${Array.from({length:nSlot},(_,i)=>i).map(i=>{const k=eq[i];return k?`<button class="aslot on" data-ab="${id}|${k}" title="${ABIL[k].desc}（押すと外す）">${ico('技能')}<b>${ABIL[k].name}</b><small>${JOBNAME(ABIL[k].job)}</small></button>`:`<div class="aslot">空き</div>`;}).join('')}</div>`;
   h+=`<div class="law">${ico('師事')}<span>修行先</span><div class="seg" title="生還すると修行先の熟練度が入る（帰還2・撤退1）">${jobs.map(j=>`<button class="${j===tr?'on':''}" data-tr="${id}|${j}">${JOBNAME(j)}</button>`).join('')}</div></div>`;
-  for(const j of jobs){const list=Object.entries(ABIL).filter(([k,a])=>a.job===j);if(!list.length)continue;const pts=(S.jp[id]&&S.jp[id][j])||0;const max=Math.max(...list.map(([k,a])=>a.jp));
+  for(const j of jobs){const list=Object.entries(ABIL).filter(([k,a])=>a.job===j);if(!list.length)continue;const pts=(S.jp[id]&&S.jp[id][j])||0;const max=CLASS_JP[5];
     h+=`<div class="jtrk ${j===tr?'tr':''}"><span class="jn">${JOBNAME(j)}</span><div class="trk2"><i style="width:${clamp(pts/max*100,0,100)}%"></i>${list.map(([k,a])=>{const got=learned.includes(k),on=eq.includes(k);
-      return `<button class="mk ${got?'got':''} ${on?'on':''}" style="left:${a.jp/max*100}%" ${got?`data-ab="${id}|${k}"`:'disabled'} title="${got?a.name+'：'+a.desc+(on?'（付けている）':'（押すと付ける）'):'熟練度'+a.jp+'で習得'}"><span></span><small>${got?a.name:'？？？'}</small></button>`;}).join('')}</div><b class="jp">${pts}</b></div>`;}
+      return `<button class="mk ${got?'got':''} ${on?'on':''}" style="left:${a.jp/max*100}%" ${got?`data-ab="${id}|${k}"`:'disabled'} title="${got?a.name+'：'+a.desc+(on?'（付けている）':'（押すと付ける）'):'熟練度'+a.jp+'で習得'}"><span></span><small>${got?a.name:'？？？'}</small></button>`;}).join('')}</div><b class="jp" title="熟練度 ${pts}（★5で${CLASS_JP[5]}）">${stars(jobLv(id,j))}</b></div>`;}
   return h;}
 function styleHtml(id){
   const known=new Set((S.skills[id]||[]).map(x=>x.k));const role=CHAR_DB[id].role;
@@ -1836,10 +1863,10 @@ function bindPrep(){
       prepMsgs.push(`${CHAR_DB[id].name}は一行を離れた。「世話になった」`);persist();renderPrep();};$('#fn').onclick=renderPrep;});
   document.querySelectorAll('select[data-train]').forEach(sel=>sel.onchange=()=>{S.train[sel.dataset.train]=sel.value;persist();renderPrep();});
   document.querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.ab.split('|');let a=(S.aslot[id]||[]).filter(x=>(S.abil[id]||[]).includes(x));
-    if(a.includes(k))a=a.filter(x=>x!==k);else if(a.length<2)a.push(k);S.aslot[id]=a;persist();renderPrep();});
+    if(a.includes(k))a=a.filter(x=>x!==k);else if(a.length<abilSlots(id))a.push(k);S.aslot[id]=a;persist();renderPrep();});
   document.querySelectorAll('[data-skv]').forEach(b=>b.onclick=()=>{SKV=b.dataset.skv;renderPrep();});
   if($('#skclose'))$('#skclose').onclick=()=>{SKV=null;renderPrep();};
-  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.cc.split('|');if(k){if(S.grace<1||!CLASSES[k].ok(id))return;S.grace--;S.cls[id]=k;prepMsgs.push(`転職の儀。${CHAR_DB[id].name}は【${CLASSES[k].name}】になった${CLASSES[k].apt?`。系統「${CLASSES[k].apt.join('・')}」が開いた`:''}`);}else delete S.cls[id];persist();renderPrep();});
+  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.cc.split('|');if(k){if(S.grace<1||!CLASSES[k].ok(id))return;S.grace--;S.cls[id]=k;dropIllegal(id);prepMsgs.push(`転職の儀。${CHAR_DB[id].name}は【${CLASSES[k].name}】になった${CLASSES[k].apt?`。系統「${CLASSES[k].apt.join('・')}」が開いた`:''}`);}else{delete S.cls[id];dropIllegal(id);}persist();renderPrep();});
   document.querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{S.apostle=b.dataset.ap;addFaith(S.apostle,0);persist();renderPrep();});
   document.querySelectorAll('[data-write]').forEach(b=>b.onclick=()=>{const [id,k]=b.dataset.write.split('|');S.books.push(k);S.written[id+':'+k]=true;persist();renderPrep();});
 }
@@ -2186,6 +2213,15 @@ function spawnWave(n){
   B.wave=n; B.selected=null;
 }
 function applyAbStats(u){
+  // 職の特典（いまの職の★）と、付けているアビリティの数値・癖
+  const P=classPerk(u.id);const st=Object.assign({},P.stat);u.traits=(u.traits||[]).slice();
+  for(const k of u.abs){const a=ABIL[k];if(!a)continue;if(a.stat)for(const [x,v] of Object.entries(a.stat))st[x]=(st[x]||0)+v;for(const t of a.tr||[])if(!u.traits.includes(t))u.traits.push(t);}
+  for(const t of P.tr)if(!u.traits.includes(t))u.traits.push(t);
+  for(const a of P.ab)if(!u.abs.includes(a))u.abs.push(a);
+  if(st.atk)u.atk*=1+st.atk; if(st.hp){u.max=Math.round(u.max*(1+st.hp));u.hp=u.max;} if(st.spd)u.spd*=1+st.spd; if(st.def)u.def=clamp(u.def+st.def,0,.75);
+  u.healB+=st.heal||0; u.flashB+=st.flash||0; u.frost+=st.frost||0;
+  u.critB=st.crit||0; u.skillB=st.skill||0; u.multiB=st.multi||0; u.aoeB=st.aoe||0; u.songB=st.song||0; u.tauntB=st.taunt||0;
+  u.divineB=st.divine||0; u.magicHeal=st.magicHeal||0; u.hasteStart=st.hasteStart||0;
   if(hasAb(u,'jouheki'))u.def=Math.min(.75,u.def+.15);
   if(hasAb(u,'sokusha'))u.spd*=1.15; if(hasAb(u,'kagebashiri'))u.spd*=1.1;
   if(hasAb(u,'sentei'))u.gauge=Math.max(u.gauge,.5);
@@ -2195,7 +2231,8 @@ function trapStart(){const h=okU().find(u=>hasAb(u,'trap'));if(h){const e=pick(o
 /* ===== 旅路：区画 → 野営 → 区画 → 野営 → 迷宮（2波）を、同じ戦闘の流れでつなぐ ===== */
 function waveStart(surprise){
   if(surprise){for(const u of okU())u.gauge=0;for(const e of B.enemies)e.gauge=rnd(.6,.9);}
-  else{for(const u of okU())if(hasAb(u,'sentei'))u.gauge=Math.max(u.gauge,.5);trapStart();}
+  else{for(const u of okU())if(hasAb(u,'sentei'))u.gauge=Math.max(u.gauge,.5);trapStart();
+    const hs=okU().reduce((a,u)=>Math.max(a,u.hasteStart||0),0);if(hs)B.hasteT=Math.max(B.hasteT||0,hs);}
 }
 function reviveDowns(){for(const u of B.units)if(u.state==='down'){u.state='ok';u.hp=Math.max(1,u.max*.1);u.down=0;log(`${u.name}を担ぎ起こした`,'good');}}
 function advance(){
@@ -2308,6 +2345,7 @@ function dmgEnemy(e,dmg,src,crit){
   if(src&&src.side==='p'&&hasAb(src,'kyushogan')&&e.hp/e.max<0.3)dmg*=1.4;
   if(e.stun>0)dmg*=1.5;
   if(e.weakT>0)dmg*=1.25;
+  if(src&&src.side==='p'&&((src.critB&&Math.random()<src.critB)||(trait(src,'critHit')&&Math.random()<.1))){dmg*=1.5;crit=true;}   // 会心
   if(src&&src.side==='p'&&src.traits&&src.traits.length){const tg=KIND_TAG[e.kind];
     if(trait(src,'frostBite')&&e.frozen>0)dmg*=1.4; if(trait(src,'stunBite')&&e.stun>0)dmg*=1.3;
     if(trait(src,'giant')&&BIG_E.includes(e.kind))dmg*=1.3; if(tg&&trait(src,tg))dmg*=1.4;
@@ -2323,6 +2361,7 @@ function dmgEnemy(e,dmg,src,crit){
     if(e.hp>0){if(trait(src,'bleedHit')&&Math.random()<.2){e.bleedT=Math.max(e.bleedT||0,3);e.bleedD=Math.max(e.bleedD||0,src.atk*.4);}
       if(trait(src,'stunHit')&&Math.random()<.1)e.stun=Math.max(e.stun,.8); if(trait(src,'freezeHit')&&Math.random()<.1)e.frozen=Math.max(e.frozen,1);}}
   if(e.hp<=0){e.hp=0;e.state='dead';e.wind=0;if(B.selected===e.id)B.selected=null;
+    if(src&&src.side==='p'){if(trait(src,'killHeal'))heal(src,src,src.max*.08);if(trait(src,'killGauge'))src.gauge=Math.min(.95,src.gauge+.5);}
     if(e.kind==='traitor'){const f=okU().sort((a,b)=>relOf(b.id,e.tid)-relOf(a.id,e.tid))[0];const best=f?relOf(f.id,e.tid):-100;const nm=CHAR_DB[e.tid].name;
       if(f&&Math.random()<0.35+best/100){say(f,`戻ってこい、${nm}。まだ間に合う`);log(`${nm}は剣を下ろした。一行に戻る`,'good');B.reclaimed.push(e.tid);}
       else{log(`${nm}は膝をついたが、手を振り払って姿を消した`,'sys');}}
@@ -2340,7 +2379,7 @@ function hitParty(u,dmg,sweep,src){
   dmg*=f; u.hp-=dmg; popOn(u,dmg,'dmg');
   if(src&&src.state==='ok'&&src.side!=='p'){if(u.thornT>0)dmgEnemy(src,dmg*.3,null); if(trait(u,'thornsP'))dmgEnemy(src,dmg*.1,null);
     if(trait(u,'counter')&&u.hp>0&&Math.random()<.15)dmgEnemy(src,patk(u),u);}
-  if(u.hp<=0)knockDown(u);
+  if(u.hp<=0){if(trait(u,'guts')&&!u._guts){u._guts=true;u.hp=1;popOn(u,'踏みとどまった','heal');}else knockDown(u);}
 }
 function knockDown(u){
   u.downs=(u.downs||0)+1;
@@ -2503,7 +2542,7 @@ const FX={
   guard(c,f){if(B.guardT<=0)guardStart();B.guardT=Math.max(B.guardT,f.dur);},
   ward(c,f){B.wardT=Math.max(B.wardT||0,f.dur*(f.song?c.songMul:1));},
   parry(c,f){c.u.parry=f.dur;},
-  taunt(c,f){c.u.taunt=Math.max(c.u.taunt,f.dur);},
+  taunt(c,f){c.u.taunt=Math.max(c.u.taunt,f.dur+(c.u.tauntB||0)+(trait(c.u,'tauntLong')?1:0));},
   thorns(c,f){c.u.thornT=f.dur;},
   buff(c,f){B[f.k]=Math.max(B[f.k]||0,f.dur*(f.song?c.songMul:1));},
   selfgauge(c,f){c.u.gauge=Math.min(.95,c.u.gauge+f.add);},
@@ -2532,10 +2571,12 @@ function doSkill(u,s,tg,forced){
   u.scd[s.k]=(sk.cd||8)*(hasAb(u,'quick')?.75:1)*(trait(u,'quickCd')?.85:1);
   if(!forced&&Math.random()>SUCC[s.st]){log(`${u.name}の【${sk.name}】……型が崩れた`,'miss');gainExp(u,s,0.5);return true;}
   let p=POW[s.st];if(sk.multi&&hasAb(u,'rengeki'))p*=1.3;
-  const c={u,tg,p,a:patk(u),notes:[],songMul:hasAb(u,'kyoumei')?1.5:1};
+  p*=1+(u.skillB||0)+(trait(u,'skillUp')?.1:0); if(sk.multi)p*=1+(u.multiB||0); if(sk.tgt==='all')p*=1+(u.aoeB||0)+(trait(u,'aoeUp')?.15:0);
+  const c={u,tg,p,a:patk(u),notes:[],songMul:(hasAb(u,'kyoumei')?1.5:1)*(1+(u.songB||0))};
   const hk=STYLE_HOOK[s.k];if(hk&&hk.pre)hk.pre(c);
   for(const f of sk.fx)FX[f.t](c,f);
   if(hk&&hk.post)hk.post(c);
+  if(sk.line==='魔'&&u.magicHeal>0)for(const x of okU())heal(u,x,u.magicHeal);   // 賢者の特典
   const note=[sk.note].concat(c.notes).filter(Boolean).join('　');
   const tgt=(wide||!tg)?'':`→${tg.name}`;
   log(`${u.name}の【${sk.name}】${tgt}${note?'　'+note:''}`,note?'combo':'skill');
@@ -2545,7 +2586,7 @@ function doSkill(u,s,tg,forced){
 }
 
 /* --- 連携技・職の技 --- */
-function doTaunt(T){T.taunt=6;T.cd.taunt=hasAb(T,'quick')?7.5:10;log(`${T.name}の挑発！ 敵の注意を引きつけた`,'sys');}
+function doTaunt(T){T.taunt=6+(T.tauntB||0)+(trait(T,'tauntLong')?1:0);T.cd.taunt=hasAb(T,'quick')?7.5:10;log(`${T.name}の挑発！ 敵の注意を引きつけた`,'sys');}
 function mist(M,dur,partial){
   for(const e of okE()){if(partial&&Math.random()<0.5)continue;e.frozen=Math.max(e.frozen,dur+M.frost);dmgEnemy(e,6,M);}
   log(partial?`${M.name}の凍結の霧。霧が薄く、凍らない敵がいる`:`${M.name}の凍結の霧！ 敵が凍りついた`,partial?'miss':'sys');
@@ -2647,7 +2688,7 @@ function actParty(u){
   }
 }
 function rescue(p,t){
-  const ct=hasAb(p,'jihi')?.8:1.5;p.busy=ct; log(`${p.name}が${t.name}のために救命の祈りを唱え始めた`,'good');
+  const ct=(hasAb(p,'jihi')?.8:1.5)*(trait(p,'rescueFast')?.7:1);p.busy=ct; log(`${p.name}が${t.name}のために救命の祈りを唱え始めた`,'good');
   const ordered=B.saveOrder>0;
   ev(ct,()=>{if(p.state!=='ok'||t.state!=='down')return;t.state='ok';t.hp=t.max*0.35;t.down=0;popOn(t,t.hp,'heal');
     log(`祈りが届いた。${t.name}が立ち上がる`,'good');addRel(p.id,t.id,8);
@@ -2723,7 +2764,7 @@ function tick(dt){
   B.t+=dt;
   if(B.travel){if(B.t>=B.travel.until){const f=B.travel.fn;B.travel=null;f();}if(!B.over)render();return;}
   const avg=okU().reduce((a,u)=>a+S.faith[u.id],0)/Math.max(1,okU().length);
-  B.divine=Math.min(100,B.divine+dt*2.6*(avg/65)*(0.8+S.belief[S.base]/250)*(hasP('b2')?1.2:1));
+  B.divine=Math.min(100,B.divine+dt*2.6*(avg/65)*(0.8+S.belief[S.base]/250)*(hasP('b2')?1.2:1)*(1+okU().reduce((a,u)=>a+(u.divineB||0),0)));
   B.guardT=Math.max(0,B.guardT-dt); if(B.guardT<=0)B.guardByOracle=false;
   B.focusT=Math.max(0,B.focusT-dt); B.saveOrder=Math.max(0,B.saveOrder-dt); B.comboLock=Math.max(0,B.comboLock-dt);
   B.graceT=Math.max(0,B.graceT-dt); B.blessAtk=Math.max(0,B.blessAtk-dt); B.songT=Math.max(0,(B.songT||0)-dt);

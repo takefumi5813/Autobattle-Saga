@@ -8,11 +8,11 @@ const GEAR_TIER=['','粗末','並','良','名品','業物','伝説'];
 const GEAR_TMUL=[0,.6,.85,1,1.15,1.3,1.5];
 /* 武器の型：系統ごと。数値は格3のときの値 */
 const WTYPES=[
-  {n:'長剣',line:'剣',atk:3},{n:'大剣',line:'剣',atk:5,spd:-.08},{n:'刀',line:'剣',atk:3.5,spd:.04},{n:'曲刀',line:'剣',atk:3,spd:.06},{n:'細剣',line:'剣',atk:2.5,spd:.1},
+  {n:'長剣',line:'剣',atk:3},{n:'大剣',line:'剣',atk:5,spd:-.08},{n:'刀',line:'剣',atk:3.5,spd:.04},{n:'曲刀',line:'剣',atk:3,spd:.06},{n:'細剣',line:'剣',atk:2.5,spd:.1},{n:'槍',line:'剣',atk:3.5},
   {n:'大盾',line:'盾',def:.1,hp:20},{n:'円盾',line:'盾',def:.07,hp:10,spd:.03},{n:'凧盾',line:'盾',def:.08,hp:15},{n:'戦鎚',line:'盾',atk:2,def:.05,hp:10},
   {n:'杖',line:'魔',atk:2},{n:'長杖',line:'魔',atk:2.5,frost:.5},{n:'魔導書',line:'魔',atk:1.5,flash:.2},{n:'宝珠',line:'魔',atk:2,spd:.05},
   {n:'長弓',line:'弓',atk:3},{n:'短弓',line:'弓',atk:2,spd:.08},{n:'弩',line:'弓',atk:4,spd:-.06},{n:'和弓',line:'弓',atk:3,flash:.1},
-  {n:'聖印',line:'祈',heal:.2},{n:'錫杖',line:'祈',heal:.15,atk:1},{n:'数珠',line:'祈',heal:.1,obey:.05},{n:'聖典',line:'祈',heal:.15,flash:.15},
+  {n:'聖印',line:'祈',heal:.2},{n:'錫杖',line:'祈',heal:.15,atk:1},{n:'数珠',line:'祈',heal:.1,obey:.05},{n:'聖典',line:'祈',heal:.15,flash:.15},{n:'拳甲',line:'祈',atk:2.5,heal:.05},
   {n:'短刀',line:'短',atk:2,spd:.05},{n:'双剣',line:'短',atk:2.5,spd:.06},{n:'投げ刃',line:'短',atk:2,spd:.08},{n:'鉤爪',line:'短',atk:3},
   {n:'竪琴',line:'歌',atk:1,heal:.1,spd:.05},{n:'笛',line:'歌',atk:1,spd:.1},{n:'鈴',line:'歌',heal:.1,obey:.05},
 ];
@@ -52,7 +52,7 @@ function genGear(){
       const name=tier<=1?`${M.n}の${T.n}`:tier<=3?`${org}${mk}の${M.n}の${T.n}`:`${M.n}の${T.n}${mei}`;
       if(used.has(name)||(tier>=4&&used.has(mei)))continue;
       used.add(name);if(mei)used.add(mei);
-      const tm=GEAR_TMUL[tier]*M.m;const d={name,slot,tier,gen:true};if(T.line)d.line=T.line;
+      const tm=GEAR_TMUL[tier]*M.m;const d={name,slot,tier,type:T.n,gen:true};if(T.line)d.line=T.line;
       for(const k of ['atk','def','hp','spd','flash','frost','heal','obey']){let v=(T[k]||0);
         if(k==='atk'||k==='hp')v*=tm;else if(k==='def'||k==='heal'||k==='flash'||k==='obey')v*=GEAR_TMUL[tier];
         v+=M[k]||0;if(v)d[k]=k==='atk'||k==='hp'?Math.max(1,Math.round(v)):round(v,100);}
