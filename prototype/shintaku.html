@@ -420,7 +420,9 @@ const FIRE_NEG=['{a}が{b}の戦い方に口を出し、言い争いになった
 const rk=(a,b)=>[a,b].sort().join('|');
 const relOf=(a,b)=>(S.rel&&S.rel[rk(a,b)])||0;
 function addRel(a,b,d){if(a===b)return;const k=rk(a,b);S.rel[k]=clamp((S.rel[k]||0)+d,-100,100);if(B&&B.relDelta)B.relDelta[k]=(B.relDelta[k]||0)+d;}
-function addLoyal(id,d){S.loyal[id]=clamp((S.loyal[id]==null?60:S.loyal[id])+d,0,100);}
+/* 信仰と忠誠は、高いほど上がりにくい（50を超えると上がり幅が縮み、95前後ではおよそ2割） */
+const damp=(v,d)=>d>0&&v>50?d*Math.max(.15,1-(v-50)/55):d;
+function addLoyal(id,d){const v=S.loyal[id]==null?60:S.loyal[id];S.loyal[id]=clamp(v+damp(v,d),0,100);}
 function pairBonus(us){let sum=0,n=0;for(let i=0;i<us.length;i++)for(let j=i+1;j<us.length;j++){sum+=relOf(us[i].id,us[j].id);n++;}return n?clamp(sum/n/400,-.2,.2):0;}
 const JOBNAME=k=>ROLES[k]||(CLASSES[k]&&CLASSES[k].name)||k;
 const ORACLES=[
@@ -498,6 +500,12 @@ const POWERS={
 };
 const RUMOR_SRC=['酔った鉱夫','行商人','宿の女将','吟遊詩人','衛兵崩れ','鍛冶屋の徒弟'];
 const SEASONS=['春','夏','秋','冬'];
+/* ===== 大迷宮の階：深いほど敵が強く、閃きやすく、実入りが良い。いちばん深い階で帰還すると次の階が開く ===== */
+const FLOORS={3:'東の回廊',4:'崩れた礼拝堂',5:'水没した坑道',6:'骨の広間',7:'灼けた祭壇',8:'大神の封印'};
+function floorName(f){return `B${f}F ${FLOORS[f]||'深層'}`;}
+const floorMul=f=>1+0.22*(f-3);        // 敵のHPの倍率
+const floorAtk=f=>1+0.09*(f-3);        // 敵の攻撃の倍率（HPより緩やかに上げて、急な壁にしない）
+const floorFlash=f=>1+0.15*(f-3);      // 閃きの溜まりやすさ
 const RETIRE_AGE=48;
 
 /* ============ 保存 ============ */
@@ -530,6 +538,7 @@ function migrate(s){
   s.rival=s.rival||{name:'白翼の一行',leader:'聖騎士ヴァルド',fame:30,debt:0};
   s.heirOf=s.heirOf||{};s.retired=s.retired||[];s.vacated=s.vacated||{};s.believers=s.believers||{};
   if(!s.policy.camp)s.policy.camp='watch';
+  if(s.depth==null)s.depth=3;if(s.floor==null||s.floor>s.depth)s.floor=s.depth;
   if(!s.next||!s.rumors)rollNext(s);
   return s;}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.party&&s.items)return migrate(s);}catch(e){}return migrate(newSave());}
@@ -547,7 +556,8 @@ function makeRumors(s){
   const NORTH={none:'北の街道は衛兵が見回ってる。いまは安全だ',bandit:'北の街道の橋のあたりに、野盗が巣食ってる',goblin:'北の街道まで、ゴブリンの斥候が出てきてるらしい'};
   const NIGHT=(a,b)=>a&&b?'このところ、街道の野営地は二晩とも物騒だ':a?'岩の丘の野営地で、夜に狼が出るそうだ':b?'北の街道の野営地は、夜に野盗が来るって話だ':'最近は野営しても、夜は静かなもんさ';
   const RIV={ahead:`${R.name}が、一足先に大迷宮へ潜ったそうだ`,trouble:`${R.name}の若いのが一人、迷宮から戻ってこないらしい`,away:`${R.name}は王都で祝宴の最中だとさ`};
-  const TRE=['東の回廊の奥は、もう宝なんか残ってないって話だ','東の回廊の奥に、まだ誰も手をつけてない書庫があるって噂だ'];
+  const fn=FLOORS[s.floor||3]||'深層';
+  const TRE=[`${fn}の奥は、もう宝なんか残ってないって話だ`,`${fn}の奥に、まだ誰も手をつけてない書庫があるって噂だ`];
   const other=(o,v)=>pick(Object.keys(o).filter(k=>k!==v));
   const flip=Math.random()<.5;
   const list=shuffle([
@@ -711,8 +721,10 @@ function renderPrep(){
   h+=`</section></div>`;
   if(S.graves.length)h+=`<section class="sec" style="margin-top:22px"><h3>墓碑</h3><p class="grave">${S.graves.map(g=>`<b>${g.name}</b>（${g.role}）願い「${g.wish}」${g.heir?`　― ${g.heir}`:''}`).join('<br>')}</p></section>`;
   if(S.retired.length)h+=`<section class="sec"><h3>隠居した者</h3><p class="grave">${S.retired.map(g=>`<b>${g.name}</b>（${g.role}・${g.age}歳で引退）${g.heir?`　― 後継者 ${g.heir}`:''}`).join('<br>')}</p></section>`;
-  h+=`<div class="cta" style="margin-top:22px"><button class="btn" id="go" ${over.length?'disabled':''}>大迷宮へ旅立つ</button>
-    <span class="muted small">${TOWNS[BASE_TOWN].name} → 岩の丘 → 北の街道 → B3F 東の回廊（野営2夜）</span>
+  const fls=[];for(let f=3;f<=S.depth;f++)fls.push(f);
+  h+=`<div class="cta" style="margin-top:22px"><label for="floorsel" class="small">潜る階</label><select id="floorsel" style="width:auto">${fls.map(f=>`<option value="${f}"${f===S.floor?' selected':''}>${floorName(f)}${f===S.depth?'（未踏）':''}・敵の強さ×${floorMul(f).toFixed(2)}</option>`).join('')}</select>
+    <button class="btn" id="go" ${over.length?'disabled':''}>大迷宮へ旅立つ</button>
+    <span class="muted small">${TOWNS[BASE_TOWN].name} → 岩の丘 → 北の街道 → ${floorName(S.floor)}（野営2夜）。いちばん深い階で帰還すると、次の階が開く</span>
     <span class="muted small">${calTxt()}・潜行 ${S.runs}回・帰還 ${S.wins}回</span>
     <span id="resetwrap"><button class="btn ghost small" id="reset">最初からやり直す</button></span></div>`;
   $('#view').innerHTML=h; bindPrep();
@@ -894,6 +906,7 @@ function skillPanel(id){const d=CHAR_DB[id];
 function rule(k,label,opts,v){return `<div class="rule"><label for="p-${k}">${label}</label><select id="p-${k}" data-p="${k}">${opts.map(([a,b])=>`<option value="${a}"${a===v?' selected':''}>${b}</option>`).join('')}</select></div>`;}
 function bindPrep(){
   $('#go').onclick=startBattle;
+  if($('#floorsel'))$('#floorsel').onchange=()=>{S.floor=+$('#floorsel').value;rollNext(S);persist();renderPrep();};
   $('#reset').onclick=()=>{$('#resetwrap').innerHTML=`<span class="confirm">仲間・信仰・技・装備がすべて初期化されます。<button class="btn ghost small" id="rsy">初期化する</button><button class="btn ghost small" id="rsn">やめる</button></span>`;
     $('#rsy').onclick=()=>{S=migrate(newSave());persist();renderPrep();};$('#rsn').onclick=renderPrep;};
   // 世界：布教・権能・控えとの入れ替え・継承
@@ -944,13 +957,21 @@ function makeUnit(id){const d=CHAR_DB[id];const st=equipStats(id);const dc=decli
   flashB:st.flash,frost:st.frost,healB:st.heal,skills,scd:{},parry:0,flashT:-9,abs:(S.aslot[id]||[]).filter(k=>(S.abil[id]||[]).includes(k)),
   gauge:Math.random()*0.5,cd:{taunt:0,mist:0,pierce:0},taunt:0,state:'ok',down:0,busy:0,pop:null};}
 let eid=0;
-function makeEnemy(kind,suf){const d=ENEMY_DB[kind];return{id:'e'+(eid++),side:'e',kind,name:d.name+(suf||''),max:d.hp,hp:d.hp,atk:d.atk,spd:d.spd,
+/* 迷宮の中では、階に応じて敵のHP・攻撃・閃きやすさが上がる（B.emul / B.fmul。街道と野営では1） */
+function makeEnemy(kind,suf){const d=ENEMY_DB[kind];const m=(B&&B.emul)||1,am=(B&&B.amul)||1;const hp=Math.round(d.hp*m);
+  return{id:'e'+(eid++),side:'e',kind,name:d.name+(suf||''),max:hp,hp,atk:d.atk*am,amul:am,spd:d.spd,fmul:(B&&B.fmul)||1,
   gauge:Math.random()*0.4,frozen:0,stun:0,wind:0,cycle:0,state:'ok',pop:null};}
 function spawnWave(n){
-  B.place='B3F 東の回廊';
+  const f=B.floor||3;B.place=floorName(f);B.emul=floorMul(f);B.amul=floorAtk(f);B.fmul=floorFlash(f);
   if(n===1){B.rivalAhead=!!(S.next&&S.next.rival==='ahead');
-    B.enemies=B.rivalAhead?[makeEnemy('goblin','A'),makeEnemy('shaman'),makeEnemy('goblin','B')]:[makeEnemy('goblin','A'),makeEnemy('goblin','B'),makeEnemy('shaman'),makeEnemy('goblin','C'),makeEnemy('goblin','D')];}
+    B.enemies=B.rivalAhead?[makeEnemy('goblin','A'),makeEnemy('shaman'),makeEnemy('goblin','B')]:[makeEnemy('goblin','A'),makeEnemy('goblin','B'),makeEnemy('shaman'),makeEnemy('goblin','C'),makeEnemy('goblin','D')];
+    // 深い階ほど群れが大きい
+    if(f>=5)B.enemies.push(makeEnemy('shaman','Ⅱ'));
+    if(f>=7)B.enemies.push(makeEnemy('goblin','E'));}
   else{B.enemies=[makeEnemy('goblin','E'),makeEnemy('ogre'),makeEnemy('goblin','F')];B.rivalNpc=!!(S.next&&S.next.rival==='trouble');
+    if(f>=6)B.enemies.push(makeEnemy('shaman'));
+    if(f>=8)B.enemies.push(makeEnemy('goblin','G'));
+    if(f>=10)B.enemies.push(makeEnemy('strayogre'));   // 二体目の大物は、十分に育ってから
     const tr=S.defected.filter(id=>!B.traitorSeen);
     if(tr.length&&Math.random()<0.6){const id=pick(tr);const d=CHAR_DB[id];const e=makeEnemy('traitor');Object.assign(e,{name:`${d.name}（大神の使徒）`,tid:id,max:Math.round(d.hp*1.8),hp:Math.round(d.hp*1.8),atk:d.atk*1.4,spd:d.spd});
       B.enemies.push(e);B.traitorSeen=true;
@@ -978,11 +999,12 @@ function advance(){
     const L=getLeader();if(L)say(L,L.pers==='皮肉屋'?'貸しにしておくわ。大神様によろしく':'立てるか。地上まで送ろう');}
   B.si++;const st=B.plan[B.si];
   if(!st){endBattle('win');return;}
+  if(st.t!=='dun'){B.emul=1;B.amul=1;B.fmul=1;}
   if(st.t==='road'){B.place=AREAS[st.area].name;B.wave=0;
     if(st.enc&&ROAD_ENC[st.enc]){B.enemies=ROAD_ENC[st.enc].make();B.selected=null;log(ROAD_ENC[st.enc].msg,'warn');waveStart(false);}
     else{B.enemies=[];log(`${AREAS[st.area].name}を越えた。敵影はない`,'sys');B.waveWait=1.2;B.nextFn=advance;}
   }else if(st.t==='camp'){camp(st.night);}
-  else if(st.w===1){spawnWave(1);log(B.rivalAhead?`B3F 東の回廊。${S.rival.name}が先に通った跡がある。敵影は3つ――宝も荒らされているだろう`:'B3F 東の回廊。前方に敵影が5つ。','sys');waveStart(false);}
+  else if(st.w===1){spawnWave(1);log(B.rivalAhead?`${B.place}。${S.rival.name}が先に通った跡がある。敵影は${B.enemies.length}つ――宝も荒らされているだろう`:`${B.place}。前方に敵影が${B.enemies.length}つ。`,'sys');waveStart(false);}
   else{B.enemies=[];log('回廊の奥から地響きが近づいてくる……','warn');B.waveWait=3;
     B.nextFn=()=>{spawnWave(2);log('オーガが姿を現した。ゴブリンが2体従っている','warn');
       if(B.rivalNpc)log(`オーガの足元に、${S.rival.name}の若い剣士が倒れている。オーガに追われてきたらしい`,'warn');waveStart(false);};}
@@ -1015,7 +1037,7 @@ function trySteal(u,e){
 function startBattle(){
   fillParty();
   const ids=partyIds();
-  B={t:0,speed:B?B.speed:1,units:ids.map(makeUnit),enemies:[],wave:0,place:'旅立ち',plan:buildPlan(),si:-1,nextFn:null,stolen:[],rivalAhead:false,rivalNpc:false,rivalSaved:false,lampUsed:false,
+  B={t:0,speed:B?B.speed:1,units:ids.map(makeUnit),enemies:[],wave:0,place:'旅立ち',floor:S.floor||3,emul:1,fmul:1,plan:buildPlan(),si:-1,nextFn:null,stolen:[],rivalAhead:false,rivalNpc:false,rivalSaved:false,lampUsed:false,
     events:[],divine:60+(hasP('b1')?20:0),focus:null,focusT:0,guardT:0,guardByOracle:false,
     saveOrder:0,comboLock:0,pending:null,over:false,waveWait:0,leaderId:null,alert:null,graceT:0,blessAtk:0,
     startFaith:Object.fromEntries(ids.map(i=>[i,S.faith[i]])),oracles:[],mast:[],disc:[],lostNow:[],combos:{ok:0,fail:0},
@@ -1056,7 +1078,7 @@ const byRole=r=>B.units.find(u=>u.role===r);
 const ready=u=>u&&u.state==='ok'&&u.busy<=0;
 const patk=u=>u.atk*(B.blessAtk>0?1.25:1)*(hasAb(u,'haisui')&&u.hp/u.max<.3?1.5:1);
 function getLeader(){const s=byRole('sword');if(s&&s.state==='ok')return s;return okU().sort((a,b)=>S.faith[b.id]-S.faith[a.id])[0]||null;}
-function addFaith(id,d){S.faith[id]=clamp(S.faith[id]+d,0,100);}
+function addFaith(id,d){S.faith[id]=clamp(S.faith[id]+damp(S.faith[id],d),0,100);}
 function popOn(x,v,cls){x.pop={v:typeof v==='number'?Math.round(v):v,cls,t:B.t};}
 
 /* --- 被ダメージ・与ダメージ --- */
@@ -1089,6 +1111,7 @@ function hitParty(u,dmg,sweep,src){
   if(u.hp<=0)knockDown(u);
 }
 function knockDown(u){
+  u.downs=(u.downs||0)+1;
   u.hp=0;u.state='down';u.down=(hasAb(u,'fukutsu')?16:10)+(hasP('g2')?3:0);u.busy=0;u.taunt=0;
   log(`${u.name}が倒れた！ 救命の猶予は${u.down}秒`,'bad'); say(u,DOWN_L[u.pers]);
 }
@@ -1157,7 +1180,7 @@ function sparkCheck(u,usedK,tg){
   const kids=Object.keys(SKILLS).filter(k=>SKILLS[k].from===usedK&&apt.includes(SKILLS[k].line)&&!knows(u.id,k)&&(!SKILLS[k].cls||S.cls[u.id]===SKILLS[k].cls));
   const eyes=(S.skills[u.id]||[]).filter(s=>s.k===usedK&&s.src==='book'&&s.st===3&&!s.eye);
   if(!kids.length&&!eyes.length)return;
-  const em=tg?ENEMY_DB[tg.kind].flash:1;
+  const em=tg?ENEMY_DB[tg.kind].flash*(tg.fmul||1):1;
   const mult=em*(B.graceT>0?2.2:1)*(0.5+S.faith[u.id]/100)*(1+u.flashB);
   S.spark[u.id]=Math.min(100,(S.spark[u.id]||0)+2*mult*rnd(.5,1.5));
   const m=S.spark[u.id];
@@ -1369,7 +1392,7 @@ function sweep(e){
   B.alert=null;
   const guarded=B.guardT>0;
   log(`${e.name}の薙ぎ払い！${guarded?' 守りの構えが衝撃を受け止めた':''}`,guarded?'good':'warn');
-  for(const u of okU())hitParty(u,62*rnd(.95,1.05),true,e);
+  for(const u of okU())hitParty(u,62*(e.amul||1)*rnd(.95,1.05),true,e);
   if(guarded&&B.guardByOracle){log('神託の守りが、仲間を救った','oracle');for(const u of okU())addFaith(u.id,2);
     const last=B.oracles.filter(o=>o.k==='guard').pop();if(last)last.note='薙ぎ払いを防いだ';}
 }
@@ -1526,9 +1549,11 @@ function endBattle(kind){
       else{S.teach[u.id]={k:t.k,p:cur+1};B.teachLog.push(`${u.name}は師${mu.name}の【${SKILLS[t.k].name}】を見て学んでいる（${cur+1}/2）`);}
     }
     // 戦利品
-    const cleared1=B.wave>1;
+    const cleared1=B.wave>1;const fl=B.floor||3;
     if((kind==='win'&&(!B.rivalAhead||Math.random()<.5))||(cleared1&&Math.random()<0.35)){const k=pick(LOOT);B.loot.push(addItem(S,k));}
-    if(kind==='win'&&Math.random()<(B.rivalAhead?0.25:0.5)){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);}
+    // 深い階ほど、装備がもう一つ見つかりやすく、書物も見つかりやすい
+    if(kind==='win'&&Math.random()<0.12*(fl-3)){B.loot.push(addItem(S,pick(LOOT)));}
+    if(kind==='win'&&Math.random()<Math.min(.9,(B.rivalAhead?0.25:0.5)+0.08*(fl-3))){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);}
     if(kind==='win'&&S.next&&S.next.treasure&&!B.rivalAhead){const k=pick(BOOKS);S.books.push(k);B.loot.push('book:'+k);B.loot.push(addItem(S,pick(LOOT)));B.treasureFound=true;}
     for(const k of B.stolen)B.loot.push(addItem(S,k));
   }
@@ -1541,6 +1566,13 @@ function worldAfterRun(kind){
   S.turn=(S.turn||0)+1;notes.push(`季節が巡った（${calTxt()}）`);
   if(S.turn%4===0){for(const id of Object.keys(CHAR_DB))if(avail(id))S.age[id]=ageOf(id)+1;notes.push('年が明け、皆ひとつ歳を重ねた');}
   if(B.treasureFound)notes.push('噂の書庫を見つけ、書物を持ち帰った');
+  // 大迷宮：いちばん深い階で帰還すると、次の階が開く
+  if(kind==='win'&&(B.floor||3)>=S.depth){S.depth=(B.floor||3)+1;S.floor=S.depth;notes.push(`${floorName(B.floor)}を踏破した。${floorName(S.depth)}への道が開けた`);}
+  // 信仰と忠誠は、旅のたびに少しずつ本来の値へ戻る（放っておくと冷める）
+  for(const id of Object.keys(CHAR_DB)){if(!avail(id))continue;
+    const fb=CHAR_DB[id].faith,lb=LOYAL0[id]??60;
+    if(S.faith[id]>fb)S.faith[id]-= (S.faith[id]-fb)*0.04;
+    if(S.loyal[id]>lb)S.loyal[id]-=(S.loyal[id]-lb)*0.04;}
   // 町の信仰
   if(kind==='win'){const g=addBelief(BASE_TOWN,3);addBelief('rou',1);if(g)notes.push(`帰還の報せに、${TOWNS[BASE_TOWN].name}の人々があなたの名を口にした（信仰+${g}）`);}
   if(kind==='wipe'){const g=addBelief(BASE_TOWN,-5);if(g)notes.push(`一行が戻らず、${TOWNS[BASE_TOWN].name}の灯明がいくつか消えた（信仰${g}）`);}
@@ -1572,6 +1604,9 @@ function relAfterRun(kind){
     if(L&&L!==u)addLoyal(u.id,clamp(Math.round(relOf(u.id,L.id)/20),-2,2));
     addLoyal(u.id,kind==='win'?1:0);
     if(B.lostNow.length)addLoyal(u.id,-3);
+    // 倒れた恐怖と、撤退の悔しさは忠誠を削る
+    if(u.downs){addLoyal(u.id,-2*u.downs);B.relNotes.push(`${u.name}は戦いの中で${u.downs}度倒れた（忠誠${-2*u.downs}）`);}
+    if(kind==='retreat')addLoyal(u.id,-2);
   }
   for(const id of B.reclaimed){S.defected=S.defected.filter(x=>x!==id);delete S.contact[id];S.loyal[id]=50;S.faith[id]=Math.max(S.faith[id],30);
     const r=slotOf(CHAR_DB[id].role);const cur=S.party[r];S.party[r]=id;if(!S.equip[id])outfit(S,id);B.relNotes.push(`${CHAR_DB[id].name}が一行に戻った${cur?`（${CHAR_DB[cur].name}は控えに回った）`:''}`);}
