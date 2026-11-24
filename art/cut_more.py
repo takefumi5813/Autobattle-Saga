@@ -78,6 +78,43 @@ try:
 except FileNotFoundError:
     print("skip more-dungeon-objects.png")
 
+# 町の建物と、区画ごとの物（左から1列に並べて描いたもの）。名前・縮める軸・画素
+BGJOBS = [
+    ("more-town.png", [("house1", "h", 70), ("house2", "h", 92), ("house3", "h", 80), ("inn", "h", 92), ("chapel", "h", 104), ("tgate", "h", 76)]),
+    ("more-plain.png", [("well", "h", 34), ("stall", "h", 40), ("hay", "h", 30), ("cart", "w", 40), ("scare", "h", 44), ("mile", "h", 22)]),
+    ("more-wild.png", [("bigtree", "h", 96), ("mush", "h", 20), ("log", "w", 56), ("deadtree", "h", 86), ("reeds", "h", 34), ("cattail", "h", 28)]),
+    ("more-pass.png", [("cliff", "h", 96), ("deadtree2", "h", 80), ("cairn", "h", 30), ("shrine", "h", 40), ("crag", "h", 54)]),
+]
+for src, objs in BGJOBS:
+    try:
+        im = Image.open(f"{ART}/{src}")
+    except FileNotFoundError:
+        print("skip", src); continue
+    a, fg = mask(im)
+    for (name, axis, px), (m, b) in zip(objs, split_shapes(fg, len(objs))):
+        sc = px / ((b[2] - b[0]) if axis == "w" else (b[3] - b[1]))
+        spr = shrink(a, m, b, sc, trim=3)
+        spr.save(f"{ART}/sprites/bg_{name}.png"); bg[name] = enc(spr); print(name, spr.size)
+# 区画ごとの地面の模様（森の土・岩場・湿地の泥）。1枚に3つの正方形を並べて描いたもの（more-tex.png）か、1枚ずつの画像。160画素・16色
+try:
+    im = Image.open(f"{ART}/more-tex.png").convert("RGB")
+    a, fg = mask(im)
+    for name, (m, b) in zip(["tforest", "trock", "tmud"], split_shapes(fg, 3)):
+        x0, y0, x1, y1 = b; s = min(x1 - x0, y1 - y0) - 16; cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
+        t = im.crop((cx - s // 2, cy - s // 2, cx + s // 2, cy + s // 2)).resize((160, 160), Image.LANCZOS)
+        t = t.quantize(colors=16, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGB")
+        t.save(f"{ART}/sprites/bg_{name}.png"); bg[name] = enc(t); print(name, t.size)
+except FileNotFoundError:
+    print("skip more-tex.png")
+for src, name in [("more-tex-forest.png", "tforest"), ("more-tex-rock.png", "trock"), ("more-tex-mud.png", "tmud")]:
+    try:
+        t = Image.open(f"{ART}/{src}").convert("RGB")
+    except FileNotFoundError:
+        print("skip", src); continue
+    s = min(t.size); t = t.crop(((t.width - s) // 2, (t.height - s) // 2, (t.width + s) // 2, (t.height + s) // 2))
+    t = t.resize((160, 160), Image.LANCZOS).quantize(colors=16, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGB")
+    t.save(f"{ART}/sprites/bg_{name}.png"); bg[name] = enc(t); print(name, t.size)
+
 line = "/*MORE-ART*/" + "Object.assign(HERO_IMG," + json.dumps(hero) + ");"
 line2 = "/*MORE-ART*/" + "for(const [k,v] of Object.entries(" + json.dumps(pose) + "))POSE_IMG[k]=Object.assign(POSE_IMG[k]||{},v);"
 line3 = "/*MORE-ART*/" + "Object.assign(ENEMY_IMG," + json.dumps(enemy) + ");"
