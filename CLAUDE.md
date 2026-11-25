@@ -233,6 +233,10 @@
 - **後ろから見る視点**：カメラはさらに高く（約60度、`TPS` H=142・D=82・F=98、空は映らない）。地面は物を描く前の絵（`lay.groundC`）を使い、木・建物・灯りはすべて立てて描く（`lay.objs`）。前は地面に描いた家や木の上を歩いて、すり抜けて見えた
 - **右上の小さな地図**（`fMiniMap()`、data/tps.js）：北が上。一行のまわりを切り出し、道筋・木と建物の点・一行（黄）・敵（赤）・野営地（白い点）・行き先（白い四角）。後ろから見る視点ではカメラの向きの三角
 - **敵の前向き・後ろ姿・前向きの攻撃（2026-11-24）**：ゴブリン・呪術師・狼・野盗・オーガ・はぐれオーガ・野盗の頭。`art/make_ref_en.py` で横向きの立ち姿と攻撃を並べた見本（`ref-en-1/2.png`）を添え、3段（前向き・後ろ姿・前向きの攻撃）に描かせた（`more-en-1/2.png`、`take_back.ps1 番号 … more-en front,back,atkF`）。`cut_more.py` の種類 `enemy4` は、横向きの立ち姿と同じ背丈にそろえて `ENEMY_IMG` に `<敵>_front/_back/_atkF` で入れる。フィールドでは `FLD.en[k].fr4/bk/atkF`、描くときは仲間と同じ `view4` で向きを選ぶ（こちらへ向かう敵は前向き、去る敵は後ろ姿、前向きで攻撃するときは前向きの攻撃）。冒険者の一行・白翼・離反者は仲間の絵の4つの向きに色をかけて使う。オーガの振りかぶりは横向きのまま
+- **BGM（2026-11-25、`prototype/data/bgm.js`・`prototype/audio/`）**：オーナーの soundraw（有料プラン、月10曲までダウンロード）で作った2分ほどの曲6つ。戦闘 `battle.mp3`（Orchestra・Epic・速い・Cm 130）、大物 `boss.mp3`（Orchestra・Dark・速い・Gm 130）、道中 `road.mp3`（Orchestra・Hopeful・普通・Bm 103）、迷宮 `dungeon.mp3`（Orchestra・Mysterious・遅い・Fm 85）、神殿と町 `town.mp3`（Orchestra・Peaceful・遅い・F 70）、野営 `camp.mp3`（Acoustic・Sentimental・遅い・Dm 90）。soundraw は `https://soundraw.io/edit_music?length=120&tempo=high&genre=Orchestra&mood=Epic` のように住所で曲の種類を選べる。オーナーの Chrome はダウンロードのたびに保存先を聞くので、保存はオーナーが押す。ダウンロードフォルダにはオーナー自身の mp3 もあるので、soundraw の名前（`<ジャンル>__BPM<数>.mp3`）だけを拾う（一度、別の mp3 を取り違えて戻した）
+  - 場面：フィールドの毎フレームで `bgmScene()`（大物（オーガ・はぐれオーガ・野盗の頭・白翼の頭）がいれば boss、敵がいれば battle、迷宮の中は dungeon、野営は camp、ほかは road）、神殿の画面で town。切り替えは0.8秒で重ねる。曲がない場面は近い曲へ（`BGM_FALLBACK`）
+  - ブラウザは操作するまで音を出させないので、最初のクリックかキーで鳴り始める。画面右上の「♪」ボタンで音量 大→中→小→消（ブラウザに `shintaku-bgm-vol` として覚える）
+  - 止めるときに `src` を消すと error が起きて「曲がない」と誤解するので、`pause()` だけにする
 - **次**：全キャラ×全職の見た目（最後に）
 
 ## 未着手・次の候補

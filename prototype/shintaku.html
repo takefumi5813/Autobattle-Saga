@@ -886,6 +886,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/road.js"></script>
 <script src="data/life.js"></script>
 <script src="data/tps.js"></script>
+<script src="data/bgm.js"></script>
 <script>
 "use strict";
 /* ============ データ ============ */
@@ -1770,6 +1771,7 @@ function renderStart(){stopLoop();setSteps('prep');installPortraits();
   h+=`</div></div>`;$('#view').innerHTML=h;
   document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{const k=b.dataset.start;S=migrate(newSave(k));fixDiveTo([]);rollNext(S);prepMsgs.push(START[k].intro);PREP_TAB='depart';persist();renderPrep();});}
 function renderPrep(){
+  try{bgmScene('town');}catch(e){}   // 神殿・町の曲
   if(S.start===null){renderStart();return;}
   if(journeyOver()){stopLoop();$('#view').innerHTML=journeyOverHtml();$('#newjourney').onclick=()=>{S.start=null;renderStart();};return;}
   stopLoop(); setSteps('prep'); installPortraits();
@@ -2968,6 +2970,8 @@ function fFrame(dt,now){
     const m=fLay().wm;const ii=wmI(fp[0]);const dir=m?[m.cs[ii],m.sn[ii]]:[1,0];const sk2=tr?tr.step:step;const inDun2=sk2&&sk2.t==='dun';
     fTPS(FLD.g,cam,camY,fWorld(fp[0],fp[1]),dir,now,{dt,dark:inDun2,night:FLD.night,fire:[fireX,fireY],wk:inDun2?null:((tr?tr.step.weather:sk2&&sk2.weather)||B.weather),tod:inDun2?null:((tr?tr.step.tod:sk2&&sk2.tod)||B.tod)});}
   try{fMiniMap(FLD.g);}catch(e){}   // 右上の小さな地図（data/tps.js）
+  // BGM（data/bgm.js）：大物がいれば大物の曲、敵がいれば戦闘、迷宮の中、野営、それ以外は道中
+  try{const sk3=tr?tr.step:step;const inD=sk3&&(sk3.t==='dun'||sk3.t==='dunrest');bgmScene(enemiesUp?(okE().some(e=>BIG_E.includes(e.kind)||e.kind==='boss'||e.kind==='vald'||e.leader)?'boss':'battle'):inD?'dungeon':camp?'camp':'road');}catch(e){}
   // 文字の窓
   const ui=$('#fui');if(ui){
     const area=FLD.area&&now<FLD.area.until?FLD.area.text:'';const note=FLD.note&&now<FLD.note.until?FLD.note:null;const say=FLD.say&&now<FLD.say.until?FLD.say:null;
