@@ -888,6 +888,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/tps.js"></script>
 <script src="data/nav.js"></script>
 <script src="data/bgm.js"></script>
+<script src="data/opening.js"></script>
 <script>
 "use strict";
 /* ============ データ ============ */
@@ -1770,7 +1771,8 @@ function renderStart(){stopLoop();setSteps('prep');installPortraits();
     h+=`<button class="stc" data-start="${k}"><div class="stp">${pfDiv(st.hero)}</div><div class="stb"><div class="stn">${st.name}<small>${CONT[st.cont||'c0'].name}・${alignWord(st.align)}</small></div><p>${st.blurb}</p>
       <div class="mini2" style="color:var(--acc)">一人で旅立つ。仲間は旅の先で探す</div><span class="mini2">${st.note}</span></div></button>`;}
   h+=`</div></div>`;$('#view').innerHTML=h;
-  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{const k=b.dataset.start;S=migrate(newSave(k));fixDiveTo([]);rollNext(S);prepMsgs.push(START[k].intro);PREP_TAB='depart';persist();renderPrep();});}
+  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{const k=b.dataset.start;const go=()=>{S=migrate(newSave(k));fixDiveTo([]);rollNext(S);prepMsgs.push(START[k].intro);PREP_TAB='depart';persist();renderPrep();};
+    if(typeof playOpening==='function')playOpening(k,go);else go();});}   /* 選ぶと、その人のオープニング（紙芝居）が流れてから始まる */
 function renderPrep(){
   try{bgmScene('town');}catch(e){}   // 神殿・町の曲
   if(S.start===null){renderStart();return;}
