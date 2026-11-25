@@ -886,6 +886,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/road.js"></script>
 <script src="data/life.js"></script>
 <script src="data/tps.js"></script>
+<script src="data/nav.js"></script>
 <script src="data/bgm.js"></script>
 <script>
 "use strict";
@@ -2702,30 +2703,23 @@ function fWarpMap(strip,lay,BG,items,lamps){const W=Math.ceil(lay.W),N=W+1,R=270
   const POOL={forest:[T3.concat(PI,[BG.bigtree].filter(Boolean)),.75],hill:[PI.concat(T3,RO),.6],river:[PI.concat(T3),.6],plain:[T3.concat(GR,GR),.4],marsh:[[BG.deadtree,BG.reeds,BG.cattail].filter(Boolean).concat(GR),.55],pass:[RO.concat([BG.crag].filter(Boolean),PI),.6],town:[T3.concat(PI),.35],gate:[PI.concat(T3),.5]};
   const out=[];
   for(const s of lay.segs){if(s.type==='dun')continue;const [pool,dens]=POOL[s.type==='area'?s.theme:s.type]||POOL.plain;if(!pool.length)continue;
-    for(let q=s.x0;q<s.x1;q+=11+r()*9)for(const side of [-1,1]){if(r()>dens)continue;const l=side*(102+r()*(R-100));const [px,py]=P(q,l);out.push([pk(pool),px,py,false]);}}
+    for(let q=s.x0;q<s.x1;q+=11+r()*9)for(const side of [-1,1]){if(r()>dens)continue;const l=side*(102+r()*(R-100));const [px,py]=P(q,l);out.push([pk(pool),px,py,false,q,112+l]);}}
   for(const [img,IX,IY,low] of items){if(!img)continue;const [px,py]=fWorld(IX,IY);out.push([img,px,py,low,IX,IY]);}
   for(const L of lamps){if(!L.img)continue;const [px,py]=fWorld(L.X,L.Y);out.push([L.img,px,py,false,L.X,L.Y,true,L.dun]);}
   out.sort((a,b)=>a[2]-b[2]);
-  // 後ろから見る視点のために、物を描く前の地面だけの絵を残し、立っている物は一覧にする（地面に描いた家や木の上を歩いて見えないように）
-  const gc=fCanvas(c.width,c.height);const gx=gc.getContext('2d');gx.drawImage(c,0,0);lay.groundC=gc;lay.objs=[];
-  for(const [img,px,py,low,,,lamp,dun] of out){const im=lamp?img:fGradeC(img);
-    if(low||im.height<=12)gx.drawImage(im,Math.round(px-im.width/2),Math.round(py-im.height));else lay.objs.push({c:im,x:px,y:py,lamp});
-    if(!low&&im.height>10){x.globalAlpha=.26;x.fillStyle='#0a0810';x.beginPath();x.ellipse(px+im.width*.1,py-1,im.width*.36,Math.max(2,im.width*.08),0,0,7);x.fill();x.globalAlpha=1;}
-    x.drawImage(im,Math.round(px-im.width/2),Math.round(py-im.height));
-    if(lamp){fGlow(c,Math.round(px),Math.round(py+(dun?2:12)),dun?70:58,dun?.7:.6);fGlow(c,Math.round(px),Math.round(py-im.height+(dun?8:22)),dun?10:9,.55);}}
-  // 通れない所（2026-11-24、オーナーの指摘「障害物すり抜けてる」）：木・岩・建物・柵の足もと。人物はここを避けて歩き、戦いでも押し出される
-  lay.block=[];for(const [img,px,py,low,IX,IY,lamp] of out){if(IX==null||low||img.height<18||img===BG.tgate)continue;const yc=fPathY(IX),w=fRoadHalf(IX);if(IY<yc-w-60||IY>yc+w+110)continue;
-    // 建物・壁・大きな岩や木は、幅いっぱいと奥行きに円を敷きつめて塞ぐ（前は真ん中の1つの円だけで、建物の端をすり抜けていた。オーナーの指摘）
-    if(img.width>40){const big=img.height>60&&img.width>56;const r=Math.max(6,Math.min(14,img.width*.16));const span=img.width*(big?.84:.7);const n=Math.max(2,Math.ceil(span/(r*1.3)));
-      const depth=big?Math.min(34,img.height*.32):img.width>img.height*1.3?0:Math.min(10,img.height*.12);const rows=depth>0?Math.max(2,Math.ceil(depth/(r*1.2))+1):1;
-      for(let j=0;j<rows;j++)for(let k=0;k<n;k++)lay.block.push({x:IX-span/2+span*(k+.5)/n,y:IY-2-(rows>1?depth*j/(rows-1):0),r});}   // 横に長い物は円を並べて塞ぐ（前は1つの円で、端をすり抜けていた）
-    else lay.block.push({x:IX,y:IY-2,r:Math.max(4,Math.min(26,img.width*(img.height>60?.26:.34)))});}
-  lay.block.sort((a,b)=>a.x-b.x);B.block=lay.block;
-  // 立体の前後：道のそばの背の高い物は、仕上がった地図から形どおりに切り出して、人物と奥行き順に描き直す
-  lay.props=[];
-  for(const [img,px,py,low,IX,IY,lamp] of out){if(IX==null||low||img.height<16)continue;const yc=fPathY(IX),w=fRoadHalf(IX);if(IY<yc-w-34||IY>yc+w+80)continue;
-    const im=lamp?img:fGradeC(img);const L=Math.round(px-im.width/2),T=Math.round(py-im.height);const pc=fCanvas(im.width,im.height);const pq=pc.getContext('2d');
-    pq.drawImage(c,L,T,im.width,im.height,0,0,im.width,im.height);pq.globalCompositeOperation='destination-in';pq.drawImage(im,0,0);lay.props.push({c:pc,L,T,y:py});}
+  // 立体の作り直し（2026-11-25、data/nav.js）：
+  //  地面に焼き込むのは影と平たい物だけ。立っている物はすべて「立てる物」（lay.props）にして人物と奥行き順に描き、風で揺らす。
+  //  揺れる草や花は lay.lows（人物より下に描く）。足もとの形（lay.shapes）から通れない升目（B.nav）を作る
+  const gc=fCanvas(c.width,c.height);const gx=gc.getContext('2d');gx.drawImage(c,0,0);lay.groundC=gc;lay.objs=[];lay.props=[];lay.lows=[];const shapes=[];
+  let phs=1;
+  for(const [img,px,py,low,IX,IY,lamp,dun] of out){const im=lamp?img:fGradeC(img);const K=fFootKind(BG,img,lamp);const ph=(phs=(phs*16807)%2147483647)/2147483647*6.28;
+    if(low||im.height<=12){gx.drawImage(im,Math.round(px-im.width/2),Math.round(py-im.height));
+      if(K.s)lay.lows.push({c:im,x:px,y:py,s:K.s,ph});else x.drawImage(im,Math.round(px-im.width/2),Math.round(py-im.height));continue;}
+    if(im.height>10)for(const q of [x,gx]){q.globalAlpha=.26;q.fillStyle='#0a0810';q.beginPath();q.ellipse(px+im.width*.1,py-1,im.width*.36,Math.max(2,im.width*.08),0,0,7);q.fill();q.globalAlpha=1;}
+    if(lamp){fGlow(c,Math.round(px),Math.round(py+(dun?2:12)),dun?70:58,dun?.7:.6);}
+    const pr={c:im,L:Math.round(px-im.width/2),T:Math.round(py-im.height),x:px,y:py,s:K.s||null,ph,lamp:!!lamp};lay.props.push(pr);lay.objs.push(pr);
+    for(const s of fFootShapes(K,im,px,py))shapes.push(s);}
+  lay.shapes=shapes;lay.nav=navBuild(c.width,c.height,shapes);B.nav=lay.nav;
   return c;}
 /* --- 動きの合図：戦闘の計算から呼ばれる（フィールドがないときは何もしない） --- */
 function fAtk(src,tg){if(!B||!B.fq||!src||!tg)return;const last=B.fq.find(q=>q.a===src.id&&B.t-q.t<.35);if(last)return;B.fq.push({a:src.id,b:tg.id,t:B.t,side:src.side});if(B.fq.length>40)B.fq.shift();}
@@ -2740,11 +2734,6 @@ const F_LOOK_T={
   river:['浅瀬はこっちだ','川辺に焚き火の跡がある','魚が跳ねた。今夜の飯だな'],
   pass:['落石の跡だ。上に気をつけろ','岩陰に、誰かが休んだ跡がある','ここからは尾根づたいだ']};
 /* 道筋：道のない土地では大きく振れて歩き、ときどき寄り道して立ち止まる。step.forage があれば、道をそれて素材を摘む */
-/* 通れない所から押し出す（帯の座標。横は奥行きが詰まって見えるので縦を少し重く見る） */
-function pushOut(o,pad){const bl=B&&B.block;if(!bl||!bl.length||o.x==null&&o[0]==null)return;const arr=o.x==null;let x=arr?o[0]:o.x,y=arr?o[1]:o.y;pad=pad??5;
-  let lo=0,hi=bl.length;while(lo<hi){const m=(lo+hi)>>1;if(bl[m].x<x-40)lo=m+1;else hi=m;}
-  for(let i=lo;i<bl.length&&bl[i].x<x+40;i++){const b=bl[i];const R=b.r+pad;const dx=x-b.x,dy=(y-b.y)*1.25;const d=Math.hypot(dx,dy);if(d<R){if(d<.01){y+=b.y<=y?R:-R;continue;}const k=(R-d)/d;x+=dx*k;y+=dy*k/1.25;}}
-  if(arr){o[0]=x;o[1]=y;}else{o.x=x;o.y=y;}}
 function fRoute(x0,y0,x1,step){const pts=[[x0,y0]];let seed=Math.floor(x0*13+x1*7)+1;const r=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};let x=x0,looks=0;
   const th=step&&step.area&&AREAS[step.area]?AREAS[step.area].theme:null;const road=!th||th==='plain'||step.t==='arrive'&&TOWNS[step.to]&&false;
   const lines=F_LOOK_T[th]||F_LOOK;const fx=step&&step.forage?x0+(x1-x0)*(.35+r()*.3):null;let foraged=false;
@@ -2759,6 +2748,7 @@ function fRoute(x0,y0,x1,step){const pts=[[x0,y0]];let seed=Math.floor(x0*13+x1*
     else pts.push([x,yc+(r()*2-1)*(road?hw-8:hw+6)]);}
   for(const q of pts)pushOut(q,9);
   pts.push([x1,fPathY(x1)]);
+  {const fixed=navRouteFix(pts);if(fixed!==pts){pts.length=0;for(const q of fixed)pts.push(q);}}   // 木や建物を回り込む
   let L=0;for(let i=1;i<pts.length;i++){L+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);pts[i].d=L;if(pts[i].wait){L+=pts[i].wait;pts[i].d2=L;}}pts[0].d=0;pts.L=L;return pts;}
 function fAlong(pts,k){const d=pts.L*clamp(k,0,1);for(let i=1;i<pts.length;i++){const b0=pts[i];if(b0.d2!=null&&d>=b0.d&&d<=b0.d2)return [b0[0],b0[1],i+1];}
   for(let i=1;i<pts.length;i++)if(pts[i].d>=d){const a=pts[i-1],b=pts[i];const ad=a.d2!=null?a.d2:a.d;const f=(d-ad)/Math.max(.001,b.d-ad);return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,i];}const p=pts[pts.length-1];return [p[0],p[1],pts.length-1];}
@@ -2806,7 +2796,7 @@ function fFrame(dt,now){
     const L=FLD.P[leadU.id];if(t<tr.t0){for(const u of ok){const Q=FLD.P[u.id];if(Q){Q.moving=false;Q.vs=0;}}}else{L.x=lx;L.y=ly;pushOut(L,4);L.moving=true;}
     const last=FLD.trail[FLD.trail.length-1];if(!last||Math.hypot(last[0]-lx,last[1]-ly)>.5)FLD.trail.push([lx,ly]);if(FLD.trail.length>900)FLD.trail.shift();
     const behind=d=>{let acc=0;for(let j=FLD.trail.length-1;j>0;j--){acc+=Math.hypot(FLD.trail[j][0]-FLD.trail[j-1][0],FLD.trail[j][1]-FLD.trail[j-1][1]);if(acc>=d)return FLD.trail[j-1];}return [lx-d,ly];};
-    order.forEach((u,i)=>{if(i===0||u.state==='down'||t<tr.t0)return;const P=FLD.P[u.id];const tg=behind(i*16);const ox=P.x,oy=P.y;P.x+=(tg[0]-P.x)*Math.min(1,dt*6);P.y+=(tg[1]-P.y)*Math.min(1,dt*6);pushOut(P,4);P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*8;});
+    order.forEach((u,i)=>{if(i===0||u.state==='down'||t<tr.t0)return;const P=FLD.P[u.id];const tg0=behind(Math.ceil(i/2)*15+(i%2?0:5));const tg=[tg0[0],tg0[1]+(i%2?-8:8)];pushOut(tg,5);   /* 二列で歩く（一列だと後ろから見たとき重なる） */const ox=P.x,oy=P.y;P.x+=(tg[0]-P.x)*Math.min(1,dt*6);P.y+=(tg[1]-P.y)*Math.min(1,dt*6);pushOut(P,4);P.moving=Math.hypot(P.x-ox,P.y-oy)>dt*8;});
   }else{
     const bx=B.posX??40;FLD.trail=[];
     ok.forEach((u,i)=>{const P=FLD.P[u.id];if(!enemiesUp&&now-FLD.vicT<1700&&u.state!=='down'&&!P.dash){P.moving=false;P.vs=0;return;}   // 勝利のポーズのあいだは動かない
@@ -2831,8 +2821,12 @@ function fFrame(dt,now){
     const au=q.side==='p'?(B.units.find(u=>u.id===q.a)||(B.pets||[]).find(u=>u.id===q.a)):B.enemies.find(e=>e.id===q.a);if(!au)continue;const rl=au.role||au.adv;
     const ranged=q.side==='p'?['mage','hunter','priest'].includes(au.role):(au.kind==='shaman'||['mage','hunter','priest'].includes(au.adv));
     if(ranged){FLD.fx.push({type:rl==='mage'?'orb':rl==='priest'?'holy':au.kind==='shaman'?'dark':'arrow',fx:A.x,fy:A.y,tx:T.x,ty:T.y,t0:now,dur:.32/B.speed});A.poseT=now;}
-    else if(!A.dash){const dir=q.side==='p'?-1:1;A.dash={fx:A.x,fy:A.y,tx:T.x+dir*(q.side==='p'?14:16),ty:T.y,t0:now,dur:.42/B.speed};}
+    else if(!A.dash){const dx=T.x-A.x,dy=T.y-A.y,d=Math.hypot(dx,dy)||1;const step=Math.max(2,Math.min(10,d-13));const tg=[A.x+dx/d*step,A.y+dy/d*step];pushOut(tg,5);A.dash={fx:A.x,fy:A.y,tx:tg[0],ty:tg[1],t0:now,dur:.42/B.speed};}   // 相手の方へ一歩踏み込む（前は横から決まった位置へ飛んでいた）
     T.hitT=now+(ranged?.3:.18)*1000/B.speed;}
+  // 描く位置はどの場面でも物にめり込ませない（勝利の待ち・野営・歩き始めなども含めて毎フレーム）
+  navSeparate(Object.values(FLD.P).filter(P=>!P.dash&&P.x!=null).concat(Object.values(FLD.E).filter(Q=>!Q.dash&&Q.x!=null&&Q.deathT==null)));   /* 描く位置も重ならない */
+  for(const P of Object.values(FLD.P))if(!P.dash&&P.x!=null)pushOut(P,4);
+  for(const [id,Q] of Object.entries(FLD.E))if(!Q.dash&&Q.x!=null&&Q.deathT==null)pushOut(Q,BIG_E.includes((B.enemies.find(e=>e.id==id)||{}).kind)?10:5);
   // カメラ：曲がった地図の上で上下左右に追う。戦いは顔ぶれ全員の真ん中、野営は焚き火、歩くときはリーダーの少し先
   const L=FLD.P[leadU?leadU.id:Object.keys(FLD.P)[0]];let fpx,fpy;
   if(enemiesUp){const pts=okU().map(o=>FLD.P[o.id]).concat(okE().map(e=>FLD.E[e.id])).filter(Boolean);fpx=pts.reduce((a,q)=>a+q.x,0)/Math.max(1,pts.length);fpy=pts.reduce((a,q)=>a+q.y,0)/Math.max(1,pts.length);}
@@ -2935,9 +2929,11 @@ function fFrame(dt,now){
     for(let i=0;i<6;i++){const h=4+((Math.floor(now/80)+i*3)%5);g.fillStyle=i%2?'#ffd060':'#ff7a30';g.fillRect(fireX-4+i*1.5,fireY-h,2,h);}g.globalAlpha=1;}});
   // 人物の手前にかかる木や岩は半透明にして、向こうが見えるようにする
   const bodies=acts.filter(a=>a.who).map(a=>a.who);
-  for(const pr of fLay().props||[])if(pr.L<cam+FW&&pr.L+pr.c.width>cam&&pr.T<camY+FH&&pr.T+pr.c.height>camY){const L=pr.L-cam,T=pr.T-camY,Rr=L+pr.c.width,Bt=T+pr.c.height,py=pr.y-camY;
-    const hide=bodies.some(b=>b[1]<py&&b[0]+7>L&&b[0]-7<Rr&&b[1]>T&&b[1]-34<Bt);
-    acts.push({y:py,draw:()=>{if(hide)g.globalAlpha=.38;g.drawImage(pr.c,L,T);g.globalAlpha=1;}});}
+  const wind=fWind();FLD.wind=wind;const wbodies=bodies.map(b=>[b[0]+cam,b[1]+camY]);
+  if(!FLD.tps){for(const lo of fLay().lows||[]){if(lo.x<cam-20||lo.x>cam+FW+20||lo.y<camY-4||lo.y>camY+FH+30)continue;fDrawSway(g,lo.c,lo.x-cam,lo.y-camY,fSway(lo,now,wind,wbodies));}   // 草や花（人物より下）
+    for(const pr of fLay().props||[])if(pr.L<cam+FW+24&&pr.L+pr.c.width>cam-24&&pr.T<camY+FH&&pr.T+pr.c.height>camY){const L=pr.L-cam,T=pr.T-camY,Rr=L+pr.c.width,Bt=T+pr.c.height,py=pr.y-camY;
+      const hide=bodies.some(b=>b[1]<py&&b[0]+7>L&&b[0]-7<Rr&&b[1]>T&&b[1]-34<Bt);
+      acts.push({y:py,draw:()=>fDrawSway(g,pr.c,pr.x-cam,py,pr.s?fSway(pr,now,wind,wbodies):0,hide?.38:1)});}}
   if(FLD.tps){const rec=[];const di=g.drawImage;g.drawImage=function(...a){if(a[0]&&(a.length===3||a.length===5))rec.push({img:a[0],x:a[1],y:a[2],w:a[3],h:a[4],al:g.globalAlpha});return di.apply(g,a);};
     try{acts.sort((a,b)=>a.y-b.y).forEach(a=>{const n0=rec.length;a.draw();if(a.who)for(let i=n0;i<rec.length;i++)rec[i].who=true;});}finally{delete g.drawImage;}FLD.rec=rec;}
   else acts.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
@@ -3253,7 +3249,8 @@ function sideOf(def,att){if(!def||!att||def.x==null||att.x==null)return 'front';
    息（sta 0〜100）が40を切ると手も足も1割5分遅く、15を切ると3割遅く・攻撃も1割5分弱く・走れない。
    息は旅のあいだ持ち越す。区画を歩くたびに減り、野営で戻る。敵も同じ */
 const tired=o=>(o.sta??100)<15?.7:(o.sta??100)<40?.85:1;
-function stepTo(o,gx,gy,v,dt){const dx=gx-o.x,dy=gy-o.y,L=Math.hypot(dx,dy);o.run=false;if(L<.5){o.sta=Math.min(100,(o.sta??100)+3*dt);return;}
+function stepTo(o,gx,gy,v,dt){{const w=navWay(o,gx,gy);if(w){gx=w[0];gy=w[1];}}   // まっすぐ行けなければ回り道（data/nav.js）
+  const dx=gx-o.x,dy=gy-o.y,L=Math.hypot(dx,dy);o.run=false;if(L<.5){o.sta=Math.min(100,(o.sta??100)+3*dt);return;}
   v*=tired(o);if((L>40||o.evade)&&(o.sta??100)>15){v*=1.6;o.run=true;o.sta=Math.max(0,(o.sta??100)-9*dt);}else o.sta=Math.min(100,(o.sta??100)+1*dt);
   const s=Math.min(L,v*dt);o.x+=dx/L*s;o.y+=dy/L*s;const yc=fPathY(o.x);o.y=clamp(o.y,yc-52,yc+52);}
 function face(o,t,def){if(t&&t.x!=null){const dx=t.x-o.x,dy=t.y-o.y,L=Math.hypot(dx,dy)||1;o.fx=dx/L;o.fy=dy/L;}else{o.fx=def;o.fy=0;}}
@@ -3262,7 +3259,7 @@ function circleAround(o,t,dt,spin,v){if(o.orbOf!==t.id){o.orbOf=t.id;o.orb=Math.
   o.orb+=dt*spin*o.orbDir;const r=o.backT>B.t?reachOf(o)+3:reachOf(o)-5;
   const gx=t.x+Math.cos(o.orb)*r,gy=t.y+Math.sin(o.orb)*r*.7;const dx=gx-o.x,dy=gy-o.y,L=Math.hypot(dx,dy);if(L<.3)return;if(L<1.2){o.sta=Math.min(100,(o.sta??100)+1.5*dt);return;}const s=Math.min(L,v*dt);o.x+=dx/L*s;o.y+=dy/L*s;o.run=false;o.sta=Math.min(100,(o.sta??100)+1.5*dt);}
 function moveAll(dt){B.tickAt=performance.now();for(const o of B.units.concat(B.enemies,B.pets||[]))if(o.x!=null){o.px=o.x;o.py=o.y;}
-  moveAll2(dt);if(B.block)for(const o of B.units.concat(B.enemies,B.pets||[]))if(o.x!=null&&o.state==='ok')pushOut(o,BIG_E.includes(o.kind)?10:5);
+  moveAll2(dt);{const all=B.units.concat(B.enemies,B.pets||[]).filter(o=>o.x!=null&&o.state==='ok');navSeparate(all);if(B.nav)for(const o of all)pushOut(o,BIG_E.includes(o.kind)?10:5);}   // 体は重ならず、物にめり込まない
   for(const o of B.units.concat(B.enemies,B.pets||[]))o.vel=o.x!=null&&o.px!=null?Math.hypot(o.x-o.px,o.y-o.py)/Math.max(.01,dt):0;}
 function moveAll2(dt){const es=okE();const bxx=B.posX??40;const keep=o=>{if(o.x!=null){o.x=clamp(o.x,bxx-70,bxx+150);}};const us=okU().concat((B.pets||[]).filter(p=>p.state==='ok'));
   if(!es.length){for(const u of B.units.concat(B.pets||[])){u.x=u.y=undefined;u.mt=null;}for(const e of B.enemies)e.x=e.y=undefined;return;}

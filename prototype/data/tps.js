@@ -29,7 +29,7 @@ function fTPS(G,cam,camY,focus,dir,now,o){
   FLD.tpsProj=(sx,sy)=>{const q=proj(sx,sy);return q?[q[0],q[1],q[2]]:[sx,sy,1];};
   const list=[];const objs=fLay()&&fLay().objs;
   for(const r of FLD.rec||[]){if(objs&&!r.who)continue;const w=r.w||r.img.width,h=r.h||r.img.height;const q=proj(r.x+w/2,r.y+h-2);if(!q||q[3]>TPS.FAR)continue;list.push({r,w,h,q});}   // 人と敵（木や建物は下の一覧から立てる）
-  for(const o of objs||[]){const q=proj(o.x-cam,o.y-camY);if(!q||q[3]>TPS.FAR||q[0]<-200||q[0]>FW+200)continue;list.push({r:{img:o.c,al:1},w:o.c.width,h:o.c.height,q});}
+  for(const o of objs||[]){const q=proj(o.x-cam,o.y-camY);if(!q||q[3]>TPS.FAR||q[0]<-200||q[0]>FW+200)continue;list.push({r:{img:o.c,al:1,o},w:o.c.width,h:o.c.height,q});}
   list.sort((a,b)=>b.q[3]-a.q[3]);
   G.imageSmoothingEnabled=false;
   for(const it of list){const {r,w,h,q}=it;const sc=q[2];const W2=w*sc,H2=h*sc;if(W2<1||H2<1||q[0]+W2/2<0||q[0]-W2/2>FW)continue;
@@ -37,7 +37,9 @@ function fTPS(G,cam,camY,focus,dir,now,o){
     let al=r.al==null?1:r.al;if(near&&!r.who)al=Math.min(al,tall?.3:.5);   // 一行より手前の木や岩・草むらは透かす   // 一行より手前の木や岩は透かす
     const fk=Math.min(1,Math.max(0,(q[3]-TPS.FAR*.45)/(TPS.FAR*.55)));
     if(!tall&&h>20){G.globalAlpha=.35*al;G.fillStyle='#000';G.beginPath();G.ellipse(q[0],q[1],Math.max(2,7*sc),Math.max(1,2.4*sc),0,0,7);G.fill();}
-    G.globalAlpha=al*(1-fk*.8);G.drawImage(r.img,Math.round(q[0]-W2/2),Math.round(q[1]-H2),Math.round(W2),Math.round(H2));}
+    G.globalAlpha=al*(1-fk*.8);const sh=r.o&&r.o.s?fSway(r.o,now,FLD.wind??1,null):0;   // 風で揺れる木（data/nav.js）
+    if(Math.abs(sh)>.002){G.save();G.translate(Math.round(q[0]),Math.round(q[1]));G.transform(1,0,-sh,1,0,0);G.drawImage(r.img,-Math.round(W2/2),-Math.round(H2),Math.round(W2),Math.round(H2));G.restore();}
+    else G.drawImage(r.img,Math.round(q[0]-W2/2),Math.round(q[1]-H2),Math.round(W2),Math.round(H2));}
   G.globalAlpha=1;
   // 焚き火
   if(o.night>.02&&o.fire){const q=proj(o.fire[0],o.fire[1]);G.globalAlpha=.55*o.night;G.fillStyle='#0a0e26';G.fillRect(0,0,FW,FH);G.globalAlpha=1;

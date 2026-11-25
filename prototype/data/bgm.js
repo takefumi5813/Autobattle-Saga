@@ -16,7 +16,7 @@ function bgmSwitch(k){const old=BGM.el;BGM.cur=k;BGM.el=null;
   a.play().then(()=>{const t0=performance.now();const f=()=>{if(BGM.el!==a)return;const p=Math.min(1,(performance.now()-t0)/800);a.volume=bgmLevel()*p;if(p<1)requestAnimationFrame(f);};f();}).catch(()=>{});}
 function bgmSetVol(i){BGM.vol=i;try{localStorage.setItem('shintaku-bgm-vol',String(i));}catch(e){}if(BGM.el)BGM.el.volume=bgmLevel();bgmButton();}
 function bgmButton(){let b=document.getElementById('bgmbtn');if(!b){b=document.createElement('button');b.id='bgmbtn';b.type='button';
-    b.style.cssText='position:fixed;right:10px;top:10px;z-index:50;font:600 12px/1 sans-serif;padding:7px 10px;border:1px solid rgba(0,0,0,.35);background:rgba(20,20,24,.82);color:#f2c230;cursor:pointer;border-radius:2px';
+    b.style.cssText='position:fixed;left:8px;bottom:96px;z-index:50;font:600 12px/1 sans-serif;padding:7px 10px;border:1px solid rgba(0,0,0,.35);background:rgba(20,20,24,.82);color:#f2c230;cursor:pointer;border-radius:2px';
     b.onclick=e=>{e.stopPropagation();bgmUnlock();bgmSetVol((BGM.vol+1)%BGM_VOLS.length);};document.body.appendChild(b);}
   b.textContent='♪ '+['大','中','小','消'][BGM.vol];b.title='BGMの音量（押すたびに 大→中→小→消）';}
 function bgmUnlock(){if(BGM.unlocked)return;BGM.unlocked=true;if(BGM.want)bgmScene(BGM.want);}
