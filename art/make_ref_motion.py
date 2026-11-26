@@ -12,7 +12,13 @@ GROUPS = [
     ["noa", "sigrun", "halvar", "toki", "hozuki"],
     ["zaid", "najma", "koko", "ilse", "dorn"],
     ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"],
-]
+    ["wendel", "pippa", "osric", "lene", "bram"],
+    ["ragna", "eirik", "solvi", "thora", "ulf"],
+    ["kagari", "gonza", "sayo", "ukon", "ibuki"],
+    ["farida", "rashid", "amin", "kahina", "hamza"],
+    ["itzel", "cuauh", "xochi", "tecun", "yaretzi"],
+    ["viktor", "lisette", "casimir", "agathe", "bastian"],
+]   # 6〜11：新しい名のある30人（大陸ごと）
 K, GAP, BG = 6, 90, (200, 200, 204)
 for gi, names in enumerate(GROUPS, 1):
     rows = [[ImageOps.mirror(Image.open(f"{ART}/sprites/{n}.png").convert("RGBA")) for n in names],

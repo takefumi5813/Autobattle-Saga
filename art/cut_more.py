@@ -81,7 +81,8 @@ MF = {"windup": 1.16, "strike": 1.02, "guard": .92, "dodge": 1.0, "hurt": .95, "
 CAL = {}
 # 攻撃と防御の動き（2026-11-26、make_ref_motion.py の見本を添えて、1枚目に 振りかぶり・振り抜き・防御、2枚目に かわす・被弾・詠唱 の3段で描かせ、split_rows.py で分けたもの）
 _MG = [["gareth", "borg", "erin", "mira", "rio"], ["raz", "aldo", "kei", "sera", "tohma"], ["noa", "sigrun", "halvar", "toki", "hozuki"],
-       ["zaid", "najma", "koko", "ilse", "dorn"], ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"]]
+       ["zaid", "najma", "koko", "ilse", "dorn"], ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"],
+       ["wendel", "pippa", "osric", "lene", "bram"], ["ragna", "eirik", "solvi", "thora", "ulf"], ["kagari", "gonza", "sayo", "ukon", "ibuki"], ["farida", "rashid", "amin", "kahina", "hamza"], ["itzel", "cuauh", "xochi", "tecun", "yaretzi"], ["viktor", "lisette", "casimir", "agathe", "bastian"]]   # 6〜11：新しい名のある30人（大陸ごと）
 for _gi, _ns in enumerate(_MG, 1):
     for _k in ("guard", "windup", "strike", "cast", "dodge", "hurt"):   # 物差しの防御・詠唱を先に
         if os.path.exists(os.path.join(ART, f"more-motion-{_gi}-{_k}.png")):
