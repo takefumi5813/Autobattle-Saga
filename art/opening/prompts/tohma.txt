@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: An eastern samurai house with a wooden veranda at dawn; a stern father in kimono trains a 10-year-old boy with tied-back black hair in sword practice, a little sister watching from the veranda.
+
+Picture 2: Night, a burning eastern mansion; in the distance foreign mercenaries march under a grey wolf banner; a 14-year-old boy with tied-back black hair watches from behind a fence, horrified. Tragic, not gory.
+
+Picture 3: A modest room in a relative house; Tohma (18, slim boyish face, thick straight eyebrows, wide eyes, scrape on his cheek, black hair tied back, red lacquered eastern do-maru armor, katana) bows deeply to his mother while his little sister cries holding paper and brush.
+
+Picture 4: Night on a wooden pier of an eastern port town with junk ships and paper lanterns; Tohma (same look) kneels writing a letter by lantern light, a soft golden light rising from the dark sea toward him as he looks up.
+
+Picture 5: Morning in the eastern port town; Tohma (18, same look, now with a round western iron shield on his back) strides out along the harbor road with a bright determined grin.

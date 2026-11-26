@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Rainy day inside a small village chapel beside a water mill; Osric (44, portly red-faced village priest, tonsured balding head, stubble, rumpled brown monk habit with rope belt and stained white stole, wooden staff with a crooked holy symbol, clay wine jug) sets buckets under roof leaks, looking up with a wry smile.
+
+Picture 2: A village market stall; Osric (44, portly red-faced priest, tonsured balding head, stubble, rumpled brown habit, stained white stole, clay wine jug) solemnly shows a small old reliquary box holding a polished bone to eager villagers, a sly half-smile.
+
+Picture 3: Night in a miller cottage; a feverish little girl clutches the small reliquary box in bed while Osric (44, portly red-faced priest, tonsured balding head, stubble, rumpled brown habit, stained white stole) kneels at her bedside praying with closed eyes, her mother behind; first dawn light at the window.
+
+Picture 4: Night at a small wayside shrine by a country road; Osric (44, portly red-faced priest, tonsured balding head, stubble, rumpled brown habit, stained white stole, wooden staff) sits with an open clay wine jug, and a soft golden light glows from inside the shrine; he stares, startled.
+
+Picture 5: Morning on a country road through fields; Osric (44, portly red-faced priest, tonsured balding head, stubble, rumpled brown habit with rope belt, stained white stole, wooden staff with crooked holy symbol, clay wine jug under his arm) walks away, grinning a little.

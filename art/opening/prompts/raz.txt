@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A dim back alley of a royal capital with a hidden thieves den; young Raz (about 12, tanned girl, short messy dark-brown hair, fox-like upturned eyes) writes in a ledger by candlelight at a cluttered table while rough thieves count coins.
+
+Picture 2: Night, a small cluttered room; Raz (20, tanned young woman, square jaw, short messy dark-brown hair, fox-like upturned eyes, one raised thick eyebrow, small bandage on her cheek, deep teal scarf, leather vest) frowns at an open ledger by candlelight. Over-the-shoulder view from behind her, so the ledger faces her and is upright for us too.
+
+Picture 3: Night rooftops of a royal capital; Raz (same look, two daggers at her belt) leaps across tiled roofs, a window glowing with fire behind her, pursuers with lanterns in the alley below.
+
+Picture 4: A tiny forgotten stone shrine at the end of an alley with a moss-covered statue of a nameless god; Raz (same look) hugs her knees beside it before dawn, a soft golden light glowing from the statue as she lifts her head.
+
+Picture 5: Misty morning at the gate of a royal capital; Raz (same look, teal scarf blowing, small pack) walks out alone with a sly determined grin, a snaggletooth showing.

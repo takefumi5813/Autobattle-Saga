@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A small old shrine in a cedar forest deep in eastern mountains; young Toki (about 16, long straight black hair with white paper streamers, white robe and red hakama) sweeps the stone steps beside her grandmother and mother, morning mist.
+
+Picture 2: Night inside the shrine; Toki (21, long straight black hair tied with white paper streamers and a red cord, small mole under one eye, white robe with crane patterns, red hakama) hands a sprig of orange lantern-plant pods to a wounded young shinobi in black hiding under the wooden floor.
+
+Picture 3: Autumn; Toki (same look) kneels before the small shrine altar holding a staff of golden bells, maple leaves falling, a hushed stillness as she listens with parted lips.
+
+Picture 4: Snowy dawn at the shrine; Toki (same look) finishes a prayer song with her bell staff, a soft golden light falling through the cedars onto her, quiet tears on her face.
+
+Picture 5: Toki (same look, a small travel bundle on her back) bows deeply before the closed shrine doors, then a mountain path leads down toward a town in the valley.

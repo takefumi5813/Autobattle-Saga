@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A grand magic academy lecture hall in a royal capital; Noa (about 38, gaunt cheeks, grey-streaked brown hair to the shoulders, mustache, small round spectacles, dark violet robes with gold embroidery) teaches young students while his little daughter peeks in at the door.
+
+Picture 2: A modest bedroom on a winter evening; Noa (41, gaunt, deep lines, grey-streaked brown hair, mustache, small round spectacles, dark violet robes) holds the hand of his teenage daughter in bed, her fingertips grey like stone; she smiles to comfort him.
+
+Picture 3: A dim council chamber of the academy, robed masters around a long table; Noa (same look) slowly raises his hand last, eyes lowered, candlelight.
+
+Picture 4: The back of a cramped old bookshop at night; Noa (same look) with his hand on a yellowed old book, a soft golden light rising from the page onto his face. Over-the-shoulder view from behind him, so the book faces him and is upright for us too.
+
+Picture 5: Snowy morning on a royal capital street; Noa (same look, old grimoire under his arm, a small charm on a cord at his neck) walks away, looking back at his daughter waving from a window.

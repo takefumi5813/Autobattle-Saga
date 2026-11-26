@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Dawn at the great oak gate of a royal capital; Wendel (58, old gate captain, close-cropped white hair, thick white moustache, lined stern face, upright broad build, dented steel breastplate over a faded royal-blue tabard, tall tower shield painted with a city-gate emblem, large iron gate key on his belt) stands at attention as merchants and pilgrims pass, young guards behind him.
+
+Picture 2: Night chaos at the same city gate, smashed open, monsters shadowed in torchlight pouring into the street; Wendel (58, close-cropped white hair, thick white moustache, dented steel breastplate over a faded royal-blue tabard, tower shield with a gate emblem) kneels beside two fallen young guards. Tragic, not gory.
+
+Picture 3: Grey morning after the attack; Wendel (58, close-cropped white hair, thick white moustache, dented steel breastplate over a faded royal-blue tabard, iron gate key on his belt) stands silent before the broken gate, looking down at the heavy wooden crossbar lying unbroken and neatly set on the ground.
+
+Picture 4: Night in an abandoned gatehouse; Wendel (58, close-cropped white hair, thick white moustache, dented steel breastplate over a faded royal-blue tabard, tower shield with a gate emblem leaning nearby) sits by a cold brazier polishing a large iron key, and a soft golden light gathers around the key and his weathered hands.
+
+Picture 5: Pre-dawn blue light; Wendel (58, close-cropped white hair, thick white moustache, dented steel breastplate over a faded royal-blue tabard, tower shield with a gate emblem on his back, iron key on his belt) walks out through the city gate onto the open road, the capital walls behind him, resolute.

@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A snowy border village of dark timber houses at night under a pale moon; inside a hunter’s house young Viktor (15, black hair, simple wool clothes) watches as his older brother opens the door to the dark.
+
+Picture 2: Grey dawn in the same house: young Viktor (15, black hair) clutches a single silver arrowhead given by an old villager, standing at the open door, snow blowing in. Grief, no gore.
+
+Picture 3: A candle-lit room at an inn: Viktor (50, gaunt silent vampire hunter, pale skin, grey-streaked black hair tied back, short grey beard, long black coat with a high collar, a longbow and a quiver of silver-tipped arrows) polishes silver arrowheads one by one, laid out in a neat row; one special arrow lies apart on a cloth, untouched.
+
+Picture 4: Night in a ruined chapel with a broken window: Viktor (50, gaunt silent vampire hunter, pale skin, grey-streaked black hair tied back, short grey beard, long black coat with a high collar, a longbow and a quiver of silver-tipped arrows) sits on a fallen pillar polishing one arrow, and a soft golden light, unlike moonlight, pours through the window onto him; he looks up, still.
+
+Picture 5: Misty dawn at the edge of a dark forest: Viktor (50, gaunt silent vampire hunter, pale skin, grey-streaked black hair tied back, short grey beard, long black coat with a high collar, a longbow and a quiver of silver-tipped arrows) raises his coat collar, bow on his back, and walks along a road toward a distant gothic town in the mist.

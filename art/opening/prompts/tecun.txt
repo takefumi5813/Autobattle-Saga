@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: The long stone stairway of a jungle sun temple; at the great door Tecun (33, tall broad silent temple guard, brown skin, short black hair, stern patient face, quilted white cotton armor, a huge round stone shield carved with many names and one scraped-out spot, an obsidian-edged short sword) stands guard, his stone shield carved with rows of names, morning sun on the steps.
+
+Picture 2: Morning on the temple stairs: a line of priestesses in white with feather ornaments pass Tecun (33, tall broad silent temple guard, brown skin, short black hair, stern patient face, quilted white cotton armor, a huge round stone shield carved with many names and one scraped-out spot, an obsidian-edged short sword) with lowered eyes; one small priestess turns her head slightly toward him. He bows, silent.
+
+Picture 3: Night by torchlight: Tecun (33, tall broad silent temple guard, brown skin, short black hair, stern patient face, quilted white cotton armor, a huge round stone shield carved with many names and one scraped-out spot, an obsidian-edged short sword) sits alone in a guardroom scraping one name off his stone shield with a knife, his face hidden in shadow.
+
+Picture 4: Rainy night in a crumbling moss-covered jungle shrine: Tecun (33, tall broad silent temple guard, brown skin, short black hair, stern patient face, quilted white cotton armor, a huge round stone shield carved with many names and one scraped-out spot, an obsidian-edged short sword) leans his shield against the wall and touches the scraped spot, and a small soft golden light glows deep in the shrine.
+
+Picture 5: Morning: Tecun (33, tall broad silent temple guard, brown skin, short black hair, stern patient face, quilted white cotton armor, a huge round stone shield carved with many names and one scraped-out spot, an obsidian-edged short sword) walks out of the jungle with the shield on his back, scraped side turned toward himself, onto a path leading to a distant town.

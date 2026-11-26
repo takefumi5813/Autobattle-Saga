@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A northern clan longhouse on a winter night, people around a fire pit; Ragna (63, northern rune-singer crone, long silver-white braids with bone beads, deeply wrinkled face with blue chin tattoo lines, small hunched build, layered grey wool robes, white bear-fur mantle, rune-carved driftwood staff, necklace of bone runestones) sings low to the listening clan.
+
+Picture 2: A windswept snowy shore lined with old standing runestones; Ragna (63, silver-white braids with bone beads, blue chin tattoo lines, grey wool robes, white bear-fur mantle, bone runestone necklace) carves runes into a stone, then stares at an older stone she can no longer read.
+
+Picture 3: Midwinter night in the longhouse; Ragna (63, silver-white braids with bone beads, blue chin tattoo lines, white bear-fur mantle, rune-carved driftwood staff) stops singing mid-song, mouth open, while the clan around the fire waits in silence.
+
+Picture 4: Alone on a vast snowfield at night under green northern lights; Ragna (63, silver-white braids with bone beads, wrinkled face with blue chin tattoo lines, grey wool robes, white bear-fur mantle, rune-carved driftwood staff) stands with eyes closed, and a soft golden light hums around her like an answering song.
+
+Picture 5: Morning on a snowy road leaving the clan village; Ragna (63, silver-white braids with bone beads, blue chin tattoo lines, grey wool robes, white bear-fur mantle, rune-carved driftwood staff, bone runestone necklace) walks away singing as clan folk watch silently.

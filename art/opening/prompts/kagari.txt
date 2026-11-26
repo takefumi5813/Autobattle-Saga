@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A night terrace of an onmyo bureau in an eastern capital with curved roofs; Kagari (34, composed onmyoji woman, long straight black hair tied low, tall black eboshi cap, calm narrow eyes, ink smudge on her finger, white and deep-violet layered kariginu robes with wide sleeves) reads the stars beside shelves of scrolls.
+
+Picture 2: A palace courtyard with a large bonfire; court officials order scrolls burned; Kagari (34, long black hair tied low, tall black eboshi cap, white and deep-violet kariginu robes) carries an armful of scrolls toward the fire, face carefully blank.
+
+Picture 3: Night in a dim study; Kagari (34, long black hair tied low, eboshi cap, white and deep-violet kariginu robes, ink-stained fingers) copies an old scroll by a single lamp, over-the-shoulder view so the scroll faces her and is upright for us too; her brush has paused on one name.
+
+Picture 4: Night in an old mountain shrine; Kagari (34, long black hair tied low, tall black eboshi cap, white and deep-violet kariginu robes, bundle of scrolls beside her) unrolls a scroll and reads aloud, over-the-shoulder view, as a soft golden light rises from the paper.
+
+Picture 5: Misty morning on a mountain path; Kagari (34, long straight black hair tied low, tall black eboshi cap, white and deep-violet kariginu with tied sleeves, paper ofuda talismans in hand, bundle of rolled scrolls on her back) descends toward town roofs in the mist.

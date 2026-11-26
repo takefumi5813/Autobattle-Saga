@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A towering stepped stone sun temple rising above a dense green jungle canopy at morning; on the steps young priestesses in white walk in a line, Itzel (22, quiet cautious young priestess, brown skin, long straight black hair with bright feather ornaments, white cotton shift embroidered with a red sun, jade bead necklace, a small obsidian knife at her sash, eyes always lowered) among them with eyes lowered.
+
+Picture 2: Inside the temple courtyard, priests in feathered headdresses point at Itzel (22, quiet cautious young priestess, brown skin, long straight black hair with bright feather ornaments, white cotton shift embroidered with a red sun, jade bead necklace, a small obsidian knife at her sash, eyes always lowered) kneeling before a sun altar; no one weeps, the faces solemn and cold, harsh midday light.
+
+Picture 3: Night: Itzel (22, quiet cautious young priestess, brown skin, long straight black hair with bright feather ornaments, white cotton shift embroidered with a red sun, jade bead necklace, a small obsidian knife at her sash, eyes always lowered) runs barefoot down the long stone temple stairs into the dark jungle, a half-open door behind her; at the top, the silhouette of a guard with a huge round shield stands still.
+
+Picture 4: Night under a giant jungle tree: Itzel (22, quiet cautious young priestess, brown skin, long straight black hair with bright feather ornaments, white cotton shift embroidered with a red sun, jade bead necklace, a small obsidian knife at her sash, eyes always lowered) sits hugging her knees among the roots, and a soft golden light falls through the leaves onto her; she slowly lifts her face for the first time.
+
+Picture 5: Morning: Itzel (22, quiet cautious young priestess, brown skin, long straight black hair with bright feather ornaments, white cotton shift embroidered with a red sun, jade bead necklace, a small obsidian knife at her sash, eyes always lowered) ties her feathers again and walks along a jungle trail toward where the trees open onto a distant town, light ahead of her. Quiet resolve.

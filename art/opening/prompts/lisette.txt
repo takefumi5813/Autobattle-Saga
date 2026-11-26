@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Night in a vast hillside cemetery of leaning gravestones and crypts in a gothic town: Lisette (18, sardonic grave-robber girl, pale skin, black chin-length bob hair, sharp eyes, a dark hooded cloak over patched leather clothes, a tarnished silver ring with a black stone on her finger, a dagger, a lantern and a small spade) raises a lantern and digs at a grave beside her scruffy father, a huge grave-keeper silhouette chasing in the distance.
+
+Picture 2: Inside an ancient princess’s tomb: Lisette (18, sardonic grave-robber girl, pale skin, black chin-length bob hair, sharp eyes, a dark hooded cloak over patched leather clothes, a tarnished silver ring with a black stone on her finger, a dagger, a lantern and a small spade) kneels at an open stone coffin, lantern light on her face, slipping a black-stoned silver ring onto her finger with a greedy little smile.
+
+Picture 3: Night in a small attic room: Lisette (18, sardonic grave-robber girl, pale skin, black chin-length bob hair, sharp eyes, a dark hooded cloak over patched leather clothes, a tarnished silver ring with a black stone on her finger, a dagger, a lantern and a small spade) sits up in bed hugging her knees, staring at the ring on her hand, a faint pale ghostly shape of a weeping woman in the shadows behind her.
+
+Picture 4: Night in the middle of the cemetery: Lisette (18, sardonic grave-robber girl, pale skin, black chin-length bob hair, sharp eyes, a dark hooded cloak over patched leather clothes, a tarnished silver ring with a black stone on her finger, a dagger, a lantern and a small spade) shouts at the sky, fists clenched, and a soft golden light descends gently in front of her, quieting the mist; she stares, defiant and startled.
+
+Picture 5: Dawn: Lisette (18, sardonic grave-robber girl, pale skin, black chin-length bob hair, sharp eyes, a dark hooded cloak over patched leather clothes, a tarnished silver ring with a black stone on her finger, a dagger, a lantern and a small spade) with her lantern and spade on her back walks out of the cemetery gate along a misty road toward a distant gothic town, twisting the ring on her finger.

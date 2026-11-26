@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A small green oasis in a vast desert at dawn, palm trees around a stone-stepped spring; a well-keeper mother in deep-blue robes sings by the water with little Farida (about 6, dark hair, small blue robe) on her lap. Warm, peaceful.
+
+Picture 2: Years later, the same spring sunk low with old waterlines on the exposed stone steps; Farida (45, calm devout woman, sun-browned skin, dark hair streaked with grey under a deep-blue head veil, long flowing blue robes, wooden prayer beads, hugging a clay water jar that drips water) stands alone on the steps while a passing merchant caravan of camels talks in the background. Dry, quiet unease.
+
+Picture 3: Morning: Farida (45, calm devout woman, sun-browned skin, dark hair streaked with grey under a deep-blue head veil, long flowing blue robes, wooden prayer beads, hugging a clay water jar that drips water) kneels at the shrunken spring filling her jar without spilling a drop, lips moving in prayer; village girls with jars wait at the top of the steps. Still water, a faintly lonely mood.
+
+Picture 4: Night, windless: Farida (45, calm devout woman, sun-browned skin, dark hair streaked with grey under a deep-blue head veil, long flowing blue robes, wooden prayer beads, hugging a clay water jar that drips water) sits at the edge of the spring, the moon mirrored in the water, and a soft golden light rises from the surface toward her; she looks up, astonished but calm.
+
+Picture 5: Dawn: Farida (45, calm devout woman, sun-browned skin, dark hair streaked with grey under a deep-blue head veil, long flowing blue robes, wooden prayer beads, hugging a clay water jar that drips water) hands an old iron key to a young village girl, then walks away over the dunes toward a distant desert town, her robe hem tied up for travel. Hopeful, wide landscape.

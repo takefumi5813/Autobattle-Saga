@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A vast northern snowfield under a pale sky; Halvar (about 40, weathered face, grey stubble, fur-lined hood, patched brown leather coat, longbow) kneels reading animal tracks while his smiling wife in furs stands beside him.
+
+Picture 2: A snowy mountain slope; an avalanche crashes down like a white wall; Halvar (same look) reaches back toward his wife. Tragic, not gory.
+
+Picture 3: A lonely trapper hut in the snow at grey dusk; Halvar (47, weathered, grey stubble and grey hair, fur-lined hood, patched brown leather coat, iron traps and chains hanging at his belt) bars the door from outside, his breath white.
+
+Picture 4: Night at a frozen camp at the foot of a mountain pass; Halvar (47, same look, longbow beside him) sits alone by a campfire, a soft golden light rising among the sparks toward his face.
+
+Picture 5: Dawn; Halvar (47, same look, longbow and quiver on his back) walks through the wooden gate of a small snowy town, alone.

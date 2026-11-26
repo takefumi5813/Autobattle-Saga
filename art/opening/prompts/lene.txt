@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A smoky mining town on a slope; inside a small locksmith shop, Lene (31, quiet locksmith woman, short dark-auburn bob under a soot-grey kerchief, narrow sharp face, slim build, charcoal leather apron over a rust-red work shirt with rolled sleeves, thin stiletto, ring of lockpicks and tiny brass gears at her belt) works on a large lock mechanism at her bench.
+
+Picture 2: Winter at a collapsed mine entrance with broken timbers; weeping widows and children gather; Lene (31, short dark-auburn bob under a soot-grey kerchief, charcoal leather apron over a rust-red shirt) stands apart, rolling a tiny brass gear between her fingers.
+
+Picture 3: Night inside a mine owner strongroom; Lene (31, short dark-auburn bob under a soot-grey kerchief, charcoal leather apron, ring of lockpicks) has opened a huge iron vault full of coin sacks and reads a folded document by lantern, over-the-shoulder view so the paper faces her and is upright for us too.
+
+Picture 4: Night in an abandoned miner hut; Lene (31, short dark-auburn bob under a soot-grey kerchief, charcoal leather apron over a rust-red shirt) crouches in hiding, one hand on a document in her coat, the other rolling a brass gear, as a soft golden light fills the dark hut.
+
+Picture 5: Pre-dawn mountain path above the mining valley; Lene (31, short dark-auburn bob under a soot-grey kerchief, charcoal leather apron, tool bag, thin stiletto at her belt) climbs and looks back at a dark labyrinth chasm far below in the valley floor.

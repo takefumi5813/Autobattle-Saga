@@ -49,8 +49,11 @@ function twFree(x,y){const T=TW,L=T.L;
 /* ---- 人物の絵 ---- */
 function twSprite(key){return FLD.ch[key]||(CHAR_DB[key]?fHeroOf(key):FLD.ch.b_sword);}
 function twDraw(g,o,t){const H=twSprite(o.key);if(!H||!H.fr)return;let set=H.fr,flip=false;
-  if(o.dir==='u'&&H.fr.bk)set=H.fr.bk;else if(o.dir==='d'&&H.fr.fr4)set=H.fr.fr4;else flip=o.dir==='l';
-  const im=o.mv?set.walk[Math.floor(o.ph)%8]:set.ready[Math.floor(t*1.2+(o.ph||0)*.1)%2];if(!im)return;
+  /* 8つの向き（2026-11-26、オーナー「斜めを入れて細かい動きを」）：斜め前・斜め後ろの絵（右向きに描いたもの、左は反転）があれば使う。なければ近い向きの絵 */
+  const d=o.dir||'d';const F=H.fr;
+  if((d==='dr'||d==='dl')&&F.dF){set=F.dF;flip=d==='dl';}else if((d==='ur'||d==='ul')&&F.dB){set=F.dB;flip=d==='ul';}
+  else{const d4=d==='dr'||d==='dl'?(F.fr4?'d':d[1]):d==='ur'||d==='ul'?(F.bk?'u':d[1]):d;if(d4==='u'&&F.bk)set=F.bk;else if(d4==='d'&&F.fr4)set=F.fr4;else flip=d4==='l';}
+  const im=o.mv?set.walk[Math.floor(o.ph)%set.walk.length]:set.ready[Math.floor(t*1.2+(o.ph||0)*.1)%2];if(!im)return;
   const ax=im.ax||im.width/2;
   g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(o.x,o.y,7,2.6,0,0,Math.PI*2);g.fill();
   g.save();g.translate(Math.round(o.x),Math.round(o.y));if(flip)g.scale(-1,1);g.drawImage(im,-Math.round(ax),-im.height+1);g.restore();}
@@ -136,18 +139,19 @@ function twPathOn(G,a,b){const {g,gw,gh,cs}=G;const ci=(x,y)=>Math.max(0,Math.mi
   let s=ci(a.x,a.y),e=ci(b.x,b.y);
   if(!g[e]){let best=-1,bd=1e9;const ex=e%gw,ey=(e/gw)|0;for(let dy=-6;dy<=6;dy++)for(let dx=-6;dx<=6;dx++){const x=ex+dx,y=ey+dy;if(x<0||y<0||x>=gw||y>=gh||!g[y*gw+x])continue;const d=dx*dx+dy*dy;if(d<bd){bd=d;best=y*gw+x;}}if(best<0)return [];e=best;b={x:(e%gw)*cs+cs/2,y:((e/gw)|0)*cs+cs/2};}
   const N=gw*gh,G2=new Float32Array(N).fill(1e9),from=new Int32Array(N).fill(-1),done=new Uint8Array(N);G2[s]=0;
-  const hx=i=>Math.abs((i%gw)-(e%gw))+Math.abs(((i/gw)|0)-((e/gw)|0));let it=0;
+  const hx=i=>{const ax=Math.abs((i%gw)-(e%gw)),ay=Math.abs(((i/gw)|0)-((e/gw)|0));return Math.max(ax,ay)+.414*Math.min(ax,ay);};let it=0;
   const H=[];const push=(n,f)=>{H.push([f,n]);let i=H.length-1;while(i>0){const p=(i-1)>>1;if(H[p][0]<=H[i][0])break;[H[p],H[i]]=[H[i],H[p]];i=p;}};
   const pop=()=>{const t=H[0],l=H.pop();if(H.length){H[0]=l;let i=0;for(;;){const a=2*i+1,b=a+1;let m=i;if(a<H.length&&H[a][0]<H[m][0])m=a;if(b<H.length&&H[b][0]<H[m][0])m=b;if(m===i)break;[H[m],H[i]]=[H[i],H[m]];i=m;}}return t[1];};
   push(s,0);
   while(H.length&&it++<N*2){   // 大きな町の端から端でも探し切る（前は2万で打ち切り、遠い行き先で道が見つからず立ち止まっていた）
    const c=pop();if(done[c])continue;done[c]=1;if(c===e)break;
     const cx=c%gw,cy=(c/gw)|0;const pc=from[c];const pdx=pc>=0?cx-(pc%gw):0,pdy=pc>=0?cy-((pc/gw)|0):0;
-    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const x=cx+dx,y=cy+dy;if(x<0||y<0||x>=gw||y>=gh)continue;const n=y*gw+x;if(!g[n])continue;
-      const ng=G2[c]+1+((pdx||pdy)&&(dx!==pdx||dy!==pdy)?0.8:0);if(ng<G2[n]){G2[n]=ng;from[n]=c;push(n,ng+hx(n));}}}
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const x=cx+dx,y=cy+dy;if(x<0||y<0||x>=gw||y>=gh)continue;const n=y*gw+x;if(!g[n])continue;
+      if(dx&&dy&&(!g[cy*gw+x]||!g[y*gw+cx]))continue;   // 斜めは、両脇の升目も空いているときだけ（角をかすらない）
+      const ng=G2[c]+(dx&&dy?1.414:1)+((pdx||pdy)&&(dx!==pdx||dy!==pdy)?0.5:0);if(ng<G2[n]){G2[n]=ng;from[n]=c;push(n,ng+hx(n));}}}
   if(from[e]<0&&e!==s)return [];
   const pts=[];for(let c=e;c!==s&&c>=0;c=from[c])pts.unshift({x:(c%gw)*cs+cs/2,y:((c/gw)|0)*cs+cs/2});pts.push(b);
-  // 曲がり角だけ残す（絵は上下左右の4向きなので、斜めには歩かせない。角は歩くときに丸く曲がる）
+  // 曲がり角だけ残す（2026-11-26 から斜めにも歩く。斜めの向きの絵があるので。角は歩くときに丸く曲がる）
   const out=[];for(let i=0;i<pts.length;i++){const p=pts[i-1]||a,q=pts[i],r=pts[i+1];if(!r){out.push(q);break;}if(Math.sign(q.x-p.x)!==Math.sign(r.x-q.x)||Math.sign(q.y-p.y)!==Math.sign(r.y-q.y))out.push(q);}
   return out;}
 const twAng=(a,b)=>{let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return d;};
@@ -169,14 +173,14 @@ function twStep(o,dx,dy){let moved=0;const n0=twFreeBody(o.x,o.y)?6:twFreeN(o.x,
   if(dx){if(ok(o.x+dx,o.y)){o.x+=dx;moved+=Math.abs(dx);}else if(!dy||Math.abs(dy)<Math.abs(dx)*.5)moved+=side(Math.sign(dx),0,Math.abs(dx));}
   if(dy){if(ok(o.x,o.y+dy)){o.y+=dy;moved+=Math.abs(dy);}else if(!dx||Math.abs(dx)<Math.abs(dy)*.5)moved+=side(0,Math.sign(dy),Math.abs(dy));}
   return moved;}
-function twDirOf(o,dt){const c=Math.cos(o.hd),sn=Math.sin(o.hd);const want=Math.abs(c)>.62?(c<0?'l':'r'):(sn<0?'u':'d');
+function twDirOf(o,dt){const a=((o.hd*180/Math.PI)%360+360)%360;const want=['r','dr','d','dl','l','ul','u','ur'][Math.round(a/45)%8];
   if(want===o.dir){o.dirT=0;return;}o.dirT=(o.dirT||0)+dt;if(o.dirT>.14||!o.mv){o.dir=want;o.dirT=0;}}
 /* 一歩ぶん動かす。want＝行きたい向き（なければ止まる）、vmax＝最高の速さ */
 function twMove(o,dt,want,vmax,turn){turn=turn||6.5;let tv=0;
   if(want!=null){const df=twAng(o.hd,want);const st=Math.max(-turn*dt,Math.min(turn*dt,df));o.hd+=st;tv=vmax*Math.max(.3,(Math.cos(df)+1)/2);}
   const acc=tv>o.sp?140:220;o.sp+=Math.max(-acc*dt,Math.min(acc*dt,tv-o.sp));if(o.sp<1&&tv===0)o.sp=0;
   const d=o.sp*dt;let mv=0;if(d>0){mv=twStep(o,Math.cos(o.hd)*d,Math.sin(o.hd)*d);if(mv<d*.3)o.sp*=.6;}
-  o.ph=(o.ph||0)+mv/3.5;o.mv=o.sp>5&&mv>0.01;twDirOf(o,dt);return mv;}
+  o.ph=(o.ph||0)+mv/2.33;o.mv=o.sp>5&&mv>0.01;twDirOf(o,dt);return mv;}
 /* 道筋をたどる。着いたら true */
 function twFollowPath(o,dt,vmax){if(o._pref!==o.path){o._pref=o.path;o.pprev={x:o.x,y:o.y};}
   while(o.path&&o.path.length){const w=o.path[0];const d=Math.hypot(w.x-o.x,w.y-o.y);if(d<(o.path.length>1?9:2.5)){o.pprev=o.path.shift();}else break;}
@@ -307,7 +311,8 @@ function twClick(e){if(!TW)return;if(TW.say){twSayClose();return;}const r=TW.cv.
   TW.target=null;TW.lead.path=twPath(TW.lead,{x:wx,y:wy});}
 
 /* ---- 描く ---- */
-function twRender(){const T=TW,g=T.cv.getContext('2d'),L=T.L,img=T.img;const sc=T.sc,dpr=T.dpr;const vw=T.cv.width/dpr/sc,vh=T.cv.height/dpr/sc;
+function twRender(){const T=TW,g=T.cv.getContext('2d'),L=T.L,img=T.img;g.__hi=true;g.__hiSmooth=true;   // 人物は細かい絵（.hi）で描く（2026-11-26）
+ const sc=T.sc,dpr=T.dpr;const vw=T.cv.width/dpr/sc,vh=T.cv.height/dpr/sc;
   T.camX=Math.max(0,Math.min(L.W-vw,T.lead.x-vw/2));T.camY=Math.max(0,Math.min(L.H-vh,T.lead.y-vh*.55));if(L.W<vw)T.camX=(L.W-vw)/2;if(L.H<vh)T.camY=(L.H-vh)/2;
   g.setTransform(1,0,0,1,0,0);g.fillStyle='#10140e';g.fillRect(0,0,T.cv.width,T.cv.height);
   g.setTransform(sc*dpr,0,0,sc*dpr,-Math.round(T.camX*sc*dpr),-Math.round(T.camY*sc*dpr));g.imageSmoothingEnabled=false;

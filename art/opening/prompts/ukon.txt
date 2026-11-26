@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A small western temple veranda; Ukon (61, blind biwa monk, shaved head, closed eyes, serene thin face with wispy white beard, slight build, dark grey travelling robes, straw hat on his back, biwa lute, long prayer-bead rosary on his wrist) plays the biwa as the old abbot of his childhood is remembered in a faint image behind.
+
+Picture 2: Evening in a village hall; Ukon (61, shaved head, closed eyes, wispy white beard, dark grey travelling robes, biwa lute, prayer beads) recites a tale with his biwa as villagers listen, some in tears, some smiling.
+
+Picture 3: A misty mountain edge above a dark labyrinth mouth; Ukon (61, shaved head, closed eyes, wispy white beard, dark grey robes, straw hat on his back, walking staff) stands listening to the cold wind rising from the depths.
+
+Picture 4: Night on the veranda of a quiet inn; Ukon (61, blind biwa monk, shaved head, closed eyes, wispy white beard, dark grey robes, prayer beads on his wrist) gently plucks his biwa, and a soft golden light gathers around the strings and his face.
+
+Picture 5: Morning on a busy road into a town; Ukon (61, shaved head, closed eyes, wispy white beard, dark grey travelling robes, straw hat on, biwa on his back, walking staff) walks steadily toward the sound of people.

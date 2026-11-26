@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A moss-covered ancient stone city deep in the jungle with a tall observatory tower; on its top Yaretzi (58, cheerful devout old calendar-reader, deeply wrinkled brown skin, long white hair in two braids, a striped woven shawl, a round carved stone calendar disk strapped on her back, a wooden walking staff) compares a great carved stone calendar with the morning sky, smiling.
+
+Picture 2: Inside the tower by lamplight: Yaretzi (58, cheerful devout old calendar-reader, deeply wrinkled brown skin, long white hair in two braids, a striped woven shawl, a round carved stone calendar disk strapped on her back, a wooden walking staff) kneels before a huge stone calendar wheel, tracing an unfamiliar final carving at its edge with her finger, her smile fading into thought.
+
+Picture 3: A plaza of the stone city: townsfolk laugh and point at Yaretzi (58, cheerful devout old calendar-reader, deeply wrinkled brown skin, long white hair in two braids, a striped woven shawl, a round carved stone calendar disk strapped on her back, a wooden walking staff), who laughs along with them, leaning on her staff, a glint of resolve in her eyes.
+
+Picture 4: Night on top of the observatory tower under a sky full of stars: Yaretzi (58, cheerful devout old calendar-reader, deeply wrinkled brown skin, long white hair in two braids, a striped woven shawl, a round carved stone calendar disk strapped on her back, a wooden walking staff) looks up as one unfamiliar star shines soft gold among the others, casting warm light on her face; she bows deeply.
+
+Picture 5: Dawn: Yaretzi (58, cheerful devout old calendar-reader, deeply wrinkled brown skin, long white hair in two braids, a striped woven shawl, a round carved stone calendar disk strapped on her back, a wooden walking staff) with the stone calendar on her back and her staff walks down the old stone road out of the jungle toward a distant town, a young apprentice waving behind her.

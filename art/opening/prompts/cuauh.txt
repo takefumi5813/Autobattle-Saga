@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Deep jungle: Cuauh (28, bold muscular young warrior, brown skin, black hair in a high topknot, a spotted jaguar pelt over his shoulders with the jaguar head as a hood, a wooden club edged with obsidian blades, a bow on his back) stands proudly over a slain jaguar, the club in hand, while his older brothers and warriors in jaguar skins look on in surprise. Dappled green light.
+
+Picture 2: A jungle clearing with carved stone markers at the forest edge; Cuauh (28, bold muscular young warrior, brown skin, black hair in a high topknot, a spotted jaguar pelt over his shoulders with the jaguar head as a hood, a wooden club edged with obsidian blades, a bow on his back) fights a strange unfamiliar beast that has come from beyond the trees, obsidian blades flashing.
+
+Picture 3: A dim lodge of the jaguar warriors lit by fire: Cuauh (28, bold muscular young warrior, brown skin, black hair in a high topknot, a spotted jaguar pelt over his shoulders with the jaguar head as a hood, a wooden club edged with obsidian blades, a bow on his back) argues before the stern old chief seated on a carved stool, who looks away, avoiding his eyes.
+
+Picture 4: Night at the edge of the jungle where the trees end and open plains begin under stars; Cuauh (28, bold muscular young warrior, brown skin, black hair in a high topknot, a spotted jaguar pelt over his shoulders with the jaguar head as a hood, a wooden club edged with obsidian blades, a bow on his back) hesitates at the boundary, and a soft golden light glows behind him; he grins over his shoulder.
+
+Picture 5: Morning on an open road outside the jungle: Cuauh (28, bold muscular young warrior, brown skin, black hair in a high topknot, a spotted jaguar pelt over his shoulders with the jaguar head as a hood, a wooden club edged with obsidian blades, a bow on his back) strides along giant claw marks in the dirt, club on his shoulder, toward a distant town, laughing.

@@ -110,12 +110,62 @@ if os.path.exists(os.path.join(ART, "named3_looks.json")):
         FLIP[f"more-n3-{_c}-stand.png"] = NAMED3_FLIP.get(_c, set())
 
 
+HIK = 3   # 細かい絵（2026-11-26）：同じ切り抜きを3倍の細かさでも作り、prototype/data/sprites_hi.js に入れる（顔の目や口・武器の刃が見えるように）
+
+
+def shrink_k(a, fg, box, scale, k, trim=0, colors=96):
+    """shrink と同じ切り抜きを k 倍の細かさで。大きさは 1倍の絵のちょうど k 倍（縁取りの分も k 倍）"""
+    import numpy as np
+    from PIL import ImageEnhance
+    from cut_extra_lib import erode
+    x0, y0, x1, y1 = box
+    if trim:
+        fg = erode(fg, trim)
+        a = a.copy(); a[~fg] = (20, 24, 38)
+    rgb = Image.fromarray(a[y0:y1, x0:x1].astype("uint8"))
+    rgb = ImageEnhance.Contrast(ImageEnhance.Color(rgb).enhance(1.08)).enhance(1.2)
+    alpha = Image.fromarray((fg[y0:y1, x0:x1] * 255).astype("uint8"))
+    tw, th = max(1, round((x1 - x0) * scale)) * k, max(1, round((y1 - y0) * scale)) * k
+    q = rgb.resize((tw, th), Image.LANCZOS)
+    q = ImageEnhance.Sharpness(q).enhance(1.6).quantize(colors=colors, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGB")
+    op = np.asarray(alpha.resize((tw, th), Image.BOX)) >= 120
+    out = np.zeros((th + 2 * k, tw + 2 * k, 4), "uint8")
+    out[k:-k, k:-k, :3] = np.asarray(q); out[k:-k, k:-k, 3] = op * 255
+    o = out[:, :, 3] > 0; ring = np.zeros_like(o)
+    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2), (1, 1), (-1, -1), (1, -1), (-1, 1)):
+        ring |= np.roll(np.roll(o, dy, 0), dx, 1)
+    ring &= ~o; out[ring] = (20, 24, 38, 255)
+    return Image.fromarray(out, "RGBA")
+
+
+def encw(img):
+    buf = io.BytesIO(); img.save(buf, "WEBP", lossless=True, quality=100, method=6)
+    return "data:image/webp;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+# 斜めの向き（2026-11-26、make_ref_diag.py の見本で、上の段＝斜め前（右下へ向く）、下の段＝斜め後ろ（右上へ向く）を描かせ、split_rows.py で dfront,dback に分けたもの）
+try:
+    import importlib.util as _iu
+    _sp = _iu.spec_from_file_location("mrd_groups", os.path.join(ART, "make_ref_diag.py"))
+    _src = open(os.path.join(ART, "make_ref_diag.py"), encoding="utf-8").read()
+    _g = {}; exec(_src[_src.index("MG = "):_src.index("K, GAP")], _g)   # 組の名前だけ読む（絵は作らない）
+    for _gi, _ns in enumerate(_g["GROUPS"], 1):
+        _en = _gi > 11 + 6
+        for _k in ("dfront", "dback"):
+            if os.path.exists(os.path.join(ART, f"more-diag-{_gi}-{_k}.png")):
+                if _en: JOBS.append((f"more-diag-{_gi}-{_k}.png", len(_ns), [f"{n}_{_k}" for n in _ns], "enemy4", ("h", 30), set()))
+                else: JOBS.append((f"more-diag-{_gi}-{_k}.png", len(_ns), _ns, f"pose:{_k}", ("h", 37), set()))
+except Exception as _e:
+    print("diag groups skipped", _e)
+
+
 def enc(img):
     buf = io.BytesIO(); img.save(buf, "PNG")
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
 hero, pose, enemy = {}, {}, {}
+HI = {"hero": {}, "pose": {}, "enemy": {}}
 for src, n, names, kind, size, _ in JOBS:
     axis, px, ref = (size + (0,))[:3]
     p = f"{ART}/{src}"
@@ -130,7 +180,7 @@ for src, n, names, kind, size, _ in JOBS:
     scale = px / ((b0[3] - b0[1]) if axis == "h" else (b0[2] - b0[0]))
     for name, b, m in zip(names, boxes, masks):
         sc = scale
-        if kind in ("pose:back", "pose:front", "pose:atkB", "pose:atkF"):   # 後ろ姿・前向き（とその攻撃）は、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため。攻撃は武器を振り上げるので少し高め）
+        if kind in ("pose:back", "pose:front", "pose:atkB", "pose:atkF", "pose:dfront", "pose:dback"):   # 後ろ姿・前向き（とその攻撃）は、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため。攻撃は武器を振り上げるので少し高め）
             try: sc = Image.open(f"{ART}/sprites/{name}.png").height * (1.08 if "atk" in kind else 1) / (b[3] - b[1])
             except FileNotFoundError: pass
         mk = kind.split(":")[-1]
@@ -147,16 +197,19 @@ for src, n, names, kind, size, _ in JOBS:
             try: sc = Image.open(f"{ART}/sprites/en_{base}.png").height * (1.25 if base == "wolf" else 1) * (1.08 if name.endswith("atkF") else 1) / (b[3] - b[1])
             except FileNotFoundError: pass
         spr = shrink(a, m, b, sc, trim=4)
+        sprH = shrink_k(a, m, b, sc, HIK, trim=4)
         if name.startswith("b_"):   # 信者の絵は明るい生成りの服が多く、フィールドで浮くので少し暗く・くすませる
             from PIL import ImageEnhance
             al = spr.getchannel("A"); rgb = spr.convert("RGB")
             rgb = ImageEnhance.Brightness(ImageEnhance.Color(rgb).enhance(0.8)).enhance(0.82)
             spr = rgb.convert("RGBA"); spr.putalpha(al)
-        if name in FLIP.get(src, set()): spr = spr.transpose(Image.FLIP_LEFT_RIGHT)
+            alH = sprH.getchannel("A"); rgbH = ImageEnhance.Brightness(ImageEnhance.Color(sprH.convert("RGB")).enhance(0.8)).enhance(0.82)
+            sprH = rgbH.convert("RGBA"); sprH.putalpha(alH)
+        if name in FLIP.get(src, set()): spr = spr.transpose(Image.FLIP_LEFT_RIGHT); sprH = sprH.transpose(Image.FLIP_LEFT_RIGHT)
         spr.save(f"{ART}/sprites/{'en_' if kind in ('enemy', 'enemy4') else ''}{name}{'' if kind in ('hero','enemy','enemy4') else '_' + kind.split(':')[1]}.png")
-        if kind == "hero": hero[name] = enc(spr)
-        elif kind in ("enemy", "enemy4"): enemy[name] = enc(spr)
-        else: pose.setdefault(name, {})[kind.split(":")[1]] = enc(spr)
+        if kind == "hero": hero[name] = enc(spr); HI["hero"][name] = encw(sprH)
+        elif kind in ("enemy", "enemy4"): enemy[name] = enc(spr); HI["enemy"][name] = encw(sprH)
+        else: pose.setdefault(name, {})[kind.split(":")[1]] = enc(spr); HI["pose"].setdefault(name, {})[kind.split(":")[1]] = encw(sprH)
         print(src, name, spr.size)
 
 # 迷宮の床（つなぎ目のない模様）：真ん中を正方形に切り、160画素・16色にする
@@ -228,3 +281,9 @@ line4 = "/*MORE-ART*/" + "Object.assign(BG_IMG," + json.dumps(bg) + ");"
 html = html[:anchor] + "\n".join([line, line2, line3, line4]) + "\n" + html[anchor:]
 open(MOCK, "w", encoding="utf-8", newline="").write(html)
 print("mock updated", len(hero), len(pose), len(enemy))
+# 細かい絵：試作が読む prototype/data/sprites_hi.js（フィールドと町は、この絵を1倍の絵と同じ場所・大きさで描く）
+_hp = os.path.join(os.path.dirname(os.path.abspath(MOCK)), "..", "prototype", "data", "sprites_hi.js")
+with open(_hp, "w", encoding="utf-8") as fp:
+    fp.write("/* 細かい絵（2026-11-26、art/cut_more.py が作る）。HERO_IMG / POSE_IMG / ENEMY_IMG と同じ名前で、3倍の細かさ。フィールドと町は 1倍の絵と同じ場所・大きさに、この絵を描く */\n")
+    fp.write("const SPR_HI=" + json.dumps(HI, separators=(",", ":")) + ";\n")
+print("hi", sum(len(v) for v in HI.values()), os.path.getsize(_hp) // 1024, "KB")

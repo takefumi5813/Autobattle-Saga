@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A small stone convent on a cold mountain top; inside, young Agathe (about 20, novice in black habit and white wimple) places a beautiful old ornate holy symbol on the altar while older sisters knit nearby.
+
+Picture 2: The same convent decades later, empty and crumbling; in the moonlit graveyard behind it the earth of the graves stirs faintly, Agathe (55, stern devout old nun with a dry humor, lined pale face, sharp grey eyes, black hood and habit with a white wimple, a wooden holy symbol at her chest, knitting needles and yarn, a small iron-rimmed shield on her back) standing alone at the gate with a lamp.
+
+Picture 3: Night in the graveyard: Agathe (55, stern devout old nun with a dry humor, lined pale face, sharp grey eyes, black hood and habit with a white wimple, a wooden holy symbol at her chest, knitting needles and yarn, a small iron-rimmed shield on her back) sits on a stool among the graves knitting by a small lantern, praying, while mist curls over the stones. Patient and stern.
+
+Picture 4: Winter night in the chapel: Agathe (55, stern devout old nun with a dry humor, lined pale face, sharp grey eyes, black hood and habit with a white wimple, a wooden holy symbol at her chest, knitting needles and yarn, a small iron-rimmed shield on her back) kneels before a bare empty altar, and a small soft golden flame appears above it; she raises an eyebrow, calm, her knitting in her lap.
+
+Picture 5: Morning: Agathe (55, stern devout old nun with a dry humor, lined pale face, sharp grey eyes, black hood and habit with a white wimple, a wooden holy symbol at her chest, knitting needles and yarn, a small iron-rimmed shield on her back) with a bag and her shield on her back walks down a winding mountain path from the convent toward a distant gothic town in the valley.

@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A hidden shinobi village in misty eastern mountains; rows of children in black training with blades under stern masters; one 10-year-old girl with short black hair stands expressionless.
+
+Picture 2: Night, a village house; Hozuki (20, lean young woman, short black hair with a red cord, thin scar on her cheek, dark red-and-black shinobi garb, short sword) stands frozen before a door gap where a small child peers out, blade half drawn.
+
+Picture 3: Night inside a small mountain shrine; a young shrine maiden with long black hair hands a sprig of orange lantern-plant pods to the wounded Hozuki (same look) hiding under the wooden floor.
+
+Picture 4: Moonlit tiled rooftops of an eastern town; Hozuki (23, lean, short black hair with a red cord, thin scar on her cheek, cool narrow eyes, dark red-and-black shinobi garb) sits alone on a roof ridge holding a dried lantern-plant sprig, a soft golden light around her as she looks up, startled.
+
+Picture 5: Dawn in an eastern town street; Hozuki (same look, short sword at her hip) walks away with a faint, genuine smile.

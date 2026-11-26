@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A Norse raider longship on a rough southern sea; Eirik (35, huge Norse ex-raider, wild braided red beard, shaved sides with a long red topknot, scarred face, massive build, chainmail under a dark wolf-pelt cloak, enormous axe-like broad greatsword, iron arm ring carved with a ship) stands laughing at the prow before his crew.
+
+Picture 2: Winter night, a fishing village burning on a fjord shore; on the beach a woman with a shield of ship planks and a harpoon sinks raider ships; Eirik (35, wild braided red beard, red topknot, chainmail and wolf-pelt cloak, broad greatsword) lowers his blade as a child cries.
+
+Picture 3: Grey dawn on a cold beach strewn with wreckage; Eirik (35, wild braided red beard, red topknot, scarred face, soaked wolf-pelt cloak over chainmail) sits alone, his enormous greatsword lying across his knees, staring at nothing.
+
+Picture 4: Night on a sea cliff in snow; Eirik (35, wild braided red beard, red topknot, scarred face, massive build, wolf-pelt cloak over chainmail, iron arm ring) has driven his huge greatsword into the ground, and a soft golden light glows over the dark sea before him.
+
+Picture 5: A snowy village road by day; Eirik (35, wild braided red beard, red topknot, scarred grinning face, wolf-pelt cloak over chainmail, huge greatsword on his back) crouches to share dried meat with a small hungry child.

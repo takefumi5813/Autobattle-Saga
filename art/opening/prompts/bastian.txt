@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Foggy morning in a vast cemetery of a gothic town: an old hunched grave-keeper lifts a silent baby from among the gravestones, thorny brambles around it.
+
+Picture 2: Night in the cemetery: Bastian (26, huge easygoing grave-keeper, fair skin covered in scars and loose bandages, short messy straw-blond hair, relaxed grin, a patched brown grave-keeper’s coat, a big iron spade and a battered wooden tower shield) lumbers lazily after a small cloaked grave-robber girl with a lantern, not really trying, a fresh cut on his arm he does not notice.
+
+Picture 3: Spring morning at the cemetery gate: a small bunch of wildflowers lies at the iron gate; Bastian (26, huge easygoing grave-keeper, fair skin covered in scars and loose bandages, short messy straw-blond hair, relaxed grin, a patched brown grave-keeper’s coat, a big iron spade and a battered wooden tower shield) picks it up carefully, while far down the street a woman in a shawl walks away, her back turned.
+
+Picture 4: Night: Bastian (26, huge easygoing grave-keeper, fair skin covered in scars and loose bandages, short messy straw-blond hair, relaxed grin, a patched brown grave-keeper’s coat, a big iron spade and a battered wooden tower shield) sits leaning on his spade beside a freshly dug grave, and a warm soft golden light wavers above it; he looks at it, puzzled and quiet.
+
+Picture 5: Morning: Bastian (26, huge easygoing grave-keeper, fair skin covered in scars and loose bandages, short messy straw-blond hair, relaxed grin, a patched brown grave-keeper’s coat, a big iron spade and a battered wooden tower shield) with spade and shield on his shoulders, a single flower in his chest pocket, walks out of the cemetery gate along a misty road toward a distant gothic town.

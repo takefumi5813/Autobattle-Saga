@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A roaring sand arena of a desert city under harsh sun, crowds in the stands; Hamza (48, huge hearty bald man, dark brown skin, short grey beard, thick arms covered in old scars, leather gladiator harness and kilt, a battered round bronze shield and a broad short sword) stands in the center over a beaten opponent, shield raised, looking not at the crowd but at the fallen man.
+
+Picture 2: Night in the barred cells beneath the arena: Hamza (48, huge hearty bald man, dark brown skin, short grey beard, thick arms covered in old scars, leather gladiator harness and kilt, a battered round bronze shield and a broad short sword) sits by a small oil lamp, eyes closed, murmuring names, while young gladiators bandage each other around him.
+
+Picture 3: The final bout: Hamza (48, huge hearty bald man, dark brown skin, short grey beard, thick arms covered in old scars, leather gladiator harness and kilt, a battered round bronze shield and a broad short sword) faces a young gladiator across the arena sand; both pause, the young man’s face clearly resembles his, tension frozen in midday light.
+
+Picture 4: Night outside the arena walls under a wide starry sky: Hamza (48, huge hearty bald man, dark brown skin, short grey beard, thick arms covered in old scars, leather gladiator harness and kilt, a battered round bronze shield and a broad short sword) sits alone on a stone, an iron freedom tag around his neck, and a soft golden light hovers before him; he rubs his face, moved.
+
+Picture 5: Morning: Hamza (48, huge hearty bald man, dark brown skin, short grey beard, thick arms covered in old scars, leather gladiator harness and kilt, a battered round bronze shield and a broad short sword) walks away from the great arena with his shield on his back, the iron tag on his chest, along a dusty road toward a distant desert town.

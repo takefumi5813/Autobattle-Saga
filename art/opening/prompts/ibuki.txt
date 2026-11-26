@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A dojo with defeated swordsmen on the wooden floor; Ibuki (24, proud swordswoman, short choppy black hair with one long lock framing her face, sharp eyes, thin scar on her chin, lean build, crimson haori over black kimono and white hakama, long katana and short wakizashi) writes in a small worn notebook, over-the-shoulder view so the notebook is upright for us too.
+
+Picture 2: A tense duel in a dojo; Ibuki (24, short choppy black hair with one long lock, thin chin scar, crimson haori, black kimono, white hakama, katana) stands composed while a wounded deputy master kneels, alive; an empty master seat behind. Not gory.
+
+Picture 3: A harbor pier at sunset; Ibuki (24, short choppy black hair with one long lock, sharp eyes, crimson haori over black kimono and white hakama, two swords at her waist) sits on the edge flipping her worn notebook, gazing out across the sea.
+
+Picture 4: Night at an old shrine on a cliff; Ibuki (24, short choppy black hair with one long lock, thin chin scar, crimson haori, white hakama) stops mid-swing with her katana, and a soft golden light glows from the shrine and along her blade.
+
+Picture 5: Morning in a town street; Ibuki (24, proud swordswoman, short choppy black hair with one long lock framing her face, thin scar on her chin, crimson haori over black kimono and white hakama, katana and wakizashi, small notebook in her sash) walks in with a confident half-smile.

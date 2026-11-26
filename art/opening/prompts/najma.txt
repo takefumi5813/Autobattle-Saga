@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A tall stone stargazing tower rising from desert sands under a vast starry night; Najma (about 20, long black hair in many thin braids with silver chains, deep blue star-embroidered hooded robe) charts the stars on a balcony.
+
+Picture 2: Night sky over desert dunes; on the horizon a strange lightless black star with a dark halo rises; Najma (28, long black braided hair with silver chains, small mark on her forehead, deep blue hooded robe embroidered with stars and crescents, brass armillary sphere) watches from the tower, alarmed.
+
+Picture 3: A dim tower chamber; old elders in robes turn their faces away from a star chart spread on the table before Najma (same look), lamplight.
+
+Picture 4: Night on a high dune; Najma (28, same look) holds up her brass armillary sphere toward the black star, a soft golden light descending around her, her face startled and still.
+
+Picture 5: Dawn at the edge of a desert town; Najma (same look, sphere in a satchel) walks out along a caravan road, the black star fading low on the horizon.

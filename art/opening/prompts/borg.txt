@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A northern mining town in a rocky valley with wooden headframes and smoke; burly Borg (about 30, shaved sides with a long red braid, tattoo on the side of the head, red beard braided with iron rings, broken nose) in miner clothes laughs with a crew of miners at the tunnel mouth, lanterns and pickaxes.
+
+Picture 2: Deep inside a narrow lantern-lit mine tunnel; Borg (same look, miner clothes) points onward with his pickaxe while miners dig into strangely colored rock, dust swirling from a cold crack in the wall.
+
+Picture 3: A collapsed mine tunnel in dust and lantern light; Borg (same look) desperately lifts rocks with bare hands, two rescued miners lying behind him. Tragic, not gory.
+
+Picture 4: A rough tavern in a mining town at night; Borg (34, shaved sides with a long red braid, side-head tattoo, red beard braided with iron rings, broken nose, battered plate armor with fur collar and chains, huge wooden tower shield covered in claw marks) sits in the corner polishing his shield, a soft golden light falling on him as he looks up.
+
+Picture 5: Morning on a steep mining-town street; Borg (34, same look, armor, tower shield on his back) walks downhill toward a valley where a dark labyrinth entrance yawns, grinning with a chipped tooth.

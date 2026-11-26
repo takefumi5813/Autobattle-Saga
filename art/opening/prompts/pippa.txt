@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Green rolling hills of a small village with a flock of sheep; Pippa (17, freckled shepherd girl, messy strawberry-blonde braids, sunburnt cheeks, small wiry build, undyed wool tunic, green patched shawl, sheepskin vest, short bow, leather sling, little brass sheep bell on a cord) whirls her sling to drive off a wolf, shouting, younger siblings behind her.
+
+Picture 2: Morning after a funeral; stern men lead away the whole flock of sheep down the village lane while Pippa (17, freckled, messy strawberry-blonde braids, undyed wool tunic, green patched shawl, sheepskin vest, sling at her hip) holds the hands of her five small siblings, biting her lip.
+
+Picture 3: Night in a poor cottage; Pippa (17, freckled, messy strawberry-blonde braids, green patched shawl, sheepskin vest) sits by a candle holding a debt paper, seen over-the-shoulder so the paper faces her and is upright for us too; through the window a village smithy glows red.
+
+Picture 4: Dusk on an empty hill pasture with a wooden fence and no sheep; Pippa (17, freckled, messy strawberry-blonde braids, green patched shawl, sheepskin vest, short bow on her back) rings the little brass bell at her hip, and a soft golden light answers across the grass; she looks up in wonder.
+
+Picture 5: Bright morning on a hill road leading down from the village; Pippa (17, freckled, messy strawberry-blonde braids, undyed wool tunic, green patched shawl, sheepskin vest, short bow, sling and brass bell) runs downhill waving back at her five siblings at the gate.

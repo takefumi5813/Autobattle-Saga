@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A decaying grand manor in a misty ancient land; a long hallway lined with lifelike stone statues of nobles; Ilse (24, pale noblewoman, silver-white hair in a loose updo, grey-violet eyes, dark purple lace gown with grey fur collar, dark gloves) walks past them with a candle.
+
+Picture 2: A dim bedchamber; Ilse (about 20, pale, silver-white hair, dark purple gown, bare hands) holds the hand of her dying mother whose arm is turning to grey stone, tears.
+
+Picture 3: An old manor library at night; Ilse (24, same look, dark gloves) reads an ancient family chronicle by candlelight. Over-the-shoulder view from behind her, so the book faces her and is upright for us too.
+
+Picture 4: A cold great hall with a dying hearth, surrounded by stone statues; Ilse (24, same look) sits alone in a high chair staring at her gloved hand, a soft golden light falling on her as she looks up with cold pride.
+
+Picture 5: Misty morning; Ilse (same look, an old tome with a brass sun emblem under her arm) locks the great manor door and walks down the hill toward a town in the fog.

@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A poor farming village with thin fields; a 14-year-old boy with short black hair puts down his hoe and walks toward a band of rough mercenaries under a grey wolf banner on the road.
+
+Picture 2: A mercenary camp at night under a grey wolf banner; Aldo (25, square jaw, hooked nose, short black hair, dark crimson leather and plate armor with brass fittings, battle-axe) laughs with the captain by the fire; in the background a cloaked employer with a white wing emblem on his mantle.
+
+Picture 3: Deep in a dark labyrinth, a corridor sealed by fallen rubble; Aldo (same look, a fresh wound over his left eye) alone with a torch, reaching toward the rubble where his comrades were lost. Tragic, not gory.
+
+Picture 4: A roadside inn tavern late at night, empty except for Aldo (31, square heavy jaw, hooked nose, old scar from above the left eye down the cheek, short black hair with grey, stubble, dark crimson leather and plate armor) sitting before an empty cup; a soft golden light glows inside the cup and lights his tired face.
+
+Picture 5: Morning at a post town on a highway; Aldo (31, same look, heavy battle-axe on his shoulder) walks out carrying a bundle of food, the innkeeper standing at the door behind him.

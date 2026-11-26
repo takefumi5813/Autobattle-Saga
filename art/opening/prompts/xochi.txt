@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A riverside jungle village of thatched huts; inside a hut hung with drying herbs, an old grandmother teaches young Xochi (about 12, black braid, green tunic) the names of plants, the girl smirking.
+
+Picture 2: Night festival in the village, lanterns and dancers; young Xochi (about 20, black braid, green tunic) watches from the shadows as a laughing couple dance, a small vial hidden in her hand.
+
+Picture 3: A pioneer jungle settlement with sick villagers lying on mats, their fingertips darkened; Xochi (41, wiry sharp-tongued herbalist woman, brown skin, black hair in a loose braid with a grey streak, a grass stem in her grinning mouth, green woven tunic, many herb pouches on her belt, a long blowgun on her back) hands out medicine beside a gentle woman priest in white robes.
+
+Picture 4: Night by a campfire on a jungle riverbank: Xochi (41, wiry sharp-tongued herbalist woman, brown skin, black hair in a loose braid with a grey streak, a grass stem in her grinning mouth, green woven tunic, many herb pouches on her belt, a long blowgun on her back) chews a grass stem, and one spark from the fire glows soft gold and hangs in the air before her; she squints at it with a crooked smile.
+
+Picture 5: Morning: Xochi (41, wiry sharp-tongued herbalist woman, brown skin, black hair in a loose braid with a grey streak, a grass stem in her grinning mouth, green woven tunic, many herb pouches on her belt, a long blowgun on her back) walks up a jungle trail with her blowgun and pouches, sniffing the air, toward where the forest opens onto a distant town.

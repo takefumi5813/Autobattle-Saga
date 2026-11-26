@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A northern clan village of longhouses at the foot of a glacier; young Sigrun (16, tall, blonde hair in thick braids, fur and scale armor, round wooden shield painted with a bear) laughs in a shield wall of warriors while her chieftain father watches proudly.
+
+Picture 2: A smoky betrothal feast in a longhouse; Sigrun (25, tall, blonde braids, broad strong face, scale armor, heavy fur mantle) sits stiffly beside a young chieftain, firelight, her jaw set.
+
+Picture 3: Night on a vast snowfield in falling snow; Sigrun (same look, bear shield) walks away from the distant lights of her village, looking back once.
+
+Picture 4: Inside an empty trapper hut on the snowfield; Sigrun (26, tall, blonde hair in thick braids, broad laughing face, scale armor, heavy fur mantle, round wooden shield painted with a bear leaning on the wall) warms her hands at a small fire, a soft golden light glowing in the hut as she looks up, laughing in surprise.
+
+Picture 5: Clear dawn after a blizzard; Sigrun (same look, shield on her back) strides across sparkling snow toward a small snowy town in the distance.

@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: Dawn in a fishing village deep in a fjord; Thora (40, sturdy fjord fisherwoman, thick dark-blonde braid wrapped around her head, windburnt tanned face, broad strong build, oiled seal-leather coat over a navy wool dress, barbed whaling harpoon) kneels on the shingle praying to the sea.
+
+Picture 2: Winter battle on the fjord beach; Thora (40, dark-blonde braid around her head, windburnt face, seal-leather coat, shield of nailed ship planks with a painted wave, barbed harpoon) stands firm as raider longships with wolf banners sink behind her.
+
+Picture 3: Grey days on an empty shore; Thora (40, dark-blonde braid around her head, windburnt face, seal-leather coat over navy wool dress) waits by an empty mooring post, and in the cottage behind her an empty harpoon rack hangs on the wall.
+
+Picture 4: Dawn on the same beach; Thora (40, dark-blonde braid around her head, windburnt face, seal-leather coat over navy wool dress) kneels facing the sea, but a soft golden light glows from behind her, from the land, and she begins to turn.
+
+Picture 5: Morning on a fjord path; Thora (40, thick dark-blonde braid wrapped around her head, windburnt tanned face, seal-leather coat over navy wool dress, ship-plank shield with a painted wave on her back, barbed harpoon) walks away as villagers wave from the beach.

@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A torch-lit underground treasury of a desert palace full of golden cups, ivory boxes and jewels; Rashid (38, lean wry man, olive skin, neatly curled black mustache, dark hair under a small white turban, worn crimson silk vest over a white tunic, several rings, a curved dagger in his sash) holds a gemstone up to a lamp, studying how the light passes through it, smiling.
+
+Picture 2: Night in the same treasury: Rashid (38, lean wry man, olive skin, neatly curled black mustache, dark hair under a small white turban, worn crimson silk vest over a white tunic, several rings, a curved dagger in his sash) quietly swaps a jeweled goblet on a shelf for a near-identical fake, glancing toward the door; shadows of guards beyond the archway.
+
+Picture 3: Close scene: Rashid (38, lean wry man, olive skin, neatly curled black mustache, dark hair under a small white turban, worn crimson silk vest over a white tunic, several rings, a curved dagger in his sash) holds an ornate royal necklace up to the lamp, his smile frozen in realization; behind him a dark colonnade with a faint drifting trail of incense smoke.
+
+Picture 4: Night on the flat rooftops of a domed desert capital under stars: Rashid (38, lean wry man, olive skin, neatly curled black mustache, dark hair under a small white turban, worn crimson silk vest over a white tunic, several rings, a curved dagger in his sash) sits alone with a cup of wine, and a soft golden light gathers in the air beside him; he looks over, half amused, half shaken.
+
+Picture 5: Before dawn: Rashid (38, lean wry man, olive skin, neatly curled black mustache, dark hair under a small white turban, worn crimson silk vest over a white tunic, several rings, a curved dagger in his sash) slips out of a side gate of the palace with a traveling cloak and a small bag, a fake necklace glinting in his hand, the road leading across the dunes toward a distant town.

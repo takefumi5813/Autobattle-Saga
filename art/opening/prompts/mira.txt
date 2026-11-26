@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: An ancient deep forest with enormous mossy trees and treehouse dwellings of a forest clan; young Mira (about 12, olive skin, dark braid, plain green hooded tunic) practices with a bow while an old elder with a staff watches, green dappled light.
+
+Picture 2: The ancient forest burning at night, fire driven by the wind, monsters fleeing among the flames; Mira (19, green hooded cloak, dark braid, olive skin) pulls an old elder by the hand through thick smoke. Tragic, not gory.
+
+Picture 3: Grey dawn over the burned forest, charred trunks and strange black ash; Mira (19, green hooded cloak, dark braid, olive skin with freckles on the nose, small scar on the chin, longbow) crouches over a line of hobnailed boot prints in the ash leading out of the forest.
+
+Picture 4: Night in a small forest settlement; Mira (22, long face, high cheekbones, narrow half-lidded eyes, olive skin with freckles on the nose, small scar on the chin, dark braid, green hooded cloak, leather harness, longbow) sits with closed eyes at the roots of a huge burned tree, a soft golden light glowing among the roots and touching her face.
+
+Picture 5: Misty morning on a forest path; Mira (22, same look, green hooded cloak, longbow and a full quiver, small pouch at her belt) walks away alone, glancing back once at the settlement.

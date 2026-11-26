@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A snowy mountain-village cabin by firelight; a midwife drops a wooden tub of frozen bathwater while a mother laughs warmly, holding her newborn son, frost blooming around the baby.
+
+Picture 2: Winter village; Solvi (16, pale frail boy, frost-white hair, icy pale-blue eyes, frosted eyelashes, oversized pale-blue knitted coat and long scarf, three layers of mismatched thick gloves) stands alone among frozen flowers while children throw stones; a white snow hare sits at his feet.
+
+Picture 3: Night at the edge of the village; a kind mother with cloth-wrapped hands pulls a third glove onto the hand of Solvi (16, frost-white hair, icy pale-blue eyes, oversized pale-blue knitted coat, long scarf), smiling; he is about to leave.
+
+Picture 4: Night in a frozen forest; Solvi (16, pale frail boy, frost-white hair, frosted eyelashes, oversized pale-blue knitted coat, long scarf) has taken off his gloves and frost flowers spread from his bare fingers, but a soft golden light rests in his palm without freezing; tears on his face.
+
+Picture 5: Snowy dawn; Solvi (16, frost-white hair, icy pale-blue eyes, oversized pale-blue knitted coat, long scarf, three layers of mismatched gloves, short ice-rimed birch wand) walks along a path toward the warm lights of a distant town.

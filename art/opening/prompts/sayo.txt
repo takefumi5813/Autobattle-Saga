@@ -1,0 +1,14 @@
+Picture prompts for a storybook opening (5 pictures). Draw ONE picture per request, in order, only when I ask.
+Style for every picture: Hand-painted storybook illustration for a kamishibai (Japanese picture-story) card. Landscape 3:2. Painterly gouache and ink, visible brush texture, warm muted earthy palette, soft dramatic light. Fantasy world mixing Western medieval, Japanese and Chinese elements. Grounded proportions, not chibi, not photoreal. No text, no letters, no border.
+Keep the main character's face, hair, age and outfit consistent with the attached portrait (except where a picture explicitly shows them as a child).
+Each picture: landscape 1536x1024.
+
+Picture 1: A falconer house in the northern hills; Sayo (19, bright young falconer, high black ponytail, red headband, round lively face, short ochre kimono with tied-up sleeves over dark hakama, leather leg wraps, thick leather falconry glove) laughs with a hawk on her glove beside her father.
+
+Picture 2: Autumn dusk at the falconer house gate; the hawk returns alone with a broken leather jess; Sayo (19, high black ponytail, red headband, short ochre kimono over dark hakama, leather falconry glove) receives it on her arm, worried.
+
+Picture 3: A great dark labyrinth pit in a mountain forest; Sayo (19, high black ponytail, red headband, short ochre kimono, dark hakama, tall yumi bow) shouts into the pit while the hawk circles uneasily above.
+
+Picture 4: Night by a campfire in the woods; Sayo (19, high black ponytail, red headband, short ochre kimono, dark hakama) strokes the hawk on her glove, and both look up as a soft golden light glows among the trees.
+
+Picture 5: Bright morning on a mountain trail; Sayo (19, high black ponytail, red headband tied tight, short ochre kimono with tied-up sleeves, dark hakama, leather leg wraps, tall asymmetric yumi bow and quiver, hawk on her glove) runs downhill toward a town.
