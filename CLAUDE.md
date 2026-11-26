@@ -322,7 +322,12 @@
   - ドット絵：`art/named3_looks.json` の見た目で、立ち・攻撃・倒れ・後ろ姿・前向き（`art/more-n3-<大陸>-*.png`、右向きの者は `NAMED3_FLIP`）。攻撃と防御の6つの動き（windup など）も描いた（2026-11-26。大陸ごとに5人ずつ、`make_ref_motion.py` の組6〜11・`motion_prompts.json` の g6A〜g11B・`more-motion-6〜11-*.png`。ChatGPT のタブをまたいで頼む文は、chatgpt.com の localStorage に置いて使い回すと速い）
   - 一枚絵：3人ずつ10枚（`art/portraits/key-n3-<番号>.png`、組は `n3_groups.json`、頼み方は `n3_prompts.json`、見本 `ref-portrait.png`）。`python -I art/cut_portraits_auto.py art prototype/shintaku.html` が3等分して切り抜き、`PORTRAIT` / `FACE` に入れる。顔の位置は頭のてっぺんからの推定が杖や頭飾りで外れるので、肌の色で探した値と手で直した値を `art/portraits/n3_faces.json` に置き、それを優先する
 - 0人で旅立つ（全員が旅に出られない）とフィールドが真っ黒で止まっていたので、`startBattle` で止めて知らせる
-- **次**：会話の型を10倍に（オーナー）。フィールドの草木と物を新しく描いて30倍に（オーナー）。全員分のオープニング（いまは5人。一度仲間にした人を最初の一人に選べるようになったため）。全キャラ×全職の見た目（最後に）
+- **会話を10倍に（2026-11-26、オーナー「会話のパターンも10倍くらい」）**：台詞は別のファイルに足す（どれも元の表に足すだけ）。
+  - `data/talk_town.js`：町の人の噂・迷宮・遠い町・暮らし・神・使徒の話を増やし、大陸ごとの話（`NPC_LINES.cont`）・季節の話（`season`、0春〜3冬）・性格ごとの話（`pers`）を足した。暮らしの話にはそれらを混ぜる（`npcLine` の `lifePool`。砂と密林では雪の話を出さない）
+  - `data/talk_jobs.js`：50の職業すべてに8つずつ
+  - `data/talk_road.js`：歩きながらの会話（大陸ごとの `kind:'cont'` を足した）・通りすがりの一言・焚き火の場面（`FIRE_POS_MORE` / `FIRE_NEG_MORE` を本体の `FIRE_POS` / `FIRE_NEG` に混ぜる）
+  - 数：町の人 約80→1013、道中の会話 35→407、通りすがり 8→88、焚き火 8→88
+- **次**：フィールドの草木と物を新しく描いて30倍に（オーナー）。全員分のオープニング（いまは5人。一度仲間にした人を最初の一人に選べるようになったため）。全キャラ×全職の見た目（最後に）
 
 ## 未着手・次の候補
 
