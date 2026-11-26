@@ -212,6 +212,62 @@ for src, n, names, kind, size, _ in JOBS:
         else: pose.setdefault(name, {})[kind.split(":")[1]] = enc(spr); HI["pose"].setdefault(name, {})[kind.split(":")[1]] = encw(sprH)
         print(src, name, spr.size)
 
+# 歩きのコマ（2026-11-26、オーナー「やっぱり歩行がひどい。体の向きの画像が少なすぎる」）：make_ref_walk.py の見本で、向きごとに一人一段×4コマを描かせ、
+# split_rows.py で人物ごとに分けたもの（more-walk-<組>-<向き>-<id>.png）。一人の4コマは同じ縮尺（4コマの背丈の中ほどを、その向きの立ち姿の背丈に合わせる）。
+# 名前は POSE_IMG[id].w<向き><コマ>（敵は ENEMY_IMG[<敵>_w<向き><コマ>]）。どれも右向き（横・斜め）
+import glob as _glob
+_WD = {"S": "", "F": "_front", "B": "_back", "DF": "_dfront", "DB": "_dback"}
+for _p in sorted(_glob.glob(f"{ART}/more-walk-*-*-*.png")):
+    _m = re.match(r"more-walk-(\d+)-(S|F|B|DF|DB)-(.+)\.png$", os.path.basename(_p))
+    if not _m: continue
+    _g, _d, _id = _m.groups(); _en = int(_g) >= 18
+    try:
+        a, fg = mask(Image.open(_p))
+        shapes = split_shapes(fg, 4)
+    except Exception as _e:
+        print("walk skip", _p, _e); continue
+    if len(shapes) < 4: print("walk skip (few)", _p, len(shapes)); continue
+    try: _sh = Image.open(f"{ART}/sprites/{'en_' if _en else ''}{_id}{_WD[_d]}.png").height
+    except FileNotFoundError: print("walk skip (no stand)", _p); continue
+    _hs = sorted(b[3] - b[1] for _, b in shapes)
+    sc = _sh / ((_hs[1] + _hs[2]) / 2)
+    # 向きの確かめ：生成で左右逆に描かれることがあるので、横と斜めは立ち姿（右向き）と見比べ、左右を返したほうが似ていれば4コマとも返す
+    _flip = False
+    if _d in ("DF", "DB"):   # 横向きの立ち姿はもともと斜めに近く見比べがあてにならないので、斜めだけ
+        import numpy as _np
+        _ref = Image.open(f"{ART}/sprites/{'en_' if _en else ''}{_id}{_WD[_d]}.png").convert("RGBA")
+        if _d == "S": _ref = _ref.transpose(Image.FLIP_LEFT_RIGHT)   # 立ち姿は左向き
+        def _sig(im):
+            im = im.crop((0, 0, im.width, int(im.height * .7))).resize((16, 22), Image.BILINEAR)
+            bg = Image.new("RGBA", im.size, (128, 128, 128, 255)); bg.alpha_composite(im)
+            return _np.asarray(bg.convert("RGB")).astype(float)
+        _r = _sig(_ref); _votes = 0
+        for m, b in shapes:
+            f0 = shrink(a, m, b, sc, trim=4)
+            d0 = abs(_sig(f0) - _r).mean(); d1 = abs(_sig(f0.transpose(Image.FLIP_LEFT_RIGHT)) - _r).mean()
+            _votes += 1 if d1 < d0 * .88 else 0
+        _flip = _votes >= 3
+        if _flip: print("walk flip", _g, _d, _id, _votes)
+    # 手で直す一覧（art/walk_flip.json の "<組>-<向き>": [id…]）：横向きで左を向いて描かれた人など
+    try: _WF = json.load(open(f"{ART}/walk_flip.json", encoding="utf-8"))
+    except FileNotFoundError: _WF = {}
+    if _id in _WF.get(f"{_g}-{_d}", []): _flip = not _flip; print("walk flip (list)", _g, _d, _id)
+    for _k, (m, b) in enumerate(shapes):
+        spr = shrink(a, m, b, sc, trim=4); sprH = shrink_k(a, m, b, sc, HIK, trim=4)
+        if _id.startswith("b_"):   # 信者は立ち姿と同じく少し暗く・くすませる
+            from PIL import ImageEnhance
+            for _v in ("spr", "sprH"):
+                _im = locals()[_v]; _al = _im.getchannel("A")
+                _rgb = ImageEnhance.Brightness(ImageEnhance.Color(_im.convert("RGB")).enhance(0.8)).enhance(0.82).convert("RGBA"); _rgb.putalpha(_al)
+                if _v == "spr": spr = _rgb
+                else: sprH = _rgb
+        if _flip: spr = spr.transpose(Image.FLIP_LEFT_RIGHT); sprH = sprH.transpose(Image.FLIP_LEFT_RIGHT)
+        key = f"w{_d}{_k}"
+        spr.save(f"{ART}/sprites/{'en_' if _en else ''}{_id}_{key}.png")
+        if _en: enemy[f"{_id}_{key}"] = enc(spr); HI["enemy"][f"{_id}_{key}"] = encw(sprH)
+        else: pose.setdefault(_id, {})[key] = enc(spr); HI["pose"].setdefault(_id, {})[key] = encw(sprH)
+    print("walk", _g, _d, _id, [s.size for s in [spr]])
+
 # 迷宮の床（つなぎ目のない模様）：真ん中を正方形に切り、160画素・16色にする
 bg = {}
 try:
