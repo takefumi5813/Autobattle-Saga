@@ -35,7 +35,7 @@ function twLayout(k){
   const ex={x:W*(.3+r()*.4),y:H-4};   // 町の出口（下の端）
   const cx=W*(.35+r()*.3),cy=H*(.35+r()*.25);
   const R=(pts,w)=>roads.push({pts,w});
-  R(twWalkRoad(r,ex.x,ex.y,cx,cy,34,type==='winding'?1.1:.6,W,H),34);
+  R(twWalkRoad(r,ex.x,ex.y,cx,cy,34,type==='winding'?.55:.28,W,H),34);   // 2026-11-26 オーナー「道がグネグネ」→ 揺れを半分に
   plazas.push({x:cx,y:cy,rx:50+r()*50,ry:34+r()*30});
   const nB=type==='scatter'?7:type==='market'?3:4+Math.floor(r()*3);
   if(type==='crossroads'){R(twWalkRoad(r,20,cy+(r()-.5)*80,W-20,cy+(r()-.5)*80,40,.5,W,H),30);}
@@ -44,9 +44,13 @@ function twLayout(k){
   if(type==='market'){plazas.push({x:cx+(r()-.5)*W*.3,y:cy+H*.2,rx:70,ry:44});plazas[0].rx+=30;}
   let water=null;if(type==='harbor'){water={y:96+r()*40};plazas.push({x:W*.5,y:water.y+22,rx:W*.44,ry:18,quay:1});R(twWalkRoad(r,cx,cy,W*(.3+r()*.4),water.y+26,34,.5,W,H),28);}
   // 枝道：通りの途中から、ばらばらの向きへ
-  for(let i=0;i<nB;i++){const base=roads[Math.floor(r()*roads.length)];const p=base.pts[1+Math.floor(r()*(base.pts.length-2))]||base.pts[0];
-    const a=r()*Math.PI*2;const len=120+r()*(W*.35);const tx=Math.max(40,Math.min(W-40,p.x+Math.cos(a)*len)),ty=Math.max(60,Math.min(H-40,p.y+Math.sin(a)*len*.8));
-    R(twWalkRoad(r,p.x,p.y,tx,ty,30,.9,W,H),18+Math.floor(r()*8));if(r()<.35)plazas.push({x:tx,y:ty,rx:24+r()*24,ry:18+r()*14});}
+  /* 枝道は元の通りからおおよそ直角に出す。ほかの通りに沿って並走したり、すぐそばを走る枝道は作らない
+     （2026-11-26、オーナー「この道は不自然。広場にするなら広場に。道がグネグネしている」。何本もの道が絡み合って見えていた） */
+  const nearRoad=(x,y,skip)=>{for(const rd of roads){if(rd===skip)continue;for(let i=1;i<rd.pts.length;i++){const a=rd.pts[i-1],b=rd.pts[i];const dx=b.x-a.x,dy=b.y-a.y,L2=dx*dx+dy*dy||1;const t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/L2));if(Math.hypot(a.x+dx*t-x,a.y+dy*t-y)<rd.w/2+46)return true;}}return false;};
+  for(let i=0,tries=0;i<nB&&tries<nB*6;tries++){const base=roads[Math.floor(r()*roads.length)];const j=1+Math.floor(r()*Math.max(1,base.pts.length-2));const p=base.pts[j]||base.pts[0];const q=base.pts[Math.min(base.pts.length-1,j+1)];
+    const ba=Math.atan2(q.y-p.y,q.x-p.x);const a=ba+(r()<.5?1:-1)*(Math.PI/2+(r()-.5)*.6);const len=120+r()*(W*.3);const tx=Math.max(40,Math.min(W-40,p.x+Math.cos(a)*len)),ty=Math.max(60,Math.min(H-40,p.y+Math.sin(a)*len*.8));
+    const pts=twWalkRoad(r,p.x,p.y,tx,ty,30,.3,W,H);let bad=0;for(const pt of pts.slice(2))if(nearRoad(pt.x,pt.y,null))bad++;if(bad>1)continue;
+    i++;R(pts,18+Math.floor(r()*8));if(r()<.3)plazas.push({x:tx,y:ty,rx:30+r()*22,ry:22+r()*12});}
   // 通りの升目（置けるかどうかの判定用）
   const cs=8,gw=Math.ceil(W/cs),gh=Math.ceil(H/cs);const road=new Uint8Array(gw*gh);
   const markSeg=(a,b,w)=>{const n=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/4);for(let i=0;i<=n;i++){const x=a.x+(b.x-a.x)*i/n,y=a.y+(b.y-a.y)*i/n;const rr=w/2;for(let yy=Math.floor((y-rr)/cs);yy<=Math.ceil((y+rr)/cs);yy++)for(let xx=Math.floor((x-rr)/cs);xx<=Math.ceil((x+rr)/cs);xx++){if(xx<0||yy<0||xx>=gw||yy>=gh)continue;if(Math.hypot(xx*cs+4-x,yy*cs+4-y)<=rr)road[yy*gw+xx]=1;}}};
@@ -66,13 +70,16 @@ function twLayout(k){
   for(let i=0;i<(sz==='small'?10:20);i++)cand.push({x:60+r()*(W-120),y:90+r()*(H-160),mode:'up',far:1});
   cand.sort((a,b)=>near(a)-near(b)+(r()-.5)*(sz==='small'?140:260)+(a.far?400:0)-(b.far?400:0));
   const names=Object.keys(TOWN_BI);
-  const occ=(x0,y0,x1,y1)=>{for(const o of blds)if(x0<o.x1+10&&x1>o.x0-10&&y0<o.y1+12&&y1>o.y0-6)return true;return false;};
+  /* 建物どうし：間をあける。さらに戸口の前（左右20・手前36）には別の建物を建てない（2026-11-26、戸口のすぐ前に別の家の裏手が来て入れなかった） */
+  const occ=(x0,y0,x1,y1,dx)=>{for(const o of blds){if(x0<o.x1+10&&x1>o.x0-10&&y0<o.y1+12&&y1>o.y0-6)return true;
+    if(x0<o.x+20&&x1>o.x-20&&y0<o.y1+36&&y1>o.y1-4)return true;
+    if(dx!=null&&o.x0<dx+20&&o.x1>dx-20&&o.y0<y1+36&&o.y1>y1-4)return true;}return false;};
   const tryPlace=(c,bn,f)=>{const key=sprite(bn);const im=twArt(key);if(!im)return null;const w=im.width,h=im.height,d=h*.55;
     let x=Math.round(c.x),by=Math.round(c.y);
     if(c.mode==='down')by=Math.round(c.y+d+4);else if(c.mode==='left'){x=Math.round(c.x-w/2-4);by=Math.round(c.y+d*.4);}else if(c.mode==='right'){x=Math.round(c.x+w/2+4);by=Math.round(c.y+d*.4);}
     const x0=x-w/2-4,x1=x+w/2+4,y0=by-d,y1=by+4;
     if(water&&by-h<water.y+10)return null;   // 海の上には建てない（屋根まで陸に収める）
-    if(!rectFree(x0,y0,x1,y1)||occ(x0,y0,x1,y1))return null;
+    if(!rectFree(x0,y0,x1,y1)||occ(x0,y0,x1,y1,x))return null;
     used[key]=(used[key]||0)+1;const art=twVariant(key,used[key]-1);const b={f,art,x,by,x0,x1,y0,y1,mode:c.mode};blds.push(b);return b;};
   for(const f of want){const bn=FAC_BLD[f]||'house';let ok=false;for(const c of cand){if(c.used||c.far)continue;if(tryPlace(c,bn,f)){c.used=1;ok=true;break;}}
     // 置けなければ：ほかの形の建物で、それでもだめなら通りのそばを探し回る（施設は必ず建てる）
@@ -80,8 +87,10 @@ function twLayout(k){
     if(!ok)for(let i=0;i<400&&!ok;i++){const rd=roads[Math.floor(r()*roads.length)];const p=rd.pts[Math.floor(r()*rd.pts.length)];const a=r()*Math.PI*2;
       ok=!!tryPlace({x:p.x+Math.cos(a)*(rd.w/2+20+r()*60),y:p.y+Math.sin(a)*(rd.w/2+20+r()*40),mode:'up'},names[Math.floor(r()*names.length)],f);}}
   const fill=sz==='large'?40:sz==='mid'?28:17;
-  for(const c of cand){if(blds.length>=fill+want.length)break;if(c.used)continue;const order=names.slice().sort(()=>r()-.5);
-    for(const bn of order){if(['inn','tavern','guild','chapel'].includes(bn)&&r()<.75)continue;if(tryPlace(c,bn,null)){c.used=1;break;}}}
+  /* 施設でない建物（民家）は、住まいに見える絵だけ（2026-11-26、オーナー「民家やないやろ」。祠や物見やぐらが民家として建っていた） */
+  const HOMELY=['cottage','house','stone','shack'];
+  for(const c of cand){if(blds.length>=fill+want.length)break;if(c.used)continue;const order=HOMELY.slice().sort(()=>r()-.5);
+    for(const bn of order){if(tryPlace(c,bn,null)){c.used=1;break;}}}
   // 戸口から通りへの小道：建物を避けて、いちばん近い通りまで升目でたどる
   const occG=new Uint8Array(gw*gh);for(const b of blds)for(let y=Math.floor(b.y0/cs);y<=Math.floor((b.by-3)/cs);y++)for(let x=Math.floor((b.x0+4)/cs);x<=Math.floor((b.x1-4)/cs);x++)if(x>=0&&y>=0&&x<gw&&y<gh)occG[y*gw+x]=1;
   const paths=[];for(const b of blds){const sx=Math.floor(b.x/cs),sy=Math.floor((b.by+6)/cs);if(sx<0||sy<0||sx>=gw||sy>=gh)continue;
@@ -90,8 +99,18 @@ function twLayout(k){
       for(const [dx,dy] of [[0,1],[1,0],[-1,0],[0,-1]]){const x=cx2+dx,y=cy2+dy;if(x<0||y<0||x>=gw||y>=gh)continue;const n=y*gw+x;if(prev[n]!==-2||occG[n])continue;prev[n]=c;q.push(n);}}
     if(hit<0)continue;const pts=[];for(let c=hit;c>=0;c=prev[c])pts.unshift({x:(c%gw)*cs+cs/2,y:((c/gw)|0)*cs+cs/2});pts[0]={x:b.x,y:b.by-2};if(pts.length>1)paths.push(pts);}
   for(const pp of paths)for(let i=1;i<pp.length;i++)markSeg(pp[i-1],pp[i],12);
+  /* 戸口と小道のまわりは空けておく（2026-11-26、オーナー「行けない家、おかしい」。小道のすぐ脇の松や茂みが道をふさいでいた）：
+     小道の両脇（幅34）と、戸口の前（左右18・手前28）には、木・茂み・柵・小物を置かない。物の幅ぶんを見て確かめる */
+  const keep=new Uint8Array(gw*gh);const kSet=(x,y)=>{const xx=Math.floor(x/cs),yy=Math.floor(y/cs);if(xx>=0&&yy>=0&&xx<gw&&yy<gh)keep[yy*gw+xx]=1;};
+  for(const pp of paths)for(let i=1;i<pp.length;i++){const a=pp[i-1],b=pp[i];const n=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/4);for(let j=0;j<=n;j++){const x=a.x+(b.x-a.x)*j/n,y=a.y+(b.y-a.y)*j/n;for(let dy=-17;dy<=17;dy+=4)for(let dx=-17;dx<=17;dx+=4)kSet(x+dx,y+dy);}}
+  for(const b of blds)for(let y=b.by-2;y<=b.by+28;y+=4)for(let x=b.x-18;x<=b.x+18;x+=4)kSet(x,y);
+  /* 通りの縁にも木や茂みを置かない（2026-11-26、オーナー「移動で詰まることが多い。物が多すぎてふさいでいる」）。通りの両側12画素まで。
+     井戸・露店・灯りだけは置いてよい（roadOK） */
+  const keepR=new Uint8Array(gw*gh);for(let y=0;y<gh;y++)for(let x=0;x<gw;x++)if(road[y*gw+x]===1)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<gw&&Y<gh)keepR[Y*gw+X]=1;}
+  let roadOK=false;
+  const kept=(x,y)=>{const xx0=Math.floor(x/cs),yy0=Math.floor(y/cs);if(!roadOK&&xx0>=0&&yy0>=0&&xx0<gw&&yy0<gh&&keepR[yy0*gw+xx0])return true;const xx=Math.floor(x/cs),yy=Math.floor(y/cs);return xx>=0&&yy>=0&&xx<gw&&yy<gh&&keep[yy*gw+xx]===1;};
   // 自然と小物
-  const hasN=C&&twArt(C+'n0');const props=[];const N=n=>hasN?C+'n'+n:null;const P=(art,x,by,solid=true)=>{if(!art||!twArt(art))return;props.push({art,x:Math.round(x),by:Math.round(by),solid});};
+  const hasN=C&&twArt(C+'n0');const props=[];const N=n=>hasN?C+'n'+n:null;const P=(art,x,by,solid=true)=>{if(!art||!twArt(art))return;{const hw=Math.min(30,twArt(art).width*.4);for(const ox of [-hw,0,hw])for(const oy of [0,-5])if(kept(x+ox,by+oy))return;}props.push({art,x:Math.round(x),by:Math.round(by),solid});};
   const blocked=(x,y,m)=>(water&&y<water.y+34)||onRoad(x,y)||onRoad(x,y-6)||blds.some(b=>x>b.x0-m&&x<b.x1+m&&y>b.y0-m&&y<b.y1+m+14)||props.some(p=>Math.hypot(p.x-x,(p.by-y)*1.4)<m+8);
   const hx=(x,y)=>{let v=Math.sin(x*12.99+y*78.23+k.length*7.7)*43758.5;return v-Math.floor(v);};
   const nz=(x,y)=>{const X=Math.floor(x),Y=Math.floor(y),fx=x-X,fy=y-Y;const a=hx(X,Y),b=hx(X+1,Y),c=hx(X,Y+1),d=hx(X+1,Y+1);const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;};
@@ -101,13 +120,17 @@ function twLayout(k){
   if(!water)for(let x=8;x<W;x+=22+r()*20){P(treeArt(),x,22+r()*26);if(r()<.6)P(treeArt(),x+r()*10,52+r()*20);}
   for(let y=water?water.y+60:70;y<H-20;y+=24+r()*22){P(treeArt(),10+r()*14,y);P(treeArt(),W-10-r()*14,y);}
   // 中：濃淡で木立と茂み
-  for(let i=0;i<(W*H)/1400;i++){const x=30+r()*(W-60),y=60+r()*(H-90);const n=nz(x/90,y/90);if(n<.5)continue;if(blocked(x,y,10))continue;
-    if(n>.72&&r()<.75)P(treeArt(),x,y);else if(r()<.55)P(smallArt(),x,y,r()<.5);}
+  for(let i=0;i<(W*H)/1900;i++){const x=30+r()*(W-60),y=60+r()*(H-90);const n=nz(x/90,y/90);if(n<.5)continue;if(blocked(x,y,10))continue;
+    if(n>.72&&r()<.7)P(treeArt(),x,y);else if(r()<.42)P(smallArt(),x,y,r()<.5);}   // 2026-11-26 オーナー「町の物が若干にぎやかすぎる」→ 3割ほど減らした
   // 広場：井戸・露店・灯り
+  roadOK=true;
   for(const p of plazas){if(p.quay)continue;if(!blocked(p.x+p.rx*.3,p.y,0))P(hasN?N(TOWN_NI.well):'well',p.x+p.rx*.3,p.y+4);
     for(let i=0;i<2+Math.floor(r()*3);i++){const a=r()*Math.PI*2;P(hasN?N(TOWN_NI.stall):'stall',p.x+Math.cos(a)*p.rx*.75,p.y+Math.sin(a)*p.ry*.7);}}
   // 灯り：大通り沿いに、ばらばらに
-  {const rd=roads[0];for(let i=2;i<rd.pts.length;i+=2+Math.floor(r()*2)){const p=rd.pts[i];const s=r()<.5?-1:1;const x=p.x+s*(rd.w/2+8),y=p.y;if(!blocked(x,y,2))P(hasN?N(TOWN_NI.lamp):'lantern',x,y);}}
+  /* 灯りの足もとの幅ぶん（左右11画素）が通りや小道にかからない所だけ（2026-11-26、オーナー「灯籠と道の端のあいだで通れない」。
+     曲がった通りや分かれ道では、真ん中の一点だけ確かめていたので、灯籠が道の上にはみ出して細い隙間を作っていた） */
+  {const rd=roads[0];for(let i=2;i<rd.pts.length;i+=2+Math.floor(r()*2)){const p=rd.pts[i];const s=r()<.5?-1:1;const x=p.x+s*(rd.w/2+8),y=p.y;if(!blocked(x,y,2)&&![-11,11].some(o=>onRoad(x+o,y)||onRoad(x+o,y-6)||onRoad(x+o,y+4)))P(hasN?N(TOWN_NI.lamp):'lantern',x,y);}}
+  roadOK=false;
   // 家のまわり：柵・その地方の物・茂み
   for(const b of blds){if(b.f)continue;const rr=r();if(rr<.35){const x=b.x1+14,y=b.by-4;if(!blocked(x,y,2))P(hasN?N(TOWN_NI.fence):'fence',x,y);}
     else if(rr<.6){const x=b.x0-14,y=b.by;if(!blocked(x,y,2))P(hasN?N(TOWN_NI.prop):'cart',x,y);}
@@ -131,4 +154,4 @@ function twGround(L,img){const c=document.createElement('canvas');c.width=L.W;c.
   g.save();g.clip(path);g.fillStyle=rd?g.createPattern(rd,'repeat'):'#6a5a40';g.fillRect(0,0,L.W,L.H);g.restore();
   return c;}
 /* 住人の行き先：通りや広場の上のどこか */
-function twTownSpot(L,r){for(let n=0;n<60;n++){const rd=L.roads[Math.floor(r()*L.roads.length)];const p=rd.pts[Math.floor(r()*rd.pts.length)];const x=p.x+(r()-.5)*rd.w*.6,y=p.y+(r()-.5)*rd.w*.5;if(!TW||twFree(x,y))return {x,y};}return {x:L.cx,y:L.cy};}
+function twTownSpot(L,r){for(let n=0;n<60;n++){const rd=L.roads[Math.floor(r()*L.roads.length)];const p=rd.pts[Math.floor(r()*rd.pts.length)];const x=p.x+(r()-.5)*rd.w*.6,y=p.y+(r()-.5)*rd.w*.5;if(!TW||twFreeBody(x,y))return {x,y};}return {x:L.cx,y:L.cy};}   // 体の幅で確かめる（2026-11-26、真ん中だけだと物にかかった所に現れ、固まっていた）

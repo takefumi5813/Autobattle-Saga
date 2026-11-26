@@ -61,7 +61,7 @@ function fMiniMap(G){const lay=fLay();if(!lay||!lay.wm||!FLD.map)return;const sr
     for(const o of lay.objs||[]){x.fillStyle=o.c.height>60?'rgba(30,44,30,.9)':'rgba(40,50,40,.6)';const r=o.c.height>60?2:1;x.fillRect(Math.round(o.x*K)-r,Math.round(o.y*K)-r,r*2,r*2);}
     const m=lay.wm;x.strokeStyle='rgba(236,214,150,.95)';x.lineWidth=1.6;x.beginPath();for(let s=0;s<m.N;s+=6){const X=m.cx[s]*K,Y=m.cy[s]*K;s?x.lineTo(X,Y):x.moveTo(X,Y);}x.stroke();
     lay.mini=c;}
-  const FW=G.canvas.width,W=74,H=58,X0=5,Y0=5;   // 右上は世界地図にゆずり、近くの地図は左上へ（2026-11-26）
+  const FW=G.canvas.width,big=!!FLD.miniHover,W=big?120:44,H=big?94:34,X0=4,Y0=4;   // ふだんは小さく、マウスを載せたときだけ大きく（2026-11-26）   // 右上は世界地図にゆずり、近くの地図は左上へ（2026-11-26）
   const pts=Object.entries(FLD.P||{}).filter(([id])=>{const u=B.units.find(x=>x.id===id);return u&&u.state!=='lost';}).map(([,P])=>fWorld(P.x,P.y));
   if(!pts.length)return;const cx=pts.reduce((a,p)=>a+p[0],0)/pts.length,cy=pts.reduce((a,p)=>a+p[1],0)/pts.length;
   G.save();G.globalAlpha=.92;G.fillStyle='#0b0d14';G.fillRect(X0-2,Y0-2,W+4,H+4);G.beginPath();G.rect(X0,Y0,W,H);G.clip();

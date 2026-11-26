@@ -36,4 +36,6 @@ function fWorldInset(){const el=document.getElementById('fworld');if(!el||!B)ret
   let add='';if(nodes.length>1)add+=`<polyline points="${nodes.map(k=>PLACE(k).x+','+PLACE(k).y).join(' ')}" fill="none" stroke="#ffd23a" stroke-width="1.6" stroke-dasharray="3 2" opacity=".9"/>`;
   if(P&&P.x!=null)add+=`<circle cx="${P.x}" cy="${P.y-2}" r="9" fill="none" stroke="#ffd23a" stroke-width="1.6"><animate attributeName="r" values="6;11;6" dur="1.6s" repeatCount="indefinite"/></circle><circle cx="${P.x}" cy="${P.y-2}" r="2.6" fill="#ffd23a"/>`;
   el.innerHTML=svg.replace('</svg>',add+'</svg>')+`<span class="fwn">${P?P.name:''}</span>`;}
-document.addEventListener('click',e=>{const f=e.target&&e.target.closest&&e.target.closest('#fworld');if(f)f.classList.toggle('big');});   // 右上の世界地図は押すと大きく
+/* 地図は二つとも、ふだんは小さく、マウスを載せたときだけ大きく（2026-11-26、オーナー）。右上の世界地図は CSS の :hover、左上の近くの地図は画面の左上にマウスがあるかで */
+document.addEventListener('mousemove',e=>{const c=document.getElementById('field');if(!c||typeof FLD==='undefined')return;const r=c.getBoundingClientRect();const k=r.width/256;
+  const x=(e.clientX-r.left)/k,y=(e.clientY-r.top)/k;const big=FLD.miniHover;FLD.miniHover=x>=0&&y>=0&&x<(big?128:52)&&y<(big?102:42);});

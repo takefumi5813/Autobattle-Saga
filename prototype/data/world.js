@@ -26,6 +26,10 @@ const THEME_ENC={
   pass:[['none',3],['wolf',3],['bandit',2]],forest:[['none',2],['wolf',5],['ogre',1]],marsh:[['none',3],['goblin',4],['wolf',1]],
 };
 const AREA_WORD={hill:['丘','高地','岩場'],river:['川辺','渡し','谷'],plain:['平原','野','草原'],pass:['峠','山道','岩山'],forest:['森','樹海','深森'],marsh:['湿原','沼地','泥沼']};
+const SEA_X=[['c1','c2','北の海'],['c2','c4','南の海'],['c3','c4','灼けた海峡'],['c3','c5','砂の海路'],['c1','c5','氷の海']];
+/* 世界全体の地図での大陸の置き場所（256×224の中）と大きさ */
+const CONT_POS={c0:{x:120,y:112,r:40},c1:{x:96,y:30,r:30},c2:{x:222,y:88,r:30},c3:{x:30,y:150,r:30},c4:{x:150,y:196,r:28},c5:{x:226,y:192,r:28}};
+const PORT={};
 function genWorld(seed){
   let sd=seed>>>0||1;const rnd=()=>{sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
   const pk=a=>a[Math.floor(rnd()*a.length)];const wp=a=>{let t=a.reduce((x,y)=>x+y[1],0)*rnd();for(const [k,v] of a){t-=v;if(t<=0)return k;}return a[0][0];};
@@ -63,8 +67,15 @@ function genWorld(seed){
     for(let i=0;i<C.dungeons;i++){const a=ak[i%ak.length];addDun(C.id,C.lv,a,areas[a].x,areas[a].y);}
     // 海路：中つ国の港町セレスから
     const sk=`sea_${C.id}`;areas[sk]={name:`${C.name.replace(/^.*?(ノルデン|八洲|ザハル|ヴェルデ|エルドラ)$/,'$1')}への海路`,kind:'area',cont:'c0',x:Math.min(250,214+CONTS.indexOf(C)*7),y:Math.min(220,184+CONTS.indexOf(C)*6),theme:'river',enc:[['none',5],['bandit',2]],sea:C.id,fare:8+CONTS.indexOf(C)*4,lv:C.lv,gen:true};
-    links.push(['seles',sk],[sk,port]);
+    links.push(['seles',sk],[sk,port]);PORT[C.id]=port;
   }
+  /* 大陸どうしの航路（2026-11-26、オーナー「世界地図の全体も。各大陸間の接続も考えて」）：
+     中つ国のセレスからは各大陸へ。さらに、となりあう大陸の港どうしも船でつながる（乱数は使わない＝前の世界はそのまま）
+       ノルデン―八洲（北の海）／八洲―ヴェルデ（南の海）／ザハル―ヴェルデ（灼けた海峡）／ザハル―エルドラ（砂の海路）／ノルデン―エルドラ（氷の海）
+     海路は区画の一つで、出口の大陸の港の沖に置く。船賃は行き先の危険度で決まる */
+  for(const [a,b,nm] of SEA_X){if(!PORT[a]||!PORT[b])continue;const k=`sea_${a}_${b}`;const ta=towns[PORT[a]];const lvB=(CONTS.find(c=>c.id===b)||{}).lv||5;
+    areas[k]={name:nm,kind:'area',cont:a,x:Math.max(6,ta.x-14),y:Math.min(214,ta.y+12),theme:'river',enc:[['none',5],['bandit',2]],sea:b,seaFrom:a,fare:10+lvB*3,lv:Math.max(lvB,(CONTS.find(c=>c.id===a)||{}).lv||3),gen:true};
+    links.push([PORT[a],k],[k,PORT[b]]);}
   return {towns,areas,links};
 }
 /* 種：セーブにあればそれ、なければ新しく。新しいセーブ（newSave）はこの種を受け継ぐ */

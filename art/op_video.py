@@ -21,7 +21,7 @@ for m in re.finditer(r"\{i:(\d+),z:'(\w+)'(.*?)t:'([^']*)'\}", body):
     at = re.search(r"at:\[([\d.]+),([\d.]+)\]", mid)
     bgm = re.search(r"bgm:'(\w+)'", mid)
     SC.append(dict(i=int(i), z=z, at=(float(at[1]), float(at[2])) if at else (.5, .5),
-                   card='card:1' in mid, bgm=bgm[1] if bgm else None, end='end:1' in mid, t=t))
+                   card='card:1' in mid, bgm=bgm[1] if bgm else None, end='end:1' in mid, mv='mv:1' in mid, t=t))
 
 dur = lambda s: max(10, 6.5 + len(s['t'].replace('｜', '')) * .2)
 TITLE_T, FADE, CARD, ENDT, CPS = 5, 1.4, 1.1, 6, 14
@@ -30,6 +30,24 @@ imgs = {}
 for s in SC:
     if s['i'] not in imgs:
         imgs[s['i']] = Image.open(os.path.join(ROOT, f"prototype/opening/{K}-{s['i']:02d}.webp")).convert('RGB')
+
+# --- 動く山場（2026-11-26）：mv:1 の場面から、Gemini の動画のコマを使う。終わったら最後のコマのまま、同じ絵の後の場面も ---
+MV = {}
+for s in SC:
+    if s['mv'] and s['i'] not in MV:
+        src = os.path.join(ROOT, f"art/opening-motion/{K}-{s['i']:02d}.mp4")
+        if not os.path.exists(src): continue
+        raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', src, '-vf', 'fps=24,scale=1280:-2', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], capture_output=True).stdout
+        pr = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', src], capture_output=True, text=True).stdout.strip().split(',')
+        vw, vh = 1280, round(1280 * int(pr[1]) / int(pr[0]) / 2) * 2
+        n = len(raw) // (vw * vh * 3)
+        MV[s['i']] = dict(src=src, frames=[Image.frombytes('RGB', (vw, vh), raw[k * vw * vh * 3:(k + 1) * vw * vh * 3]) for k in range(n)], start=None)
+def frame_of(s, el):
+    '''その場面で使う絵：動画が始まっていればそのコマ、まだなら元の絵'''
+    m = MV.get(s['i'])
+    if not m or m['start'] is None: return imgs[s['i']]
+    k = int((starts[SC.index(s)] + el - m['start']) * 24)
+    return m['frames'][max(0, min(len(m['frames']) - 1, k))]
 
 def cam(s, p):
     e = min(1, max(0, p)); q = e * e * (3 - 2 * e) * .6 + e * .4; ax, ay = s['at']; z, x, y = 1.06, .5, .5
@@ -41,8 +59,8 @@ def cam(s, p):
     elif s['z'] == 'down': z = 1.14; y = .36 + .28 * q
     return z, x, y
 
-def shot(s, p):
-    im = imgs[s['i']]; iw, ih = im.size; z, x, y = cam(s, p)
+def shot(s, p, el=None):
+    im = imgs[s['i']] if el is None else frame_of(s, el); iw, ih = im.size; z, x, y = cam(s, p)
     base = max(W / iw, H / ih) * z; dw, dh = iw * base, ih * base
     dx = min(0, max(W - dw, W / 2 - x * dw)); dy = min(0, max(H - dh, H / 2 - y * dh))
     box = (-dx / base, -dy / base, (-dx + W) / base, (-dy + H) / base)
@@ -102,6 +120,8 @@ def card(a, main, sub, big=False):
 # --- 時間割 ---
 starts = []; t = TITLE_T
 for s in SC: starts.append(t); t += dur(s)
+for k, s in enumerate(SC):
+    if s['mv'] and s['i'] in MV and MV[s['i']]['start'] is None: MV[s['i']]['start'] = starts[k]
 TOTAL = t + ENDT
 
 out_dir = os.path.join(ROOT, 'opening-video'); os.makedirs(out_dir, exist_ok=True)
@@ -115,9 +135,9 @@ for f in range(nf):
         a = min(1, tt / 1.2, max(0, (TITLE_T - tt) / 1)); fr = card(a, TITLE, SUB)
     elif tt < starts[-1] + dur(SC[-1]):
         idx = max(k for k in range(len(SC)) if starts[k] <= tt); s = SC[idx]; el = tt - starts[idx]; d = dur(s)
-        fr = shot(s, el / d)
+        fr = shot(s, el / d, el)
         if idx > 0 and el < (CARD if s['card'] else FADE):
-            pv = SC[idx - 1]; pd = dur(pv); pf = shot(pv, (dur(pv) + el) / pd)
+            pv = SC[idx - 1]; pd = dur(pv); pf = shot(pv, (dur(pv) + el) / pd, dur(pv) + el)
             if s['card']:
                 q = el / CARD; e2 = q * q * (3 - 2 * q); off = int(e2 * (W + 24))
                 if off < W:
@@ -129,7 +149,7 @@ for f in range(nf):
         if n > 0: fr = text(fr, s, n)
         ImageDraw.Draw(fr).rectangle([0, H - 3, int(W * (idx + min(1, el / d)) / len(SC)), H], fill=(150, 142, 125))
     else:
-        e = tt - (starts[-1] + dur(SC[-1])); fr = vignette(shot(SC[-1], 1))
+        e = tt - (starts[-1] + dur(SC[-1])); fr = vignette(shot(SC[-1], 1, dur(SC[-1])))
         fr = Image.blend(fr, BLACK, min(1, e / 1.5))
         if e > 1.2:
             a = min(1, (e - 1.2) / 1.2, max(0, (ENDT - e) / .8)); c2 = card(a, '神託の迷宮', TITLE, True)
@@ -151,7 +171,12 @@ for j, (b, a0, a1) in enumerate(segs):
     fo = f',afade=t=out:st={L - 0.8 if j < len(segs) - 1 else L - 3}:d={0.8 if j < len(segs) - 1 else 3}'
     fi = ',afade=t=in:st=0:d=0.8' if j > 0 else ',afade=t=in:st=0:d=2'
     flt.append(f'[{j + 1}:a]atrim=0:{L},asetpts=PTS-STARTPTS,volume=0.6{fi}{fo},adelay={int(a0 * 1000)}|{int(a0 * 1000)}[a{j}]')
-flt.append(''.join(f'[a{j}]' for j in range(len(segs))) + f'amix=inputs={len(segs)}:normalize=0,atrim=0:{TOTAL}[aout]')
+na = len(segs)
+for m in MV.values():
+    if m['start'] is None: continue
+    args += ['-i', m['src']]; ms = int(m['start'] * 1000)
+    flt.append(f'[{na + 1}:a]volume=0.7,adelay={ms}|{ms}[a{na}]'); na += 1
+flt.append(''.join(f'[a{j}]' for j in range(na)) + f'amix=inputs={na}:normalize=0,atrim=0:{TOTAL}[aout]')
 out = os.path.join(out_dir, f'{K}.mp4')
 args += ['-filter_complex', ';'.join(flt), '-map', '0:v', '-map', '[aout]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-shortest', out]
 subprocess.run(args, check=True); os.remove(silent)

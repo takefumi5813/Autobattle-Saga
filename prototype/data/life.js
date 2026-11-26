@@ -30,7 +30,7 @@ function cantGo(id){if(id===S.hero||isTemp(id))return '';if((S.wound[id]||0)>=3)
 function lifeMul(id){let hp=1,atk=1,spd=1,sta=0;const t=moodTier(id),h=S.hunger[id]||0,w=S.wound[id]||0,sk=S.sick[id]||0,f=fatOf(id);
   spd*=[1.06,1,.92,.84,.72][t];atk*=[1.04,1,1,.93,.85][t];
   if(h>=1)sta-=20;if(h>=2){hp*=.85;atk*=.9;}if(h>=3){hp*=.82;atk*=.88;spd*=.9;}
-  hp*=1-.15*w;if(w>=2)spd*=.93;if(w>=3)spd*=.9;
+  hp*=1-.15*w;if(w>=2)spd*=.93;if(w>=3)spd*=.9;atk*=1-.07*w;   // 傷は体力・速さに加えて攻撃も落とす（軽傷−7%・重傷−14%・瀕死−21%。2026-11-26、オーナー「ケガによってステータスに影響を」）
   if(sk){spd*=.85;atk*=.9;sta-=15;}
   if(f>=60){sta-=25;spd*=.92;}else if(f>=35)sta-=10;
   return {hp,atk,spd,sta};}
@@ -69,6 +69,7 @@ function lifeAfterRun(kind,notes){
   const innP=fixed||home?0:({small:2,mid:3,large:5}[sz]||3);const rent=home&&home.type==='rent'?HOME_PRICE[sz].rent:0;const cost=innP*all.length+rent;let rough=false;
   if(cost>0&&S.gold<cost){rough=true;notes.push(rent?'家賃を払えなかった。町外れの納屋で夜露をしのいだ':'宿代が払えず、町外れの納屋で夜露をしのいだ');if(rent){S.rentDue=(S.rentDue||0)+1;if(S.rentDue>=2){delete S.homes[S.base];S.rentDue=0;notes.push('家賃の滞納が続き、借家を追い出された');}}}
   else if(cost>0){S.gold-=cost;S.rentDue=0;notes.push(`宿と家賃 −${cost}（${rent?'家賃'+rent:'一人'+innP}・${all.length}人）`);}
+  try{innRent(notes);}catch(e){}   // 宿の部屋を借りていれば部屋代
   // 食事
   feed(all,1,notes,'帰りの食卓');
   // 旅の傷
@@ -113,6 +114,7 @@ function restSeason(){const notes=[];const all=Object.keys(CHAR_DB).filter(id=>a
   const sz=townSize(S.base);const fixed=TOWNS[S.base]&&TOWNS[S.base].fixed;const home=(S.homes||{})[S.base];
   const innP=fixed||home?0:({small:2,mid:3,large:5}[sz]||3);const rent=home&&home.type==='rent'?HOME_PRICE[sz].rent:0;const cost=innP*all.length+rent;let rough=false;
   if(cost>0&&S.gold<cost)rough=true;else S.gold-=cost;
+  try{innRent(notes);}catch(e){}
   feed(all,1,notes,'休みのあいだ');
   for(const id of all){if(!rough&&S.wound[id])S.wound[id]--;if(S.sick[id]&&Math.random()<(rough?.3:.7))S.sick[id]=0;
     S.fatigue[id]=clamp(fatOf(id)-(rough?20:home?60:50),0,100);addMood(id,(rough?-4:home?8:5)-5*(S.hunger[id]||0));

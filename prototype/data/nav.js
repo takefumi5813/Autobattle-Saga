@@ -9,6 +9,7 @@ const NAV_CS=4,BODY_R=5;
 const SWAY_AMP={tree:.065,pine:.05,big:.03,dead:.025,bush:.08,grass:.16,reed:.2,scare:.025};
 /* 絵の種類：足もとの形（f）と、風での揺れ（s） */
 function fFootKind(BG,img,lamp){const is=(...ks)=>ks.some(k=>BG[k]&&BG[k]===img);
+  if(img&&img.fk)return img.fk;   // 新しい草木と物は、絵に足もとの形を持たせてある
   if(lamp)return {f:'post'};
   if(is('tree1','tree2','tree3'))return {f:'trunk',s:'tree'};
   if(is('pine1','pine2'))return {f:'trunk',s:'pine'};
