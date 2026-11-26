@@ -11,7 +11,7 @@ f = [x for x in fs if sys.argv[2] in x][0] if len(sys.argv) > 2 else fs[-1]
 im = Image.open(f).convert('RGB'); A = np.asarray(im).astype(int)
 # 絵の範囲：黒い余白（右と下）を除く
 dark = A.sum(2) < 40
-cols = np.where(~dark.all(0))[0]; rows = np.where(~dark.all(1))[0]
+cols = np.where((~dark).sum(0) > 40)[0]; rows = np.where((~dark).sum(1) > 40)[0]   # マウスの矢印など小さな物は数えない
 box = (cols[0] + 2, rows[0] + 2, cols[-1] - 3, rows[-1] - 4)   # 縁の1〜2画素は写しの継ぎ目で暗いので落とす（人物をつないでしまう）
 out = os.path.join(os.path.dirname(__file__), 'field', name + '.png')
 im.crop(box).save(out); print(out, box, os.path.basename(f)[-20:])

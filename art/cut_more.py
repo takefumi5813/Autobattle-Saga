@@ -87,6 +87,27 @@ for _gi, _ns in enumerate(_MG, 1):
         if os.path.exists(os.path.join(ART, f"more-motion-{_gi}-{_k}.png")):
             JOBS.append((f"more-motion-{_gi}-{_k}.png", len(_ns), _ns, f"pose:{_k}", ("h", 37), set()))
 
+# 一時的な仲間の見た目30（2026-11-26、art/temp_looks.json。大陸ごとに 剣士・重騎士・魔術師・狩人・神官。立ち・攻撃・倒れ の3段と、後ろ姿・前向きの2段を描かせ、split_rows.py で分けたもの）
+for _c in ("c0", "c1", "c2", "c3", "c4", "c5"):
+    _ns = [f"t_{_c}_{r}" for r in ("sword", "tank", "mage", "hunter", "priest")]
+    for _row, _kind, _size in (("stand", "hero", ("h", 37)), ("attack", "pose:atk", ("h", 34)), ("down", "pose:down", ("w", 43)), ("back", "pose:back", ("h", 37)), ("front", "pose:front", ("h", 37))):
+        if os.path.exists(os.path.join(ART, f"more-temp-{_c}-{_row}.png")):
+            JOBS.append((f"more-temp-{_c}-{_row}.png", 5, _ns, _kind, _size, set()))
+    # 立ち姿は左向きにそろえる。右向きに描かれてきたものだけ返す（目で見て決めた。中つ国と北は全員、密林は神官以外）
+    FLIP[f"more-temp-{_c}-stand.png"] = set(_ns) if _c in ("c0", "c1") else {n for n in _ns if n != "t_c4_priest"} if _c == "c4" else set()
+
+# 新しい名のある30人（2026-11-26、art/named3_looks.json。大陸ごとに5人。立ち・攻撃・倒れ の3段と、後ろ姿・前向きの2段）
+NAMED3_FLIP = {"c0": {"wendel", "osric", "bram"}, "c1": {"eirik", "ulf"}, "c3": {"farida", "rashid", "amin"}}   # 立ち姿が右向きに描かれてきた人（目で見て決めた）
+if os.path.exists(os.path.join(ART, "named3_looks.json")):
+    _L = json.load(open(os.path.join(ART, "named3_looks.json"), encoding="utf-8"))
+    _L = _L if isinstance(_L, list) else list(_L.values())
+    for _c in ("c0", "c1", "c2", "c3", "c4", "c5"):
+        _ns = [x["id"] for x in _L if x["cont"] == _c]
+        for _row, _kind, _size in (("stand", "hero", ("h", 37)), ("attack", "pose:atk", ("h", 34)), ("down", "pose:down", ("w", 43)), ("back", "pose:back", ("h", 37)), ("front", "pose:front", ("h", 37))):
+            if os.path.exists(os.path.join(ART, f"more-n3-{_c}-{_row}.png")):
+                JOBS.append((f"more-n3-{_c}-{_row}.png", len(_ns), _ns, _kind, _size, set()))
+        FLIP[f"more-n3-{_c}-stand.png"] = NAMED3_FLIP.get(_c, set())
+
 
 def enc(img):
     buf = io.BytesIO(); img.save(buf, "PNG")
