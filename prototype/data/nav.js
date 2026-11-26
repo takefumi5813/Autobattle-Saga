@@ -40,9 +40,10 @@ function fFootShapes(K,im,px,py){const w=im.width,h=im.height,S=fBaseSpan(im),L=
   if(!K.f)return out;
   if(K.f==='trunk'){const a=S.trunk[0],b=S.trunk[1];const rx=Math.max(2.5,Math.min(9,(b-a)/2+1));out.push({t:'e',x:L+(a+b)/2,y:py-1.5,rx,ry:Math.max(2,rx*.6)});}
   else if(K.f==='post')out.push({t:'e',x:px,y:py-1.5,rx:3,ry:2});
+  else if(K.f==='blob'&&w>h*1.25&&h>10){const a=S.base[0],b=S.base[1];out.push({t:'r',x0:L+a+1,x1:L+b-1,y0:py-Math.max(6,h*.8),y1:py});}   // 横に長く低い物（石垣・倒木・瓦礫）：上の面まで通れない（2026-11-26、オーナー「キャラが壁にはまる」。前は根元の楕円だけで、上の面に立って絵に埋もれて見えた）
   else if(K.f==='blob'){const a=S.base[0],b=S.base[1];const rx=Math.max(3,(b-a)/2*(K.k||.88));const ry=Math.max(2.5,Math.min(rx*.55,h*.28));out.push({t:'e',x:L+(a+b)/2,y:py-ry*.7,rx,ry});}
   else if(K.f==='house'){const a=S.base[0],b=S.base[1];const dep=Math.min(38,h*.4);out.push({t:'r',x0:L+a+2,x1:L+b-2,y0:py-dep,y1:py});}
-  else if(K.f==='wall'){const a=S.base[0],b=S.base[1];out.push({t:'r',x0:L+a,x1:L+b,y0:py-(K.d||8),y1:py});}
+  else if(K.f==='wall'){const a=S.base[0],b=S.base[1];out.push({t:'r',x0:L+a,x1:L+b,y0:py-Math.max(K.d||8,K.d>=9?h*.82:0),y1:py});}   // 石壁と崖は上の面まで（柵は細いまま）
   else if(K.f==='gate'){const a=S.base[0],b=S.base[1];const pw=Math.max(5,(b-a)*.12);out.push({t:'r',x0:L+a,x1:L+a+pw,y0:py-6,y1:py},{t:'r',x0:L+b-pw,x1:L+b,y0:py-6,y1:py});}
   return out;}
 /* 通れる升目を作る（地図を作るとき一度）。形は体の半径だけ太らせて塗る */
