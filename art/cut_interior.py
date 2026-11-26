@@ -58,6 +58,19 @@ def pieces(path, names, merge):
             out[nm] = Image.fromarray(rgba, 'RGBA')
     return out
 
+def seamless(im):
+    """敷き詰めても継ぎ目が出ない模様にする：半分ずらした絵を作り（その縁は元の絵の真ん中なので、つなぐと連続する）、
+    縁に近いほどずらした絵、真ん中ほど元の絵を使って、なだらかに混ぜる"""
+    A = np.asarray(im.convert('RGBA'), dtype=np.float32)
+    h, w = A.shape[:2]
+    Bm = np.roll(np.roll(A, h // 2, axis=0), w // 2, axis=1)
+    y = np.abs(np.linspace(-1, 1, h))[:, None]; x = np.abs(np.linspace(-1, 1, w))[None, :]
+    d = np.maximum(x, y)                       # 縁で1、真ん中で0
+    wgt = np.clip((d - 0.45) / 0.5, 0, 1)[..., None]
+    C = A * (1 - wgt) + Bm * wgt
+    C[..., 3] = 255
+    return Image.fromarray(C.round().astype(np.uint8), 'RGBA')
+
 def main():
     res = {}
     res.update(pieces('art/interior-furniture.png', FURN, 16))
@@ -69,7 +82,7 @@ def main():
         sc = next((v for k, v in SCALE.items() if nm.startswith(k)), 0.23)
         if nm.startswith('f_'):
             w, h = im.size
-            im = im.crop((8, 8, w - 8, h - 8))   # 縁の線を落として、敷き詰められるように
+            im = seamless(im.crop((14, 14, w - 14, h - 14)))   # 縁の線を落とし、継ぎ目が出ないようにする（2026-11-26、オーナー「石の床の継ぎ目も直して」）
         w, h = im.size
         sm = im.resize((max(1, round(w * sc)), max(1, round(h * sc))), Image.LANCZOS)
         if nm.startswith('f_') or nm.startswith('w_'):
