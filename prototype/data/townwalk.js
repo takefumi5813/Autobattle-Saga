@@ -19,13 +19,26 @@ const TW_AIR={
 const twAir=k=>TW_AIR[(TOWNS[k]||{}).cont]||TW_AIR.c0;
 
 /* ---- 当たり（足もとの箱） ---- */
+/* 当たり（2026-11-26 作り直し。オーナー「相変わらず障害物をすり抜ける」）：
+   前は絵の幅や高さの決まった割合で箱を作っていたので、絵ごとの形と合わず、壁や幹の上を歩けていた。
+   いまは絵の不透明な画素から、足もとの帯（建物は下45%、木は根元の下20%、そのほかは下40%）の左右の端を測って箱にする（twFoot、絵ごとに一度だけ） */
+const TW_FOOT=new WeakMap();
+function twFoot(im,band){const key=band;let m=TW_FOOT.get(im);if(m&&m[key])return m[key];m=m||{};
+  const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height).data;
+  const H=im.height,W=im.width,y0=Math.floor(H*(1-band));let x0=W,x1=-1,yTop=H;
+  for(let y=y0;y<H;y++)for(let x=0;x<W;x++)if(d[(y*W+x)*4+3]>80){if(x<x0)x0=x;if(x>x1)x1=x;}
+  if(x1<0){x0=W*.3;x1=W*.7;}
+  m[key]={l:x0-W/2,r:x1-W/2+1,d:H-y0};TW_FOOT.set(im,m);return m[key];}
 function twBlockers(L,img){const bl=[];
-  for(const b of L.blds){const im=twArt(b.art);if(!im)continue;const w=im.width-12;bl.push({x0:b.x-w/2,x1:b.x+w/2,y0:b.by-im.height*.5,y1:b.by-3});}
+  for(const b of L.blds){const im=twArt(b.art);if(!im)continue;const f=twFoot(im,.45);bl.push({x0:b.x+f.l+2,x1:b.x+f.r-2,y0:b.by-f.d,y1:b.by-2});}
   for(const p of L.props){if(!p.solid||p.flat)continue;const im=twArt(p.art);if(!im)continue;
-    const w=p.art==='tree1'?14:p.art==='lantern'?8:['counter','bar','ltable','bed'].includes(p.art)?im.width*.92:im.width*.7;const d=p.art==='fence'?6:p.art==='tree1'?8:Math.min(14,im.height*.3);bl.push({x0:p.x-w/2,x1:p.x+w/2,y0:p.by-d,y1:p.by});}
-  // 門の柱
+    const tall=im.height>im.width*1.15&&im.height>40;   // 木や灯り：根元だけ
+    const f=twFoot(im,tall?.2:.4);const d=tall?Math.min(10,f.d):Math.min(22,Math.max(6,f.d*.7));
+    bl.push({x0:p.x+f.l,x1:p.x+f.r,y0:p.by-d,y1:p.by});}
   const g=img.tgate;if(g&&L.gate){bl.push({x0:L.gate.x-g.width/2,x1:L.gate.x-16,y0:L.gate.by-10,y1:L.gate.by});bl.push({x0:L.gate.x+16,x1:L.gate.x+g.width/2,y0:L.gate.by-10,y1:L.gate.by});}
   return bl;}
+/* 体の幅で確かめる（中心だけでなく左右と上下も。体がはみ出して重ならないように） */
+const twFreeBody=(x,y)=>twFree(x,y)&&twFree(x-5,y)&&twFree(x+5,y)&&twFree(x,y-3)&&twFree(x-4,y-2)&&twFree(x+4,y-2);
 /* 当たりは64画素ごとの桶に分けて持つ（大きな町でも速く） */
 function twBucket(bl){const B={};for(const b of bl){for(let gy=Math.floor((b.y0-6)/64);gy<=Math.floor((b.y1+6)/64);gy++)for(let gx=Math.floor((b.x0-6)/64);gx<=Math.floor((b.x1+6)/64);gx++){(B[gx+','+gy]=B[gx+','+gy]||[]).push(b);}}return B;}
 function twFree(x,y){const T=TW,L=T.L;
@@ -65,9 +78,10 @@ async function renderTown(opt){opt=opt||{};
   const ids=partyIds();const lead=ids.includes(S.hero)?S.hero:ids[0];
   const start=opt.at||(prev&&prev.lead?{x:prev.lead.x,y:prev.lead.y}:room?{x:L.cx,y:L.H-16}:{x:L.exit.x,y:L.H-40});
   TW.lead={key:lead,id:lead,x:start.x,y:start.y,dir:prev&&prev.lead?prev.lead.dir:'u',hd:-Math.PI/2,sp:0,mv:false,ph:0,path:null};
-  TW.follow=ids.filter(i=>i!==lead).map((id,i)=>({key:id,id,x:start.x+(i%2?6:-6),y:start.y+14+i*14,dir:'u',hd:-Math.PI/2,sp:0,mv:false,ph:i*2.3}));
+  TW.follow=ids.filter(i=>i!==lead&&!(S.hire&&isTemp(i))).map((id,i)=>({key:id,id,x:start.x+(i%2?6:-6),y:start.y+14+i*14,dir:'u',hd:-Math.PI/2,sp:0,mv:false,ph:i*2.3}));
   for(let i=0;i<160;i++)TW.trail.push({x:TW.lead.x,y:TW.lead.y+i*2});
   if(!TW.npcs)TW.npcs=room?twRoomNpcs(L):twNpcs(L);
+  if(!room)twCrewPlace();
   else TW.npcs=TW.npcs.filter(n=>!n.named||seekable(n.named));
   const fit=()=>{const c=TW.cv;const w=innerWidth,h=innerHeight;const dpr=Math.min(2,devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;c.style.width=w+'px';c.style.height=h+'px';TW.dpr=dpr;TW.sc=Math.max(2,Math.min(w/300,h/236));};
   fit();TW.onResize=fit;addEventListener('resize',fit);
@@ -106,7 +120,7 @@ function twRoadSpot(L,r){if(L.room)return twRoomSpot(L,r);if(L.roads)return twTo
    - 住人は通りの好きな所へ道を探して歩き、着くと立ち止まってあたりを見回す。人とすれ違うときは少しよける */
 /* 道を探す升目：物から6画素の余裕をとって塗る（かすって通らないように） */
 function twGridBuild(){const T=TW,L=T.L,cs=L.W>700?8:6,gw=Math.ceil(L.W/cs),gh=Math.ceil(L.H/cs);const g=new Uint8Array(gw*gh);
-  const ok=(x,y)=>twFree(x,y)&&twFree(x-7,y)&&twFree(x+7,y)&&twFree(x,y-5)&&twFree(x,y+5);
+  const ok=(x,y)=>twFreeBody(x,y)&&twFree(x-8,y)&&twFree(x+8,y)&&twFree(x,y+4);
   for(let y=0;y<gh;y++)for(let x=0;x<gw;x++)g[y*gw+x]=ok(x*cs+cs/2,y*cs+cs/2)?1:0;T.grid={g,gw,gh,cs};}
 function twLOS(a,b){const d=Math.hypot(b.x-a.x,b.y-a.y),n=Math.ceil(d/3);for(let i=1;i<=n;i++){const t=i/n;if(!twFree(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t))return false;}return true;}
 function twPath(a,b){const G=TW.grid;if(!G)return [b];const {g,gw,gh,cs}=G;const ci=(x,y)=>Math.max(0,Math.min(gh-1,Math.floor(y/cs)))*gw+Math.max(0,Math.min(gw-1,Math.floor(x/cs)));
@@ -130,7 +144,7 @@ function twPath(a,b){const G=TW.grid;if(!G)return [b];const {g,gw,gh,cs}=G;const
 const twAng=(a,b)=>{let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return d;};
 /* 人どうしは重ならない（半径9）。近づく向きの動きだけ止める */
 function twBump(o,x,y){if(!TW)return false;for(const m of [TW.lead,...TW.follow,...TW.npcs]){if(!m||m===o)continue;const d2=(m.x-x)**2+((m.y-y)*1.4)**2,d0=(m.x-o.x)**2+((m.y-o.y)*1.4)**2;if(d2<81&&d2<d0)return true;}return false;}
-function twStep(o,dx,dy){let moved=0;if(dx&&twFree(o.x+dx,o.y)&&!twBump(o,o.x+dx,o.y)){o.x+=dx;moved+=Math.abs(dx);}if(dy&&twFree(o.x,o.y+dy)&&!twBump(o,o.x,o.y+dy)){o.y+=dy;moved+=Math.abs(dy);}return moved;}
+function twStep(o,dx,dy){let moved=0;if(dx&&twFreeBody(o.x+dx,o.y)&&!twBump(o,o.x+dx,o.y)){o.x+=dx;moved+=Math.abs(dx);}if(dy&&twFreeBody(o.x,o.y+dy)&&!twBump(o,o.x,o.y+dy)){o.y+=dy;moved+=Math.abs(dy);}return moved;}
 function twDirOf(o,dt){const c=Math.cos(o.hd),sn=Math.sin(o.hd);const want=Math.abs(c)>.62?(c<0?'l':'r'):(sn<0?'u':'d');
   if(want===o.dir){o.dirT=0;return;}o.dirT=(o.dirT||0)+dt;if(o.dirT>.14||!o.mv){o.dir=want;o.dirT=0;}}
 /* 一歩ぶん動かす。want＝行きたい向き（なければ止まる）、vmax＝最高の速さ */
@@ -177,7 +191,8 @@ function twFrame(now){if(!TW)return;const dt=Math.min(.05,TW.last?(now-TW.last)/
     if(done){n.path=null;n.wait=1.2+Math.random()*4;n.look=Math.random()<.6?n.wait*(.3+Math.random()*.4):0;}}
   // 重なっている人は少しずつ離す（現れた場所が近すぎたときなど）
   {const all=[Ld,...TW.follow,...TW.npcs];for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const a=all[i],c=all[j];const dx=c.x-a.x,dy=(c.y-a.y)*1.4,d=Math.hypot(dx,dy);if(d<9){const ux=d>.01?dx/d:1,uy=d>.01?dy/d/1.4:0;
-    for(const [o,sg] of [[a,-1],[c,1]]){if(o===Ld||o.keeper||o.seated)continue;const nx=o.x+ux*.6*sg,ny=o.y+uy*.6*sg;if(twFree(nx,ny)){o.x=nx;o.y=ny;}}}}}
+    for(const [o,sg] of [[a,-1],[c,1]]){if(o===Ld||o.keeper||o.seated)continue;const nx=o.x+ux*.6*sg,ny=o.y+uy*.6*sg;if(twFreeBody(nx,ny)){o.x=nx;o.y=ny;}}}}}
+  twTouch(dt);
   // 近くの用事
   TW.act=twNear();const pr=document.getElementById('twprompt');
   if(pr){const t=TW.say?'':TW.act?TW.act.label:'';if(pr.dataset.t!==t){pr.dataset.t=t;pr.innerHTML=t?`<button>${t}</button>`:'';const b=pr.querySelector('button');if(b)b.onclick=()=>twInteract();}}
@@ -185,11 +200,11 @@ function twFrame(now){if(!TW)return;const dt=Math.min(.05,TW.last?(now-TW.last)/
 function twNear(){const Ld=TW.lead,L=TW.L;let best=null,bd=1e9;
   if(L.room){const kp=TW.npcs.find(n=>n.keeper);if(kp){const dx=Math.abs(Ld.x-kp.x),dy=Ld.y-kp.y;if(dx<34&&dy>-8&&dy<48)return {kind:'keeper',n:kp,label:`${kp.title}と話す`};}
     if(L.room==='home'){const ch=L.props.find(p=>p.art==='chest');if(ch&&Math.hypot(Ld.x-ch.x,Ld.y-ch.by)<28)return {kind:'chest',label:'物置の箱を開ける'};}}
-  for(const n of TW.npcs){if(n.keeper)continue;const d=Math.hypot(n.x-Ld.x,(n.y-Ld.y)*1.3);if(d<22&&d<bd){bd=d;best={kind:'npc',n,label:`${n.named?(S.seek[n.named]?CHAR_DB[n.named].name:CHAR_LOOK[n.named]):npcName(L.k,npcAt(L.k,n.i))}に話しかける`};}}
+  for(const n of TW.npcs){if(n.keeper)continue;if(n.crew){const d=Math.hypot(n.x-Ld.x,(n.y-Ld.y)*1.3);if(d<24&&d<bd){bd=d;best={kind:'crew',n,label:n.captain?`「${S.hire.name}」の隊長と話す（出発）`:`${CHAR_DB[n.crew].name}（${S.hire.name}）と話す`};}continue;}const d=Math.hypot(n.x-Ld.x,(n.y-Ld.y)*1.3);if(d<22&&d<bd){bd=d;best={kind:'npc',n,label:`${n.named?(S.seek[n.named]?CHAR_DB[n.named].name:CHAR_LOOK[n.named]):npcName(L.k,npcAt(L.k,n.i))}に話しかける`};}}
   if(best)return best;
   if(L.room){if(Math.abs(Ld.x-L.cx)<22&&Ld.y>L.H-22)return {kind:'exit',label:'外へ出る'};return null;}
   for(const b of L.blds){const dx=Math.abs(Ld.x-b.x),dy=Ld.y-b.by;if(dx<14&&dy>-2&&dy<16)return {kind:'bld',b,label:b.f?`${FACILITIES[b.f].name}に入る`:'民家の戸を叩く'};}
-  if(L.exit&&Math.abs(Ld.x-L.exit.x)<30&&Ld.y>L.H-34)return {kind:'gate',label:'町を出る'};
+  if(L.exit&&Math.abs(Ld.x-L.exit.x)<30&&Ld.y>L.H-34)return {kind:'gate',label:S.hire?`町を出る（「${S.hire.name}」は出口で待っている）`:'町を出る'};
   return null;}
 function twInteract(){if(!TW)return;if(TW.say){twSayClose();return;}const a=TW.act;if(!a)return;
   if(a.kind==='npc')twTalk(a.n);
@@ -198,7 +213,8 @@ function twInteract(){if(!TW)return;if(TW.say){twSayClose();return;}const a=TW.a
   else if(a.kind==='keeper')twOpenCounter(TW.L.room);
   else if(a.kind==='chest')twOpenCounter('home');
   else if(a.kind==='exit')twLeaveRoom();
-  else if(a.kind==='gate'){twStop();DEPART=true;WSEL=null;renderPrep();}}
+  else if(a.kind==='gate'){if(S.hire){twSay({who:'',text:`雇われの身だ。「${S.hire.name}」の隊長に声をかけないと、隊は出発しない。`});return;}twStop();DEPART=true;WSEL=null;renderPrep();}
+  else if(a.kind==='crew')twCrewTalk(a.n);}
 function twEnter(f){TW.backAt={x:TW.lead.x,y:TW.lead.y+6};twStop();TOWN_IN=f;TOWNF=f;NPCSEL=null;renderPrep();scrollTo(0,0);}
 function twTalk(n){const k=TW.L.k;n.dir=n.x<TW.lead.x?'r':'l';
   if(n.named){talkTo(k,'n:'+n.named);persist();const c=n.named;const m=S.seek[c]||0;
@@ -227,22 +243,26 @@ function twRender(){const T=TW,g=T.cv.getContext('2d'),L=T.L,img=T.img;const sc=
   g.setTransform(1,0,0,1,0,0);g.fillStyle='#10140e';g.fillRect(0,0,T.cv.width,T.cv.height);
   g.setTransform(sc*dpr,0,0,sc*dpr,-Math.round(T.camX*sc*dpr),-Math.round(T.camY*sc*dpr));g.imageSmoothingEnabled=false;
   g.drawImage(T.ground,0,0);
+  twDrawMarks(g);
   // 立っている物を足もとの奥行き順に
   const items=[];
   for(const b of L.blds)items.push({y:b.by,draw:()=>{const im=twArt(b.art);if(im)g.drawImage(im,Math.round(b.x-im.width/2),Math.round(b.by-im.height));}});
-  for(const p of L.props){if(p.flat)continue;items.push({y:p.by,draw:()=>{const im=twArt(p.art);if(!im)return;let x=Math.round(p.x-im.width/2);
-    if((p.art==='tree1'||p.art==='bush1')&&typeof fWind==='function'){}g.drawImage(im,x,Math.round(p.by-im.height));}});}
+  for(const p of L.props){if(p.flat)continue;items.push({y:p.by,draw:()=>{const im=twArt(p.art);if(!im)return;const x=Math.round(p.x-im.width/2),y=Math.round(p.by-im.height);
+    const sk=(p.shake>0?Math.sin(T.t*38+p.x)*p.shake*2.4:0)+(twIsPlant(p.art)?Math.sin(T.t*1.3+p.x*.05)*.5:0);
+    if(sk&&twIsPlant(p.art)){g.save();g.translate(p.x,p.by);g.transform(1,0,sk*.03,1,0,0);g.drawImage(im,-im.width/2,-im.height);g.restore();}else g.drawImage(im,x,y);}});}
   for(const o of [T.lead,...T.follow,...T.npcs])items.push({y:o.y,draw:()=>twDraw(g,o,T.t)});
   items.sort((a,b)=>a.y-b.y);for(const it of items)it.draw();
+  twDrawFx(g);
   // 灯りと空気
   const air=L.room?{}:twAir(L.k);g.setTransform(dpr,0,0,dpr,0,0);
   if(air.tint){g.fillStyle=air.tint;g.fillRect(0,0,T.cv.width,T.cv.height);}
   twParticles(g,air,T.cv.width/dpr,T.cv.height/dpr);
   // 看板（施設の名前）
   g.font='600 12px "Yu Gothic","Hiragino Sans",sans-serif';g.textAlign='center';g.textBaseline='middle';
-  for(const b of L.blds){if(!b.f)continue;const im=twArt(b.art);const sx=(b.x-T.camX)*sc,sy=(b.by-(im?im.height:60)-6-T.camY)*sc;if(sx<-60||sx>innerWidth+60||sy<-20||sy>innerHeight+20)continue;
+  for(const b of L.blds){if(!b.f)continue;const im=twArt(b.art);const sx=(b.x-T.camX)*sc,sy=(b.by-(im?im.height:60)*.42-T.camY)*sc;   /* 名札は建物の正面の壁（軒の下）に掛ける。前は屋根の上で、上の建物の名札に見えていた */if(sx<-60||sx>innerWidth+60||sy<-20||sy>innerHeight+20)continue;
     const t=FACILITIES[b.f].name;const w=g.measureText(t).width+12;g.fillStyle='rgba(16,12,8,.72)';g.fillRect(sx-w/2,sy-9,w,18);g.fillStyle='#f0e2c0';g.fillText(t,sx,sy+1);}
   // 名のある人物には小さな印（話したことがあれば名前）
+  for(const n of T.npcs){if(!n.captain)continue;const sx=(n.x-T.camX)*sc,sy=(n.y-42-T.camY)*sc;const t=`「${S.hire?S.hire.name:''}」集合`;const w=g.measureText(t).width+12;g.fillStyle='rgba(16,12,8,.78)';g.fillRect(sx-w/2,sy-9,w,18);g.fillStyle='#ffd23a';g.fillText(t,sx,sy+1);}
   for(const n of T.npcs){if(!n.named)continue;const sx=(n.x-T.camX)*sc,sy=(n.y-40-T.camY)*sc;const m=S.seek[n.named]||0;g.fillStyle='rgba(16,12,8,.7)';const t=m?CHAR_DB[n.named].name:'？';const w=g.measureText(t).width+10;g.fillRect(sx-w/2,sy-8,w,16);g.fillStyle='#ffd23a';g.fillText(t,sx,sy+1);}}
 function twParticles(g,air,w,h){const T=TW;if(!air.snow&&!air.petal&&!air.sand)return;if(!T.parts.length)for(let i=0;i<(air.sand?40:70);i++)T.parts.push({x:Math.random()*w,y:Math.random()*h,v:.5+Math.random(),s:Math.random()*6});
   for(const p of T.parts){p.y+=(air.sand?.2:p.v*.6);p.x+=air.sand?p.v*2.2:Math.sin(T.t+p.s)*.4+(air.petal?.5:0);if(p.y>h)p.y=-4;if(p.x>w)p.x=-4;
@@ -254,7 +274,7 @@ function townInsideHtml(ids){const k=S.base;const f=TOWN_IN;const F=FACILITIES[f
   let h=`<div class="tm tw-in"><nav class="tm-nav"><div class="crest">${ico(F.icon)}<b>${F.name}</b><span class="goldv">${TOWNS[k].name}</span><span class="goldv" title="手持ちの金">金 <b>${S.gold}</b></span></div>
     <button class="tw-out" id="twout">${TWROOM?'戻る':'外へ出る'}</button></nav>`;
   h+=`<div class="fr facp">${facHtml(k,f,ids)}</div>`;
-  if(f==='tavern')h+=townHtml(ids,{people:true});
+  // 住人の一覧は出さない（2026-11-26、オーナー「これは？」）。町の人とは、町や酒場の中を歩いて会って話す
   return h+'</div>';}
 
 /* ============ 拠点（2026-11-26） ============
@@ -361,3 +381,63 @@ function twEnterRoom(f,b){if(!TW)return;TW.lead.x=b?b.x:TW.lead.x;TW.lead.y=b?b.
 function twLeaveRoom(){twStop();if(TWTOWN&&TWTOWN.k===S.base&&TWTOWN.turn===S.turn){TW=TWTOWN;TWTOWN=null;renderTown({});}else{TW=null;TWTOWN=null;renderTown({});}}
 /* 主人と話す → 施設の板 */
 function twOpenCounter(f){TWROOM=TW;twStop();TOWN_IN=f;TOWNF=f;NPCSEL=null;renderPrep();scrollTo(0,0);}
+
+/* ============ 町の細かい演出（2026-11-26、オーナー「雪が積もっているなら近づけば落ちるとか、細かい演出を全体的に」） ============
+   - 人がそばを通ると、木や茂みが揺れる（p.shake）。大陸ごとに、揺れた木から落ちるものが違う：
+     北の雪国＝枝の雪がどさっと落ちて足もとに積もる／八洲＝桜や紅葉の葉が舞う／密林・中つ国＝葉が落ちる／砂の大陸＝砂がこぼれる／エルドラ＝紫の光の粒が舞い上がる
+   - 歩くと足跡が残る：雪は深い足跡（しばらく残る）、砂は浅い跡と砂ぼこり、ほかは小さな土ぼこり。港の水ぎわでは水しぶきはなし
+   - 木や茂みは、風でわずかに揺れている
+   - 部屋の中では何も起きない */
+function twIsPlant(a){const m=/^c\dn(\d+)$/.exec(a);if(m)return +m[1]<10;return /^(tree|bush|pine|grass|bigtree|reeds|cattail|deadtree)/.test(a);}
+function twTouch(dt){const T=TW;if(!T||T.L.room)return;const air=twAir(T.L.k);const c=(TOWNS[T.L.k]||{}).cont||'c0';
+  T.fx=T.fx||[];T.marks=T.marks||[];
+  for(const p of T.L.props)if(p.shake>0)p.shake=Math.max(0,p.shake-dt*1.4);
+  if(!T.pb){T.pb={};for(const p of T.L.props){if(!twIsPlant(p.art))continue;const k=Math.floor(p.x/64)+','+Math.floor(p.by/64);(T.pb[k]=T.pb[k]||[]).push(p);}}
+  for(const m of [T.lead,...T.follow,...T.npcs]){if(!m.mv)continue;
+    // 足跡
+    m.stepAcc=(m.stepAcc||0)+Math.hypot(m.x-(m.px??m.x),m.y-(m.py??m.y));m.px=m.x;m.py=m.y;
+    if(m.stepAcc>7){m.stepAcc=0;m.foot=!m.foot;const side=m.foot?2:-2;const px=-Math.sin(m.hd)*side,py=Math.cos(m.hd)*side;
+      if(air.snow)T.marks.push({x:m.x+px,y:m.y+py,t:0,life:14,kind:'snow',a:m.hd});
+      else if(air.sand){T.marks.push({x:m.x+px,y:m.y+py,t:0,life:5,kind:'sand',a:m.hd});if(Math.random()<.5)T.fx.push({x:m.x,y:m.y-1,vx:(Math.random()-.5)*8,vy:-6-Math.random()*6,t:0,life:.7,kind:'dust',c:'rgba(230,200,140,'});}
+      else if(Math.random()<.35)T.fx.push({x:m.x,y:m.y-1,vx:(Math.random()-.5)*6,vy:-4-Math.random()*4,t:0,life:.5,kind:'dust',c:'rgba(150,130,100,'});}
+    // そばの木や茂みを揺らす
+    const k0=Math.floor(m.x/64),k1=Math.floor(m.y/64);
+    for(let gx=k0-1;gx<=k0+1;gx++)for(let gy=k1-1;gy<=k1+1;gy++)for(const p of (T.pb[gx+','+gy]||[])){
+      const im=twArt(p.art);if(!im)continue;const r=Math.min(im.width*.5,28)+6;const dx=m.x-p.x,dy=(m.y-p.by)*1.6;if(dx*dx+dy*dy>r*r)continue;
+      if(p.shake>.25)continue;p.shake=1;twShed(p,im,c,air);}}
+  // 粒と跡を進める
+  for(const f of T.fx){f.t+=dt;f.x+=f.vx*dt;f.y+=f.vy*dt;if(f.g)f.vy+=f.g*dt;if(f.sway)f.x+=Math.sin(f.t*4+f.ph)*f.sway*dt;if(f.floor!=null&&f.y>=f.floor){f.y=f.floor;f.vx=0;f.vy=0;f.g=0;f.sway=0;if(f.kind==='snow'){f.kind='pile';f.life=Math.max(f.life,f.t+8);}}}
+  T.fx=T.fx.filter(f=>f.t<f.life);if(T.fx.length>700)T.fx.splice(0,T.fx.length-700);
+  for(const k of T.marks)k.t+=dt;T.marks=T.marks.filter(k=>k.t<k.life);if(T.marks.length>500)T.marks.splice(0,T.marks.length-500);}
+/* 揺れた木から落ちるもの */
+function twShed(p,im,c,air){const T=TW;const top=p.by-im.height,w=im.width*.6;const R=Math.random;
+  const big=im.height>50;const n=big?14:6;
+  for(let i=0;i<n;i++){const x=p.x+(R()-.5)*w,y=top+im.height*(.15+R()*.45);const floor=p.by+(R()-.3)*10;
+    if(air.snow)T.fx.push({x,y,vx:(R()-.5)*10,vy:10+R()*20,g:160,t:0,life:3,floor,kind:'snow',sz:1+R()*2.2});
+    else if(c==='c2')T.fx.push({x,y,vx:(R()-.5)*16,vy:4+R()*8,g:12,sway:22,ph:R()*6,t:0,life:5,floor,kind:'leaf',col:R()<.6?'#f3a9c0':'#d9502e'});
+    else if(c==='c3'){if(i<3)T.fx.push({x,y:p.by-im.height*.2,vx:(R()-.5)*10,vy:2,g:90,t:0,life:1.2,floor,kind:'dust',c:'rgba(230,200,140,'});}
+    else if(c==='c5')T.fx.push({x,y,vx:(R()-.5)*8,vy:-6-R()*10,t:0,life:2.5,kind:'spark'});
+    else if(i<(big?6:3))T.fx.push({x,y,vx:(R()-.5)*14,vy:6+R()*8,g:14,sway:18,ph:R()*6,t:0,life:4.5,floor,kind:'leaf',col:c==='c4'?'#4e8a3a':R()<.5?'#7a9a3c':'#b8862e'});}}
+function twDrawMarks(g){const T=TW;if(!T.marks)return;for(const k of T.marks){const a=Math.max(0,1-k.t/k.life);
+  if(k.kind==='snow'){g.fillStyle=`rgba(120,140,170,${.55*a})`;g.save();g.translate(k.x,k.y);g.rotate(k.a+Math.PI/2);g.beginPath();g.ellipse(0,0,1.6,2.6,0,0,Math.PI*2);g.fill();g.restore();}
+  else{g.fillStyle=`rgba(120,90,50,${.35*a})`;g.fillRect(Math.round(k.x)-1,Math.round(k.y),2,1);}}}
+function twDrawFx(g){const T=TW;if(!T.fx)return;for(const f of T.fx){const a=Math.max(0,1-f.t/f.life);
+  if(f.kind==='snow'||f.kind==='pile'){const al=f.kind==='pile'?Math.min(1,a*3):1;const s=Math.ceil((f.sz||2)+1),X=Math.round(f.x),Y=Math.round(f.y);   // 雪の上でも見えるよう、青い影を下に付ける
+    g.fillStyle=`rgba(110,130,170,${.7*al})`;g.fillRect(X-1,Y+1,s+2,f.kind==='pile'?2:s);g.fillStyle=`rgba(255,255,255,${al})`;g.fillRect(X,Y,s,f.kind==='pile'?Math.max(2,s-1):s);}
+  else if(f.kind==='leaf'){g.fillStyle=f.col;g.globalAlpha=Math.min(1,a*2);g.save();g.translate(f.x,f.y);g.rotate(f.t*3+f.ph);g.fillRect(-1.5,-.8,3,1.6);g.restore();g.globalAlpha=1;}
+  else if(f.kind==='dust'){g.fillStyle=f.c+(.5*a)+')';g.beginPath();g.arc(f.x,f.y,1.5+(1-a)*2.5,0,Math.PI*2);g.fill();}
+  else if(f.kind==='spark'){g.fillStyle=`rgba(200,140,255,${a})`;g.fillRect(Math.round(f.x),Math.round(f.y),2,2);g.fillStyle=`rgba(200,140,255,${a*.3})`;g.fillRect(Math.round(f.x)-1,Math.round(f.y)-1,4,4);}}}
+
+/* ============ 雇われの集合（2026-11-26、オーナー「雇われたけど、どこで出るねん。勝手に町も出られるぞ」） ============
+   雇い主の隊の者は一行について歩かず、町の出口のそばに集まって待つ（頭の上に「〇〇」集合）。
+   隊長に話しかけて「出発する」で、隊長の決めた行き先へ出発する（世界地図では選ばない）。それまで町は出られない。
+   右上の案内にも、集合場所を出す */
+function twCrewPlace(){const T=TW;if(!S.hire||!T||T.L.room)return;T.npcs=T.npcs.filter(n=>!n.crew);const ids=partyIds().filter(isTemp);if(!ids.length)return;
+  const L=T.L;const ex=L.exit||{x:L.W/2,y:L.H};let k=0;
+  for(const id of ids){let x=ex.x+(k%2?1:-1)*(22+Math.floor(k/2)*16),y=L.H-56-(k%2)*6;for(let tries=0;tries<30&&!twFreeBody(x,y);tries++){x+=(Math.random()-.5)*20;y-=4;}
+    T.npcs.push({crew:id,captain:!!CHAR_DB[id].captain,key:id,x,y,dir:'u',hd:-Math.PI/2,sp:0,vmax:0,mv:false,ph:k,wait:1e9,seated:1,path:null});k++;}}
+function twCrewTalk(n){const H=S.hire;if(!H)return;n.hd=Math.atan2(TW.lead.y-n.y,TW.lead.x-n.x);twDirOf(n,1);
+  if(!n.captain){twSay({npc:n,who:CHAR_DB[n.crew].name,sub:`「${H.name}」・${ROLES[CHAR_DB[n.crew].role]||''}`,text:['支度はいいか。隊長に声をかけたら出るぞ','雇われでも、背中は預けるからな','分け前は帰ってからだ']['abc'.indexOf('a')+Math.floor(Math.random()*3)]});return;}
+  const d=PLACE(S.diveTo);
+  twSay({npc:n,who:CHAR_DB[n.crew].name,sub:`「${H.name}」の隊長`,text:`揃ったな。行き先は${d?d.name:'迷宮'}だ。陣形と戒律はこっちで決めてある。出るぞ`,depart:true});
+  const el=document.querySelector('#twsay .tw-btns');if(el){const b=document.createElement('button');b.className='tw-b gold';b.textContent='出発する';b.onclick=()=>{twSayClose();twStop();startBattle();};el.prepend(b);}}
