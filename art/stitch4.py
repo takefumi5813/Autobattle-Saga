@@ -8,6 +8,8 @@ from PIL import Image
 T = r'\\?\C:\Users\tsuzu\.claude\projects\C--Users-tsuzu-AppData-Local-Claude-Data-claude-pzs8sxrjxfjjc-scratch-workspaces-cf78cd38-0543-4441-b759-fa2fd0ed03d3-f02a2a22-9b6b-4f3c-bb61-6952b7afc7f3-scratch-2026-11-24-5e7d08\7f9e2f45-3b6d-4183-b830-f7360689e14c\tool-results'
 out, *suf = sys.argv[1:]
 W, H, VW, VH = 1536, 1024, 1314, 846
+if len(suf) == 6:   # 絵の大きさが違うとき：末尾に 幅 高さ
+    W, H = int(suf[4]), int(suf[5]); suf = suf[:4]
 files = os.listdir(T)
 canvas = Image.new('RGB', (W, H))
 for s, (x, y) in zip(suf, [(0, 0), (W - VW, 0), (0, H - VH), (W - VW, H - VH)]):

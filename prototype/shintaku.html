@@ -909,6 +909,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/nav.js"></script>
 <script src="data/bgm.js"></script>
 <script src="data/opening.js"></script>
+<script src="data/interior_img.js"></script>
 <script src="data/townwalk.js"></script>
 <script>
 "use strict";
@@ -2449,8 +2450,8 @@ function gateHtml(){
   return h+'</div>';}
 function rule(k,label,opts,v){return `<div class="rule"><label for="p-${k}">${label}</label><select id="p-${k}" data-p="${k}">${opts.map(([a,b])=>`<option value="${a}"${a===v?' selected':''}>${b}</option>`).join('')}</select></div>`;}
 function bindPrep(){
-  if($('#twout'))$('#twout').onclick=()=>{TOWN_IN=null;TOWNF=null;renderTown({at:TW&&TW.backAt});};
-  if($('#twback'))$('#twback').onclick=()=>renderTown();
+  if($('#twout'))$('#twout').onclick=()=>{TOWN_IN=null;TOWNF=null;if(TWROOM){const f=TWROOM.room;TW=TWROOM;TWROOM=null;renderTown({room:f});}else renderTown({at:TW&&TW.backAt});};
+  if($('#twback'))$('#twback').onclick=()=>{if(TW&&TW.room)renderTown({room:TW.room});else renderTown();};
   if(typeof bindBase==='function')bindBase();
   if($('#go'))$('#go').onclick=startBattle;
   document.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{PREP_TAB=b.dataset.ptab;renderPrep();window.scrollTo(0,0);});

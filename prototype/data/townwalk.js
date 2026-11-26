@@ -56,12 +56,14 @@ function twLayout(k){
 /* ---- 当たり（足もとの箱） ---- */
 function twBlockers(L,img){const bl=[];
   for(const b of L.blds){const im=img[b.art];if(!im)continue;const w=im.width-12;bl.push({x0:b.x-w/2,x1:b.x+w/2,y0:b.by-im.height*.5,y1:b.by-3});}
-  for(const p of L.props){if(!p.solid)continue;const im=img[p.art];if(!im)continue;
-    const w=p.art==='tree1'?14:p.art==='lantern'?8:im.width*.7;const d=p.art==='fence'?6:p.art==='tree1'?8:Math.min(14,im.height*.3);bl.push({x0:p.x-w/2,x1:p.x+w/2,y0:p.by-d,y1:p.by});}
+  for(const p of L.props){if(!p.solid||p.flat)continue;const im=twArt(p.art);if(!im)continue;
+    const w=p.art==='tree1'?14:p.art==='lantern'?8:['counter','bar','ltable','bed'].includes(p.art)?im.width*.92:im.width*.7;const d=p.art==='fence'?6:p.art==='tree1'?8:Math.min(14,im.height*.3);bl.push({x0:p.x-w/2,x1:p.x+w/2,y0:p.by-d,y1:p.by});}
   // 門の柱
-  const g=img.tgate;if(g){bl.push({x0:L.gate.x-g.width/2,x1:L.gate.x-16,y0:L.gate.by-10,y1:L.gate.by});bl.push({x0:L.gate.x+16,x1:L.gate.x+g.width/2,y0:L.gate.by-10,y1:L.gate.by});}
+  const g=img.tgate;if(g&&L.gate){bl.push({x0:L.gate.x-g.width/2,x1:L.gate.x-16,y0:L.gate.by-10,y1:L.gate.by});bl.push({x0:L.gate.x+16,x1:L.gate.x+g.width/2,y0:L.gate.by-10,y1:L.gate.by});}
   return bl;}
-function twFree(x,y){const T=TW;if(x<8||x>T.L.W-8||y<T.L.top+24||y>T.L.H-2)return false;
+function twFree(x,y){const T=TW,L=T.L;
+  if(L.room){if(x<12||x>L.W-12||y<L.WH+10)return false;if(y>L.H-11&&!(Math.abs(x-L.cx)<14&&y<L.H-1))return false;}
+  else if(x<8||x>L.W-8||y<L.top+24||y>L.H-2)return false;
   for(const b of T.bl)if(x>b.x0-4&&x<b.x1+4&&y>b.y0-2&&y<b.y1+3)return false;return true;}
 
 /* ---- 地面を一枚に焼く ---- */
@@ -99,21 +101,22 @@ async function renderTown(opt){opt=opt||{};
   ov.innerHTML=`<canvas></canvas><div class="tw-hud"><div class="tw-name"><b>${TOWNS[k].name}</b><small>${CONT[TOWNS[k].cont].name}・${calTxtPlain()}</small></div><div class="tw-gold">金 <b>${S.gold}</b></div>
     <button class="tw-menu" id="twmenu">メニュー${(S.event||S.visitors.length||prepMsgs.length||worldMsgs.length)?'<i></i>':''}</button></div>
     <div class="tw-prompt" id="twprompt"></div><div class="tw-say" id="twsay"></div><div class="tw-arrive" id="twarrive"></div><div class="tw-load">…</div>`;
-  await fLoad();if(!document.getElementById('townwalk'))return;
+  await fLoad();await twLoadInt();if(!document.getElementById('townwalk'))return;
+  const room=opt.room||null;if(room){const n=ov.querySelector('.tw-name');if(n)n.innerHTML=`<b>${FACILITIES[room].name}</b><small>${TOWNS[k].name}・${calTxtPlain()}</small>`;}
   ov.querySelector('.tw-load').remove();
   const img=FLD.bg;
-  const same=TW&&TW.k===k&&TW.turn===S.turn;
-  const L=same?TW.L:twLayout(k);
+  const same=TW&&TW.k===k&&TW.turn===S.turn&&(TW.room||null)===room;
+  const L=same?TW.L:(room?twRoom(k,room):twLayout(k));
   const prev=same?TW:null;
-  TW={k,turn:S.turn,L,img,bl:null,ground:prev?prev.ground:twGround(L,img),keys:{},t:0,last:0,raf:0,cv:ov.querySelector('canvas'),npcs:prev?prev.npcs:null,trail:[],say:null,target:null,act:null,parts:[]};
+  TW={k,turn:S.turn,L,img,bl:null,room,ground:prev?prev.ground:(room?twRoomGround(L):twGround(L,img)),keys:{},t:0,last:0,raf:0,cv:ov.querySelector('canvas'),npcs:prev?prev.npcs:null,trail:[],say:null,target:null,act:null,parts:[]};
   TW.bl=twBlockers(L,img);
   // 一行：先頭は主人公（いなければ一行の先頭）
   const ids=partyIds();const lead=ids.includes(S.hero)?S.hero:ids[0];
-  const start=opt.at||(prev&&prev.lead?{x:prev.lead.x,y:prev.lead.y}:{x:L.gate.x,y:L.gate.by-40});
+  const start=opt.at||(prev&&prev.lead?{x:prev.lead.x,y:prev.lead.y}:room?{x:L.cx,y:L.H-16}:{x:L.gate.x,y:L.gate.by-40});
   TW.lead={key:lead,id:lead,x:start.x,y:start.y,dir:prev&&prev.lead?prev.lead.dir:'u',hd:-Math.PI/2,sp:0,mv:false,ph:0,path:null};
   TW.follow=ids.filter(i=>i!==lead).map((id,i)=>({key:id,id,x:start.x+(i%2?6:-6),y:start.y+14+i*14,dir:'u',hd:-Math.PI/2,sp:0,mv:false,ph:i*2.3}));
   for(let i=0;i<160;i++)TW.trail.push({x:TW.lead.x,y:TW.lead.y+i*2});
-  if(!TW.npcs)TW.npcs=twNpcs(L);
+  if(!TW.npcs)TW.npcs=room?twRoomNpcs(L):twNpcs(L);
   else TW.npcs=TW.npcs.filter(n=>!n.named||seekable(n.named));
   const fit=()=>{const c=TW.cv;const w=innerWidth,h=innerHeight;const dpr=Math.min(2,devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;c.style.width=w+'px';c.style.height=h+'px';TW.dpr=dpr;TW.sc=Math.max(2,Math.min(w/300,h/236));};
   fit();TW.onResize=fit;addEventListener('resize',fit);
@@ -140,7 +143,7 @@ function twNpcs(L){const k=L.k;const pop=townPop(k);const n=townSize(k)==='small
   for(let j=0;j<n;j++){const i=Math.floor(r()*pop);if(out.some(o=>o.i===i))continue;const p=spot();out.push({i,key:arts[Math.floor(r()*arts.length)],x:p.x,y:p.y,dir:'d',hd:r()*6.28,sp:0,vmax:20+r()*14,mv:false,ph:r()*8,wait:r()*3,path:null});}
   for(const c of Object.keys(S.where||{}).filter(c=>S.where[c]===k&&seekable(c))){const p=spot();out.push({named:c,key:c,x:p.x,y:p.y,dir:'d',hd:r()*6.28,sp:0,vmax:26,mv:false,ph:r()*8,wait:r()*3,path:null});}
   return out;}
-function twRoadSpot(L,r){for(let n=0;n<40;n++){const ry=L.roadY[Math.floor(r()*L.roadY.length)];const onMain=r()<.3;
+function twRoadSpot(L,r){if(L.room)return twRoomSpot(L,r);for(let n=0;n<40;n++){const ry=L.roadY[Math.floor(r()*L.roadY.length)];const onMain=r()<.3;
   const x=onMain?L.cx+(r()-.5)*22:40+r()*(L.W-80),y=onMain?L.roadY[0]+r()*(L.H-L.roadY[0]-30):ry+4+r()*18;if(!TW||twFree(x,y))return {x,y};}return {x:L.cx,y:L.plaza.y};}
 
 /* ---- 動き（2026-11-26 作り直し。オーナー「直進ではなく自然に曲がって」「NPCも含めて歩いているように見えない」） ----
@@ -213,15 +216,21 @@ function twFrame(now){if(!TW)return;const dt=Math.min(.05,TW.last?(now-TW.last)/
   if(pr){const t=TW.say?'':TW.act?TW.act.label:'';if(pr.dataset.t!==t){pr.dataset.t=t;pr.innerHTML=t?`<button>${t}</button>`:'';const b=pr.querySelector('button');if(b)b.onclick=()=>twInteract();}}
   twRender();TW.raf=requestAnimationFrame(twFrame);}
 function twNear(){const Ld=TW.lead,L=TW.L;let best=null,bd=1e9;
-  for(const n of TW.npcs){const d=Math.hypot(n.x-Ld.x,(n.y-Ld.y)*1.3);if(d<22&&d<bd){bd=d;best={kind:'npc',n,label:`${n.named?(S.seek[n.named]?CHAR_DB[n.named].name:CHAR_LOOK[n.named]):npcName(L.k,npcAt(L.k,n.i))}に話しかける`};}}
+  if(L.room){const kp=TW.npcs.find(n=>n.keeper);if(kp){const dx=Math.abs(Ld.x-kp.x),dy=Ld.y-kp.y;if(dx<34&&dy>-8&&dy<48)return {kind:'keeper',n:kp,label:`${kp.title}と話す`};}
+    if(L.room==='home'){const ch=L.props.find(p=>p.art==='chest');if(ch&&Math.hypot(Ld.x-ch.x,Ld.y-ch.by)<28)return {kind:'chest',label:'物置の箱を開ける'};}}
+  for(const n of TW.npcs){if(n.keeper)continue;const d=Math.hypot(n.x-Ld.x,(n.y-Ld.y)*1.3);if(d<22&&d<bd){bd=d;best={kind:'npc',n,label:`${n.named?(S.seek[n.named]?CHAR_DB[n.named].name:CHAR_LOOK[n.named]):npcName(L.k,npcAt(L.k,n.i))}に話しかける`};}}
   if(best)return best;
+  if(L.room){if(Math.abs(Ld.x-L.cx)<22&&Ld.y>L.H-22)return {kind:'exit',label:'外へ出る'};return null;}
   for(const b of L.blds){const dx=Math.abs(Ld.x-b.x),dy=Ld.y-b.by;if(dx<14&&dy>-2&&dy<16)return {kind:'bld',b,label:b.f?`${FACILITIES[b.f].name}に入る`:'民家の戸を叩く'};}
   if(Math.abs(Ld.x-L.gate.x)<22&&Ld.y>L.gate.by-26)return {kind:'gate',label:'町を出る（旅の支度）'};
   return null;}
 function twInteract(){if(!TW)return;if(TW.say){twSayClose();return;}const a=TW.act;if(!a)return;
   if(a.kind==='npc')twTalk(a.n);
   else if(a.kind==='bld'){if(!a.b.f){twSay({who:'',text:['……返事はない。留守のようだ','戸の向こうで、赤子が泣いている','「間に合ってるよ」と、戸越しに断られた'][Math.floor(Math.random()*3)]});return;}
-    twEnter(a.b.f);}
+    twEnterRoom(a.b.f,a.b);}
+  else if(a.kind==='keeper')twOpenCounter(TW.L.room);
+  else if(a.kind==='chest')twOpenCounter('home');
+  else if(a.kind==='exit')twLeaveRoom();
   else if(a.kind==='gate'){twStop();PREP_TAB='depart';renderPrep();}}
 function twEnter(f){TW.backAt={x:TW.lead.x,y:TW.lead.y+6};twStop();TOWN_IN=f;TOWNF=f;NPCSEL=null;renderPrep();scrollTo(0,0);}
 function twTalk(n){const k=TW.L.k;n.dir=n.x<TW.lead.x?'r':'l';
@@ -241,7 +250,7 @@ function twSayClose(){if(!TW)return;TW.say=null;const el=document.getElementById
   const g=document.querySelector('.tw-gold b');if(g)g.textContent=S.gold;}
 function twClick(e){if(!TW)return;if(TW.say){twSayClose();return;}const r=TW.cv.getBoundingClientRect();const sc=TW.sc;
   const wx=(e.clientX-r.left)/sc+TW.camX,wy=(e.clientY-r.top)/sc+TW.camY;const L=TW.L;
-  for(const n of TW.npcs)if(Math.abs(wx-n.x)<9&&wy<n.y+3&&wy>n.y-36){const g={x:n.x+(TW.lead.x<n.x?-14:14),y:n.y};TW.target={then:()=>{TW.act=twNear();if(TW.act&&TW.act.kind==='npc')twTalk(TW.act.n);}};TW.lead.path=twPath(TW.lead,g);return;}
+  for(const n of TW.npcs)if(Math.abs(wx-n.x)<9&&wy<n.y+3&&wy>n.y-36){const g={x:n.x+(TW.lead.x<n.x?-14:14),y:n.y};if(n.keeper){g.x=n.x;g.y=n.y+34;}TW.target={then:()=>{TW.act=twNear();if(TW.act&&TW.act.kind!=='exit')twInteract();}};TW.lead.path=twPath(TW.lead,g);return;}
   for(const b of L.blds){const im=TW.img[b.art];if(im&&Math.abs(wx-b.x)<im.width/2&&wy<b.by&&wy>b.by-im.height){TW.target={then:()=>{TW.act=twNear();if(TW.act&&TW.act.kind==='bld')twInteract();}};TW.lead.path=twPath(TW.lead,{x:b.x,y:b.by+8});return;}}
   TW.target=null;TW.lead.path=twPath(TW.lead,{x:wx,y:wy});}
 
@@ -254,12 +263,12 @@ function twRender(){const T=TW,g=T.cv.getContext('2d'),L=T.L,img=T.img;const sc=
   // 立っている物を足もとの奥行き順に
   const items=[];
   for(const b of L.blds)items.push({y:b.by,draw:()=>{const im=img[b.art];if(im)g.drawImage(im,Math.round(b.x-im.width/2),Math.round(b.by-im.height));}});
-  for(const p of L.props)items.push({y:p.by,draw:()=>{const im=img[p.art];if(!im)return;let x=Math.round(p.x-im.width/2);
-    if((p.art==='tree1'||p.art==='bush1')&&typeof fWind==='function'){}g.drawImage(im,x,Math.round(p.by-im.height));}});
+  for(const p of L.props){if(p.flat)continue;items.push({y:p.by,draw:()=>{const im=twArt(p.art);if(!im)return;let x=Math.round(p.x-im.width/2);
+    if((p.art==='tree1'||p.art==='bush1')&&typeof fWind==='function'){}g.drawImage(im,x,Math.round(p.by-im.height));}});}
   for(const o of [T.lead,...T.follow,...T.npcs])items.push({y:o.y,draw:()=>twDraw(g,o,T.t)});
   items.sort((a,b)=>a.y-b.y);for(const it of items)it.draw();
   // 灯りと空気
-  const air=twAir(L.k);g.setTransform(dpr,0,0,dpr,0,0);
+  const air=L.room?{}:twAir(L.k);g.setTransform(dpr,0,0,dpr,0,0);
   if(air.tint){g.fillStyle=air.tint;g.fillRect(0,0,T.cv.width,T.cv.height);}
   twParticles(g,air,T.cv.width/dpr,T.cv.height/dpr);
   // 看板（施設の名前）
@@ -276,7 +285,7 @@ function twParticles(g,air,w,h){const T=TW;if(!air.snow&&!air.petal&&!air.sand)r
 /* ---- 建物の中（管理画面の作りを使い、施設の板だけを出す） ---- */
 function townInsideHtml(ids){const k=S.base;const f=TOWN_IN;const F=FACILITIES[f];
   let h=`<div class="tm tw-in"><nav class="tm-nav"><div class="crest">${ico(F.icon)}<b>${F.name}</b><span class="goldv">${TOWNS[k].name}</span><span class="goldv" title="手持ちの金">金 <b>${S.gold}</b></span></div>
-    <button class="tw-out" id="twout">外へ出る</button></nav>`;
+    <button class="tw-out" id="twout">${TWROOM?'戻る':'外へ出る'}</button></nav>`;
   h+=`<div class="fr facp">${facHtml(k,f,ids)}</div>`;
   if(f==='tavern')h+=townHtml(ids,{people:true});
   return h+'</div>';}
@@ -315,3 +324,73 @@ function bindBase(){
 function baseMigrate(s){if(s.carry1)return s;s.carry1=1;try{const used=new Set();for(const e of Object.values(s.equip||{}))for(const v of Object.values(e))if(v)used.add(v);
   const cr=Object.keys(s.items||{}).filter(u=>!used.has(u)&&!s.items[u].at&&s.items[u].k!=='memento');
   if(cr.length>CARRY_CAP&&s.base){if(!(s.homes||{})[s.base])s.innBase=s.innBase||s.base;const k=(s.homes||{})[s.base]?s.base:s.innBase;for(const u of cr.slice(CARRY_CAP))s.items[u].at=k;}}catch(e){}return s;}
+
+/* ============ 建物の中を歩く（2026-11-26、オーナー「建物の中も歩けるようにしたい」） ============
+   - 家具・床・壁は ChatGPT に町の絵を見本として描かせたもの（art/cut_interior.py → data/interior_img.js の INT_IMG）
+   - 戸口から入ると、その施設の部屋（twRoom）。奥の壁・床・家具・店の主人（カウンターの向こう）・客
+   - 主人に話しかけると、前と同じ施設の板（買う・売る・泊まる…）。「戻る」で部屋に戻る
+   - 酒場には客が座っていて、話しかけられる（町の住人と同じ talkTo）。わが家は物置の箱を開けると預けられる
+   - 下の出口から町へ。出た所は入った戸口の前 */
+let TW_INT=null, TWTOWN=null, TWROOM=null;
+async function twLoadInt(){if(TW_INT||typeof INT_IMG==='undefined')return;const o={};for(const [k,v] of Object.entries(INT_IMG))o[k]=await fImg(v);TW_INT=o;}
+const twArt=n=>(TW_INT&&TW_INT[n])||(FLD.bg&&FLD.bg[n]);
+const ROOM_LOOK={inn:['f_wood','w_plaster'],tavern:['f_wood','w_plaster'],home:['f_wood','w_plaster'],tool:['f_wood','w_wood'],weapon:['f_wood','w_wood'],armor:['f_wood','w_wood'],jewel:['f_wood','w_window'],
+  grimoire:['f_wood','w_wood'],maps:['f_wood','w_window'],smith:['f_earth','w_stone'],guild:['f_stone','w_plaster'],shrine:['f_stone','w_stone'],dojo:['f_mat','w_wood']};
+const KEEPER={inn:['宿の女将','b_hunter'],tavern:['酒場の主人','b_tank'],tool:['道具屋の主人','b_sword'],weapon:['武器屋の親父','b_sword'],armor:['防具屋の主人','b_tank'],jewel:['装飾品屋の主人','b_mage'],
+  grimoire:['魔導書屋の老人','b_mage'],maps:['地図屋の主人','b_mage'],smith:['鍛冶屋の親方','b_tank'],guild:['ギルドの受付','b_hunter'],shrine:['祠守り','b_priest'],dojo:['師範','b_sword']};
+function twRoom(k,f){const W=304,H=232,WH=52,cx=W/2;const props=[];const P=(art,x,by,solid=true,flat=false)=>props.push({art,x:Math.round(x),by:Math.round(by),solid,flat});
+  let keeper=null;const seats=[];
+  const shopBack=(a,b)=>{P(a,64,WH+44);P(b||a,W-64,WH+44);};
+  switch(f){
+    case 'inn':P('counter',78,128);keeper={x:78,y:110};P('fireplace',cx+40,WH+50);P('bed',W-44,150);P('bed',W-44,204);P('rtable',cx-50,190);P('rug',cx,176,false,true);P('plant',22,WH+30);seats.push({x:cx-72,y:192},{x:cx-28,y:192});break;
+    case 'tavern':P('bar',cx,110);keeper={x:cx,y:92};P('barrels',cx+74,WH+42);P('shelf',cx-76,WH+44);P('rtable',60,150);P('rtable',W-60,150);P('rtable',60,206);P('rtable',W-60,206);P('candela',24,WH+30);P('candela',W-24,WH+30);
+      seats.push({x:38,y:152},{x:82,y:152},{x:W-82,y:152},{x:W-38,y:152},{x:38,y:208},{x:82,y:208},{x:W-82,y:208},{x:W-38,y:208});break;   // 入口から主人までの真ん中は空けておく
+    case 'home':P('bed',52,WH+60);P('fireplace',cx+20,WH+50);P('ltable',cx-56,176);P('rug',cx,170,false,true);P('chest',W-48,WH+40);P('plant',W-22,190);break;
+    case 'smith':P('forge',cx+50,WH+56);P('anvil',cx-24,150);keeper={x:cx+6,y:146};P('rack',60,WH+44);P('barrels',W-36,190);P('crates',36,200);break;
+    case 'guild':P('counter',cx,128);keeper={x:cx,y:110};P('board',60,WH+36);P('bookshelf',W-60,WH+48);P('ltable',W-76,196);P('candela',24,WH+30);seats.push({x:W-100,y:198},{x:W-52,y:198});break;
+    case 'shrine':P('altar',cx,WH+54);P('candela',cx-46,WH+50);P('candela',cx+46,WH+50);P('rug',cx,170,false,true);keeper={x:cx-30,y:WH+70};P('plant',24,200);P('plant',W-24,200);break;
+    case 'dojo':P('rack',64,WH+44);P('rack',W-64,WH+44);P('armor',cx+40,WH+44);keeper={x:cx,y:WH+64};P('barrels',W-30,200);break;
+    case 'weapon':shopBack('rack');P('rack',cx,WH+40);P('counter',cx,132);keeper={x:cx,y:114};P('crates',30,200);P('armor',W-30,200);break;
+    case 'armor':shopBack('armor');P('armor',cx,WH+44);P('counter',cx,132);keeper={x:cx,y:114};P('chest',36,200);break;
+    case 'jewel':shopBack('shelf');P('candela',cx-30,WH+34);P('candela',cx+30,WH+34);P('counter',cx,132);keeper={x:cx,y:114};P('chest',W-36,200);P('plant',26,200);break;
+    case 'grimoire':case 'maps':shopBack('bookshelf');P('bookshelf',cx,WH+48);P('counter',cx,132);keeper={x:cx,y:114};P('ltable',60,196);P('candela',W-26,200);break;
+    default:shopBack('shelf');P('barrels',cx,WH+40);P('counter',cx,132);keeper={x:cx,y:114};P('crates',32,200);P('plant',W-26,200);
+  }
+  const look=ROOM_LOOK[f]||['f_wood','w_wood'];
+  return {k,room:f,W,H,WH,cx,top:WH-18,blds:[],props,keeper,seats,floor:look[0],wall:look[1],roadY:[],plaza:{x:cx,y:H/2,w:0,h:0},gate:null,door:{x:cx,y:H-6}};}
+function twRoomGround(L){const c=document.createElement('canvas');c.width=L.W;c.height=L.H;const g=c.getContext('2d');
+  const fl=twArt(L.floor),wl=twArt(L.wall);
+  g.fillStyle=fl?g.createPattern(fl,'repeat'):'#5a4330';g.fillRect(0,0,L.W,L.H);
+  // 奥の壁
+  if(wl){for(let x=0;x<L.W;x+=wl.width-2)g.drawImage(wl,x,L.WH-wl.height);}else{g.fillStyle='#3a2c20';g.fillRect(0,0,L.W,L.WH);}
+  g.fillStyle='#120e0a';g.fillRect(0,0,L.W,Math.max(0,L.WH-(wl?wl.height:L.WH)));
+  // 壁の足もとの影
+  const sh=g.createLinearGradient(0,L.WH,0,L.WH+14);sh.addColorStop(0,'rgba(0,0,0,.45)');sh.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=sh;g.fillRect(0,L.WH,L.W,14);
+  // 左右と手前の壁（梁）
+  g.fillStyle='#2a1d12';g.fillRect(0,L.WH-8,7,L.H);g.fillRect(L.W-7,L.WH-8,7,L.H);g.fillRect(0,L.H-7,L.W,7);
+  g.fillStyle='#5a3f24';g.fillRect(6,L.WH-8,2,L.H);g.fillRect(L.W-8,L.WH-8,2,L.H);g.fillRect(0,L.H-8,L.W,2);
+  // 出口（手前の真ん中）と戸口の敷物
+  g.fillStyle='#0c0907';g.fillRect(L.cx-17,L.H-8,34,8);
+  const dw=twArt('doorway');if(dw){g.drawImage(dw,0,dw.height-11,dw.width,11,L.cx-dw.width*.17,L.H-19,dw.width*.34,11);}
+  // 平らな物（敷物）は床に焼く
+  for(const p of L.props)if(p.flat){const im=twArt(p.art);if(im)g.drawImage(im,Math.round(p.x-im.width/2),Math.round(p.by-im.height/2));}
+  // 窓の光
+  const lt=g.createRadialGradient(L.W/2,L.WH+20,10,L.W/2,L.WH+40,L.W*.7);lt.addColorStop(0,'rgba(255,214,150,.10)');lt.addColorStop(1,'rgba(0,0,0,.22)');g.fillStyle=lt;g.fillRect(0,0,L.W,L.H);
+  return c;}
+function twRoomNpcs(L){const out=[];const k=L.k;const f=L.room;const r=seeded(S.wseed+':room:'+k+':'+f+':'+S.turn);const arts=['b_sword','b_tank','b_mage','b_hunter','b_priest','b_thief'];
+  if(L.keeper){const K=KEEPER[f]||['店の主人','b_sword'];out.push({keeper:1,title:K[0],key:K[1],x:L.keeper.x,y:L.keeper.y,dir:'d',hd:Math.PI/2,sp:0,vmax:0,mv:false,ph:0,wait:1e9,path:null});}
+  const pop=townPop(k);const nSeat=f==='tavern'?4:f==='guild'?2:f==='inn'?1:0;const used=new Set();
+  for(let j=0;j<nSeat&&j<L.seats.length;j++){const s=L.seats[Math.floor(r()*L.seats.length)];if(used.has(s))continue;used.add(s);const i=Math.floor(r()*pop);out.push({i,key:arts[Math.floor(r()*arts.length)],x:s.x,y:s.y,dir:s.x<L.cx?'r':'l',hd:s.x<L.cx?0:Math.PI,sp:0,vmax:0,mv:false,ph:r()*8,wait:1e9,seated:1,path:null});}
+  const nWalk=f==='tavern'?2:f==='guild'||f==='inn'?1:r()<.5?1:0;
+  for(let j=0;j<nWalk;j++){const i=Math.floor(r()*pop);const p={x:40+r()*(L.W-80),y:L.WH+70+r()*(L.H-L.WH-100)};out.push({i,key:arts[Math.floor(r()*arts.length)],x:p.x,y:p.y,dir:'d',hd:r()*6.28,sp:0,vmax:16+r()*8,mv:false,ph:r()*8,wait:1+r()*3,path:null});}
+  // 名のある人物は、ときどき酒場で一杯やっている
+  if(f==='tavern')for(const c of Object.keys(S.where||{}).filter(c=>S.where[c]===k&&seekable(c))){if(r()<.5){const s=L.seats.find(x=>!used.has(x));if(s){used.add(s);out.push({named:c,key:c,x:s.x,y:s.y,dir:s.x<L.cx?'r':'l',hd:0,sp:0,vmax:0,mv:false,ph:0,wait:1e9,seated:1,path:null});}}}
+  return out;}
+function twRoomSpot(L,r){for(let n=0;n<40;n++){const x=24+r()*(L.W-48),y=L.WH+40+r()*(L.H-L.WH-60);if(!TW||twFree(x,y))return {x,y};}return {x:L.cx,y:L.H-40};}
+/* 町 → 部屋 */
+function twEnterRoom(f,b){if(!TW)return;TW.lead.x=b?b.x:TW.lead.x;TW.lead.y=b?b.by+10:TW.lead.y+6;TW.lead.dir='d';TW.lead.hd=Math.PI/2;TW.lead.path=null;TW.lead.sp=0;
+  TWTOWN=TW;twStop();TW=null;renderTown({room:f});}
+/* 部屋 → 町（入った戸口の前） */
+function twLeaveRoom(){twStop();if(TWTOWN&&TWTOWN.k===S.base&&TWTOWN.turn===S.turn){TW=TWTOWN;TWTOWN=null;renderTown({});}else{TW=null;TWTOWN=null;renderTown({});}}
+/* 主人と話す → 施設の板 */
+function twOpenCounter(f){TWROOM=TW;twStop();TOWN_IN=f;TOWNF=f;NPCSEL=null;renderPrep();scrollTo(0,0);}
