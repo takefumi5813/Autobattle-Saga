@@ -63,8 +63,8 @@ async function renderTown(opt){opt=opt||{};
   const k=S.base;
   let ov=document.getElementById('townwalk');if(!ov){ov=document.createElement('div');ov.id='townwalk';document.body.appendChild(ov);}
   ov.innerHTML=`<canvas></canvas><div class="tw-hud"><div class="tw-name"><b>${TOWNS[k].name}</b><small>${CONT[TOWNS[k].cont].name}・${calTxtPlain()}</small></div><div class="tw-gold">金 <b>${S.gold}</b></div>
-    <button class="tw-menu tw-qbtn" id="twquest" title="受けている依頼と行き先">依頼 ${(S.quests||[]).length}${(S.quests||[]).some(q=>questDone(q))?'<i></i>':''}</button><button class="tw-menu" id="twmenu">メニュー${(S.event||S.visitors.length||prepMsgs.length||worldMsgs.length)?'<i></i>':''}</button></div>
-    <div class="tw-qlist" id="twqlist" hidden><div class="ql-hd">受けている依頼<button id="twqclose">×</button></div><div id="twqbody"></div><div class="ql-ft">行き先は、町を出たときの世界地図に金の旗（番号）で出る。済んだ依頼は「報」の町で報告</div></div><div class="tw-prompt" id="twprompt"></div><div class="tw-say" id="twsay"></div><div class="tw-arrive" id="twarrive"></div><div class="tw-load">…</div>`;
+    <button class="tw-menu tw-qbtn" id="twquest" title="受けている依頼と行き先">依頼 ${(S.quests||[]).length}${(S.quests||[]).some(q=>questDone(q))?'<i></i>':''}</button><button class="tw-menu tw-qbtn" id="twsaga" title="筋・仲間の目的・出会った出来事">記録</button><button class="tw-menu" id="twmenu">メニュー${(S.event||S.visitors.length||prepMsgs.length||worldMsgs.length)?'<i></i>':''}</button></div>
+    <div class="tw-qlist" id="twsj" hidden><div class="ql-hd">旅の記録<button id="twsjclose">×</button></div><div id="twsjbody"></div></div><div class="tw-qlist" id="twqlist" hidden><div class="ql-hd">受けている依頼<button id="twqclose">×</button></div><div id="twqbody"></div><div class="ql-ft">行き先は、町を出たときの世界地図に金の旗（番号）で出る。済んだ依頼は「報」の町で報告</div></div><div class="tw-prompt" id="twprompt"></div><div class="tw-say" id="twsay"></div><div class="tw-arrive" id="twarrive"></div><div class="tw-load">…</div>`;
   await fLoad();await twLoadInt();await twLoadTown();if(!document.getElementById('townwalk'))return;
   const room=opt.room||null;if(room){const n=ov.querySelector('.tw-name');if(n)n.innerHTML=`<b>${FACILITIES[room].name}</b><small>${TOWNS[k].name}・${calTxtPlain()}</small>`;}
   {const ld=ov.querySelector('.tw-load');if(ld)ld.remove();}
@@ -94,6 +94,7 @@ async function renderTown(opt){opt=opt||{};
   TW.cv.onpointerdown=e=>twClick(e);
   TW.cv.onpointermove=e=>{const r=TW.cv.getBoundingClientRect();const m=TW.miniR;TW.miniHover=!!(m&&e.clientX-r.left<m.x+m.w+6&&e.clientY-r.top<m.y+m.h+6);};
   TW.cv.onpointerleave=()=>{TW.miniHover=false;};
+  {const sb=document.getElementById('twsaga'),sl=document.getElementById('twsj');if(sb&&sl){sb.onclick=e=>{e.stopPropagation();document.getElementById('twsjbody').innerHTML=sagaJournalHtml();sl.hidden=!sl.hidden;};document.getElementById('twsjclose').onclick=()=>{sl.hidden=true;};}}   // 旅の記録（data/saga.js）
   {const qb=document.getElementById('twquest'),ql=document.getElementById('twqlist');if(qb&&ql){qb.onclick=e=>{e.stopPropagation();document.getElementById('twqbody').innerHTML=questListHtml();ql.hidden=!ql.hidden;};document.getElementById('twqclose').onclick=()=>{ql.hidden=true;};}}
   ov.querySelector('#twmenu').onclick=()=>twMenu();
   if(opt.arrive){const a=ov.querySelector('#twarrive');a.innerHTML=`<b>${TOWNS[k].name}</b><small>${CONT[TOWNS[k].cont].name}</small>`;a.classList.add('on');setTimeout(()=>a&&a.classList.remove('on'),3200);}
