@@ -15,7 +15,7 @@ const OPENING={
     {i:5,z:'out',card:1,t:'神殿に残ったのは、リオ一人になった。｜朝は掃き、昼は畑を耕し、夕べには祈った。'},
     {i:5,z:'l',t:'春が来て、冬が来た。参る者は一人もいなかった。｜それでもリオは、毎朝、歌を欠かさなかった。'},
     {i:6,z:'in',card:1,t:'三年目の、ある夜明け。｜いつものように歌い終えたとき――'},
-    {i:6,z:'up',t:'返事があった。｜声とも光ともつかないものが、胸の奥に届いた。｜リオには、それがあなただと分かった。'},
+    {i:6,z:'up',mv:1,t:'返事があった。｜声とも光ともつかないものが、胸の奥に届いた。｜リオには、それがあなただと分かった。'},
     {i:6,z:'in',at:[.5,.45],t:'リオ「……聞こえます。聞こえています、神様」｜涙が止まらなかった。老婆の言ったことは、本当だった。'},
     {i:7,z:'in',card:1,t:'神様がまだここにいるなら、その名を世界に思い出させなければ。｜リオは、そう決めた。'},
     {i:7,z:'out',t:'小さな荷物と、祈りの書と、あの布を持って。｜リオは初めて、神殿の扉に外から鍵をかけた。'},
@@ -41,7 +41,7 @@ const OPENING={
     {i:7,z:'r',card:1,t:'流れ着いたのは、北の雪国ノルデン。｜凍った港で荷を担ぎ、隊商の用心棒をして食いつないだ。'},
     {i:7,z:'in',at:[.4,.55],t:'剣だけは手放せなかった。｜それが自分のただ一つの技だと、知っていたから。'},
     {i:8,z:'in',card:1,t:'ある吹雪の夜。ガレスは、凍てついた古い礼拝堂に逃げ込んだ。｜祭壇の神の名は、雪に削られて読めなかった。'},
-    {i:8,z:'up',t:'誰に祈るでもなく、膝をついたとき――｜声がした。'},
+    {i:8,z:'up',mv:1,t:'誰に祈るでもなく、膝をついたとき――｜声がした。'},
     {i:8,z:'in',at:[.7,.4],t:'「名のためではなく、人のために剣を振れ」'},
     {i:9,z:'in',card:1,bgm:'road',t:'ガレス「……騎士の誓いは捨てた。だが、あなたの声には従ってみたい」｜夜明け、ガレスは欠けた肩当てを締め直した。'},
     {i:9,z:'out',t:'守る相手を、今度は自分で選ぶ。｜そのための剣なら、もう一度振れる気がした。'},
@@ -55,15 +55,15 @@ const OPENING={
     {i:3,z:'in',card:1,t:'エリンは入学から一度も、首席を譲らなかった。｜目の下の印は、首席の徴。消せない印だった。'},
     {i:3,z:'l',t:'誰の理屈にも、穴を見つけた。｜教授たちは、だんだんエリンを煙たがった。'},
     {i:4,z:'in',card:1,t:'十七の冬。エリンは鍵を盗み、禁書庫に入った。'},
-    {i:4,z:'in',at:[.5,.6],t:'埃の中に、一本の古い論文があった。｜「迷宮の魔力は、誰かが組んだ式である」――'},
+    {i:4,z:'in',at:[.47,.55],t:'埃の中に、一本の古い論文があった。｜「迷宮の魔力は、誰かが組んだ式である」――'},
     {i:5,z:'out',card:1,t:'学院はそれを否定し、論文を焼いた。｜エリンは「禁書庫への無断立ち入り」で放校になった。'},
     {i:5,z:'in',t:'だが、焼かれる前に、エリンは全部覚えていた。｜……その筆跡に、見覚えがあることも。'},
     {i:6,z:'in',card:1,t:'母は、その数年前に姿を消していた。｜学院は「病死」と知らせてきた。墓は、どこにもなかった。'},
     {i:7,z:'r',card:1,bgm:'road',t:'迷宮の式の手がかりは、東方の島々、八洲の古文書にあるはずだった。｜エリンは船に乗った。'},
     {i:7,z:'in',t:'学院を見返すため。｜……それだけだと、自分に言い聞かせながら。'},
     {i:8,z:'l',card:1,bgm:'camp',t:'八洲の古い書庫で、エリンは何十日も写本をめくり続けた。'},
-    {i:8,z:'in',at:[.5,.55],t:'ある夜、写本の一頁が、かすかに光った。｜そして――声がした。'},
-    {i:8,z:'in',at:[.45,.4],t:'エリン「……今の、誰？」｜文字ではない。式でもない。誰かが、こちらに話しかけている。'},
+    {i:8,z:'in',at:[.48,.5],t:'ある夜、写本の一頁が、かすかに光った。｜そして――声がした。'},
+    {i:8,z:'in',at:[.74,.36],t:'エリン「……今の、誰？」｜文字ではない。式でもない。誰かが、こちらに話しかけている。'},
     {i:9,z:'in',card:1,t:'神か。それとも、自分の式の誤りか。｜エリンは帳面を開いた。'},
     {i:9,z:'in',at:[.5,.65],t:'エリン「仮説：この声は神。｜検証方法：言うとおりに動いてみる」'},
     {i:10,z:'out',card:1,bgm:'road',t:'エリン「……助手が要るわね」｜鎖で綴じた魔導書を抱え、エリンは書庫の戸を開けた。'},
@@ -140,12 +140,12 @@ const OPENING_ART={
   erin:['A cozy scholarly house in an eastern academic city: a mother copying ancient manuscripts at a desk; a little girl with black-purple hair writes equations on the floor beside her.',
     'A grand magic academy hall with tall bookshelves; professors in robes look at a 9-year-old girl; her mother stands behind, smiling a little sadly.',
     'Academy classroom: teen Erin (mark under her eye, asymmetric black-purple hair with one braid) stands confidently pointing out a flaw on a chalkboard while professors frown.',
-    'Night, forbidden archive library behind iron bars; teen Erin with a small light reads an old paper covered in strange diagrams of a labyrinth.',
+    'Night, forbidden archive library behind iron bars; teen Erin reads an old paper of labyrinth diagrams by a small lantern. Over-the-shoulder view from behind her, so the paper faces her and is upright for us too.',
     'Academy council in dark robes burning a manuscript in a brazier; Erin (17) watches, being expelled, defiant.',
     'An empty writing desk with a cold candle, scattered quills and an unfinished manuscript in a dim room; a sense of a missing mother.',
     'Erin (19, high-collared scholar coat) on a wooden ship deck crossing the sea toward eastern islands with pagodas and misty mountains.',
-    'An old eastern archive in Yashima with scrolls and paper lanterns; Erin among piles of manuscripts at night, one page glowing softly.',
-    'Erin writing in a notebook by lantern light, a chained grimoire beside her, a thoughtful skeptical half-smile.',
+    'An old eastern archive in Yashima with scrolls and paper lanterns; Erin reads an open old book at night, one page glowing softly. Over-the-shoulder view from behind her, so the book faces her and is upright for us too.',
+    'Erin writing in a notebook by lantern light, a chained grimoire open beside her, a thoughtful skeptical half-smile. Over-the-shoulder view from behind her, so both books face her and are upright for us too.',
     'Erin stepping out of the archive gate into an eastern town street at morning, holding the chained grimoire, wind in her coat.'],
   kei:['A poor harbor town slum by the sea, narrow alleys, laundry lines, fishing boats; a ragged small orange-haired boy with a sharp gaze sitting in the rain.',
     'A small orphanage at the end of an alley; a stern but warm older woman (the matron) laughing with several orphan children, young Kei among them.',
@@ -172,6 +172,8 @@ const OPENING_ART={
 function playOpening(k,done){const O=OPENING[k];if(!O){done&&done();return;}
   const pad=n=>String(n).padStart(2,'0');const imgs={};
   for(const s of O.scenes)if(!imgs[s.i]){const im=new Image();im.src=`opening/${k}-${pad(s.i)}.webp`;imgs[s.i]=im;}
+  /* 山場は Gemini で動かした10秒の動画（mv:1 の場面から流し、終わったら最後の一コマのまま） */
+  const vids={};for(const s of O.scenes)if(s.mv&&!vids[s.i]){const v=document.createElement('video');v.src=`opening/${k}-${pad(s.i)}.mp4`;v.preload='auto';v.playsInline=true;v.volume=.7;vids[s.i]=v;}
   const wrap=document.createElement('div');wrap.id='opening';
   wrap.style.cssText='position:fixed;inset:0;z-index:300;background:#000;cursor:pointer;user-select:none';
   const cv=document.createElement('canvas');cv.style.cssText='width:100%;height:100%;display:block';wrap.appendChild(cv);
@@ -188,8 +190,9 @@ function playOpening(k,done){const O=OPENING[k];if(!O){done&&done();return;}
     switch(s.z){case'in':z=1.04+.16*q;x=.5+(at[0]-.5)*q;y=.5+(at[1]-.5)*q;break;case'out':z=1.2-.16*q;x=at[0]+(.5-at[0])*q;y=at[1]+(.5-at[1])*q;break;
       case'l':z=1.14;x=.62-.24*q;break;case'r':z=1.14;x=.38+.24*q;break;case'up':z=1.14;y=.64-.28*q;break;case'down':z=1.14;y=.36+.28*q;break;}
     return {z,x,y};}
-  function drawImg(s,p,alpha,offX){const im=imgs[s.i];g.save();g.globalAlpha=alpha;g.translate(offX||0,0);
-    if(im&&im.complete&&im.naturalWidth){const c=cam(s,p);const base=Math.max(W/im.naturalWidth,H/im.naturalHeight)*c.z;const dw=im.naturalWidth*base,dh=im.naturalHeight*base;
+  function drawImg(s,p,alpha,offX){const v=vids[s.i];const useV=!!(v&&v.dataset.on&&v.readyState>=2);const im=useV?v:imgs[s.i];g.save();g.globalAlpha=alpha;g.translate(offX||0,0);
+    const iw=useV?v.videoWidth:im&&im.naturalWidth,ih=useV?v.videoHeight:im&&im.naturalHeight;
+    if(im&&(useV||im.complete)&&iw){const c=cam(s,p);const base=Math.max(W/iw,H/ih)*c.z;const dw=iw*base,dh=ih*base;
       let dx=W/2-c.x*dw,dy=H/2-c.y*dh;dx=Math.min(0,Math.max(W-dw,dx));dy=Math.min(0,Math.max(H-dh,dy));g.drawImage(im,dx,dy,dw,dh);}
     else{const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#2a2420');gr.addColorStop(1,'#0e0c0a');g.fillStyle=gr;g.fillRect(0,0,W,H);g.fillStyle='rgba(232,220,192,.25)';g.font=`${H*.05}px serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(`（絵 ${s.i}）`,W/2,H*.42);}
     if(offX){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(W,0,18,H);}   // 引き抜く紙の縁の影
@@ -207,9 +210,10 @@ function playOpening(k,done){const O=OPENING[k];if(!O){done&&done();return;}
     g.fillStyle='rgba(201,168,90,.7)';g.fillRect(W/2-fs*2.5,H/2+fs*.85,fs*5,1);g.globalAlpha=1;}
   function go(n){if(n>=SC.length){phase='end';ph0=performance.now();return;}
     if(idx>=0){prev=SC[idx];prevT=(performance.now()-t0)/1000;}idx=n;t0=performance.now();
-    const s=SC[idx];if(s.bgm&&typeof bgmScene==='function')bgmScene(s.bgm);}
+    const s=SC[idx];if(s.bgm&&typeof bgmScene==='function')bgmScene(s.bgm);
+    if(s.mv&&vids[s.i]){const v=vids[s.i];v.dataset.on=1;v.currentTime=0;v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});});}}
   const key=e=>{if(e.key==='Escape'){e.preventDefault();finish();}else if(e.key===' '||e.key==='Enter'){e.preventDefault();next();}};
-  function finish(){if(ended)return;ended=true;removeEventListener('resize',fit);removeEventListener('keydown',key,true);wrap.remove();done&&done();}
+  function finish(){if(ended)return;ended=true;for(const v of Object.values(vids)){v.pause();v.removeAttribute('src');v.load();}removeEventListener('resize',fit);removeEventListener('keydown',key,true);wrap.remove();done&&done();}
   /* 押すと：字の途中なら全部出す、出ていれば次へ */
   function next(){if(phase==='title'){phase='play';go(0);return;}if(phase==='end'){finish();return;}
     const s=SC[idx];const el=(performance.now()-t0)/1000;const total=s.t.replace(/｜/g,'').length;

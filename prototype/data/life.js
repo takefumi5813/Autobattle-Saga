@@ -166,8 +166,8 @@ function hireOffers(k){const r=seeded(S.wseed+':hire2:'+k+':'+S.turn);const cont
     offs.push({i,nm,d,fl,great,sk,cap,risk,pay,nights:path.filter(n=>AREAS[n]&&AREAS[n].kind!=='dungeon').length,line:HIRE_LINES[Math.floor(r()*HIRE_LINES.length)],known:!!S.known[d]});}
   return offs;}
 function hireOfferHtml(k,ids){const offs=hireOffers(k);if(!offs.length)return '<p class="mini2">いまは助っ人を探している一行はいない</p>';
-  const need=['tank','priest','sword','mage','hunter'].filter(r=>!S.party[r]).slice(0,Math.max(0,4-ids.length));
-  const roles=need.map(r=>slotRoles(r)[0]);const capRole=roles.includes('sword')?'sword':roles[0];
+  const need=missingRoles().slice(0,Math.max(0,4-ids.length,0)).slice(0,ROLE_ORDER.filter(r=>!S.party[r]).length);
+  const roles=need;const capRole=roles.includes('sword')?'sword':roles[0];
   return `<div class="hcards">`+offs.map(o=>{const lv={手頃:0,厳しい:1,危うい:2,無謀:3}[o.risk];
     return `<div class="hcard r${lv}" title="隊長（${o.cap}な${ROLES[capRole]}）「${o.line}」">
       <div class="hrk">${o.risk}</div><div class="hnm">「${o.nm}」</div>
@@ -177,8 +177,8 @@ function hireOfferHtml(k,ids){const offs=hireOffers(k);if(!offs.length)return '<
       ${lv>=2?'<div class="hng">神の加護は届かない</div>':''}
       <div class="hft"><span>金 <b>${o.pay}</b></span><button class="ab gold" data-hire2="${o.i}">加わる</button></div></div>`;}).join('')+`</div>`;}
 function takeHire2(i){if(S.hire)return;const k=S.base;const o=hireOffers(k).find(x=>x.i===+i);if(!o)return;const ids=partyIds();
-  const need=['tank','priest','sword','mage','hunter'].filter(r=>!S.party[r]).slice(0,Math.max(0,4-ids.length));const made=[];
-  for(const r of need){const role=slotRoles(r)[0];const id=makeChar({temp:role,crew:o.nm});S.met[id]=true;outfit(S,id);const d=CHAR_DB[id];const m=1+.07*(o.sk-2);d.hp=Math.round(d.hp*m);d.atk=d.atk*m;S.party[r]=id;made.push(id);}
+  const need=missingRoles().slice(0,Math.max(0,4-ids.length));const made=[];
+  for(const role of need){const r=freeSlot();if(!r)break;const id=makeChar({temp:role,crew:o.nm});S.met[id]=true;outfit(S,id);const d=CHAR_DB[id];const m=1+.07*(o.sk-2);d.hp=Math.round(d.hp*m);d.atk=d.atk*m;S.party[r]=id;made.push(id);}
   if(!made.length)return;const cap=made.find(id=>CHAR_DB[id].role==='sword')||made[0];CHAR_DB[cap].captain=true;CHAR_DB[cap].pers=o.cap==='慎重'?'慎重':'豪胆';
   // 道は隊長が知っている：通る場所を地図に写す
   const all={};for(const a of Object.keys(AREAS))if(AREAS[a].cont===TOWNS[k].cont)all[a]=true;for(const t of Object.keys(TOWNS))if(TOWNS[t].cont===TOWNS[k].cont)all[t]=true;

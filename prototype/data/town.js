@@ -17,6 +17,7 @@ const FACILITIES={
   maps:{name:'地図屋',icon:'門',need:'mid',desc:'この辺りの地図を売っている'},
   grimoire:{name:'魔導書屋',icon:'書',need:'large',desc:'技の書物を売っている'},
   jewel:{name:'装飾品店',icon:'装飾',need:'large',desc:'装飾品を売っている'},
+  home:{name:'わが家',icon:'野営',need:'small',desc:'拠点。品を預けておける'},   // 家のある町だけ（townFacilities には出さず、歩ける町に建つ）
   dojo:{name:'訓練所',icon:'剣',need:'large',desc:'金を払って、いまの職の熟練度を上げる（金30で1）'},
 };
 const SIZE_RANK={small:0,mid:1,large:2};
