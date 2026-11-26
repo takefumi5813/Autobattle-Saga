@@ -77,6 +77,17 @@ JOBS = [
 FLIP = {"more-heroes-attack.png": {"tohma"}, "more-named-a-stand.png": {"toki", "hozuki", "zaid"}, "more-named-b-stand.png": {"najma", "ilse", "dorn"}}   # 画像ごとの反転：生成で逆向きに描かれたもの
 
 
+MF = {"windup": 1.16, "strike": 1.02, "guard": .92, "dodge": 1.0, "hurt": .95, "cast": .98}
+CAL = {}
+# 攻撃と防御の動き（2026-11-26、make_ref_motion.py の見本を添えて、1枚目に 振りかぶり・振り抜き・防御、2枚目に かわす・被弾・詠唱 の3段で描かせ、split_rows.py で分けたもの）
+_MG = [["gareth", "borg", "erin", "mira", "rio"], ["raz", "aldo", "kei", "sera", "tohma"], ["noa", "sigrun", "halvar", "toki", "hozuki"],
+       ["zaid", "najma", "koko", "ilse", "dorn"], ["b_sword", "b_tank", "b_mage", "b_hunter", "b_priest", "b_thief"]]
+for _gi, _ns in enumerate(_MG, 1):
+    for _k in ("guard", "windup", "strike", "cast", "dodge", "hurt"):   # 物差しの防御・詠唱を先に
+        if os.path.exists(os.path.join(ART, f"more-motion-{_gi}-{_k}.png")):
+            JOBS.append((f"more-motion-{_gi}-{_k}.png", len(_ns), _ns, f"pose:{_k}", ("h", 37), set()))
+
+
 def enc(img):
     buf = io.BytesIO(); img.save(buf, "PNG")
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
@@ -100,6 +111,15 @@ for src, n, names, kind, size, _ in JOBS:
         if kind in ("pose:back", "pose:front", "pose:atkB", "pose:atkF"):   # 後ろ姿・前向き（とその攻撃）は、一人ずつ いまの立ち姿と同じ背丈にそろえる（生成で背丈がばらつくため。攻撃は武器を振り上げるので少し高め）
             try: sc = Image.open(f"{ART}/sprites/{name}.png").height * (1.08 if "atk" in kind else 1) / (b[3] - b[1])
             except FileNotFoundError: pass
+        mk = kind.split(":")[-1]
+        if mk in MF:   # 攻撃と防御の動き（2026-11-26）：同じ1枚の絵の中では、人物ごとに縮尺を一つにする。
+            # 背丈が立ち姿に近い「防御」（1枚目）と「詠唱」（2枚目）を物差しにして、立ち姿の背丈×割合から縮尺を決め、同じ人のほかの動きにも同じ縮尺を使う
+            #（動きごとに背丈をそろえると、かがんだ姿が引き伸ばされて大きくなりすぎた）
+            sheet = "A" if mk in ("windup", "strike", "guard") else "B"
+            if mk in ("guard", "cast"):
+                try: CAL[(src.split("-")[2], sheet, name)] = Image.open(f"{ART}/sprites/{name}.png").height * MF[mk] / (b[3] - b[1])
+                except FileNotFoundError: pass
+            sc = CAL.get((src.split("-")[2], sheet, name), sc)
         if kind == "enemy4":   # 敵の前向き・後ろ姿・前向きの攻撃：一体ずつ、横向きの立ち姿と同じ背丈に（狼は正面だと背が高く見えるので少し大きめ）
             base = name.rsplit("_", 1)[0]
             try: sc = Image.open(f"{ART}/sprites/en_{base}.png").height * (1.25 if base == "wolf" else 1) * (1.08 if name.endswith("atkF") else 1) / (b[3] - b[1])
