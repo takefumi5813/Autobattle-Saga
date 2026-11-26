@@ -183,5 +183,5 @@ function takeHire2(i){if(S.hire)return;const k=S.base;const o=hireOffers(k).find
   // 道は隊長が知っている：通る場所を地図に写す
   const all={};for(const a of Object.keys(AREAS))if(AREAS[a].cont===TOWNS[k].cont)all[a]=true;for(const t of Object.keys(TOWNS))if(TOWNS[t].cont===TOWNS[k].cont)all[t]=true;
   for(const n of findPath(k,o.d,all)||[])if(!S.known[n]){S.charted=S.charted||{};S.charted[n]=1;}
-  S.hire={name:o.nm,pay:o.pay,ids:made,prevDive:S.diveTo,prevFloor:S.floor,pol:CAPT[o.cap].pol,risk:o.risk,noGrace:o.risk==='危うい'||o.risk==='無謀'};S.diveTo=o.d;if(o.great)S.floor=o.fl;
+  S.hire={name:o.nm,pay:o.pay,ids:made,prevDive:S.diveTo,prevFloor:S.floor,pol:CAPT[o.cap].pol,cap:o.cap,risk:o.risk,noGrace:o.risk==='危うい'||o.risk==='無謀'};S.diveTo=o.d;if(o.great)S.floor=o.fl;
   prepMsgs.push(`「${o.nm}」に臨時で加わった：${made.map(id=>`${CHAR_DB[id].name}（${ROLES[CHAR_DB[id].role]}${id===cap?'・隊長':''}）`).join('・')}。行き先は${o.great?`大迷宮 ${floorName(o.fl)}`:AREAS[o.d].name}。見立ては「${o.risk}」`);}
