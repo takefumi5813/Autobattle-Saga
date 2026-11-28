@@ -226,6 +226,9 @@ function twFrame(now){if(!TW)return;const dt=Math.max(0,Math.min(.05,TW.last?(no
       continue;}
     // 先頭と近ければ立ち止まって向く（道をあける）
     const dl=Math.hypot(n.x-Ld.x,n.y-Ld.y);
+    /* 押された人は、その場で立ち止まって先頭のほうを向き、話しかけられるのを待つ（2026-11-28、オーナー「近づいても離れていくので話しかけにくい」）。
+       先頭が別の所へ向かったか、話し終えて少したつと、また歩き出す */
+    if(n.called){if(TW.t>n.called||(TW.target&&TW.target.n!==n&&!TW.say)){n.called=0;}else{n.path=null;n.wait=0;n.come=null;n.side=0;twMove(n,dt,null,0);if(dl<90){n.hd=Math.atan2(Ld.y-n.y,Ld.x-n.x);twDirOf(n,1);}continue;}}
     if(dl<26&&Ld.mv&&!n.keeper&&!n.seated&&Math.abs(twAng(Ld.hd,Math.atan2(n.y-Ld.y,n.x-Ld.x)))<0.8&&!n.side){   // 歩いてくる先頭に道をあける
       const px=-Math.sin(Ld.hd),py=Math.cos(Ld.hd);const sgn=twAng(Ld.hd,Math.atan2(n.y-Ld.y,n.x-Ld.x))>0?1:-1;const sx=n.x+px*16*sgn,sy=n.y+py*16*sgn;if(twFree(sx,sy)){n.side=1;n.path=[{x:sx,y:sy}];n.wait=0;}}
     // 寄ってきた人：そばで少し待ち、話しかけられなければ離れていく（2026-11-26、オーナー「住人が大量に寄ってくるのは気持ち悪い。たまにはいい。話しかけなければ離れていく」）
@@ -276,6 +279,12 @@ function twNear(){const Ld=TW.lead,L=TW.L;let best=null,bd=1e9;
   for(const b of L.blds){const dx=Math.abs(Ld.x-b.x),dy=Ld.y-b.by;if(dx<14&&dy>-2&&dy<16)return {kind:'bld',b,label:b.f?`${FACILITIES[b.f].name}に入る`:'民家の戸を叩く'};}
   if(L.exit&&Math.abs(Ld.x-L.exit.x)<30&&Ld.y>L.H-34)return {kind:'gate',label:S.hire?`町を出る（「${S.hire.name}」は出口で待っている）`:'町を出る'};
   return null;}
+/* 押した相手のところへ着いたら、そばにほかの人がいても、押した相手と話す。届いていなければもう一度近づく（2026-11-28） */
+function twTalkTo(n,tg){if(!TW)return;const Ld=TW.lead;const d=Math.hypot(n.x-Ld.x,(n.y-Ld.y)*1.3);
+  if(n.keeper||n.crew){TW.act=twNear();if(TW.act&&TW.act.n===n)twInteract();return;}
+  if(d<44){const L=TW.L;TW.act={kind:'npc',n,label:`${n.named?(S.seek[n.named]?CHAR_DB[n.named].name:CHAR_LOOK[n.named]):npcName(L.k,npcAt(L.k,n.i))}に話しかける`};twInteract();return;}
+  if((tg.tries||0)<2){tg.tries=(tg.tries||0)+1;const g={x:n.x+(Ld.x<n.x?-14:14),y:n.y};Ld.path=twPath(Ld,g);if(Ld.path&&Ld.path.length){TW.target=tg;return;}}
+  TW.act=twNear();}
 function twInteract(){if(!TW)return;if(TW.say){twSayClose();return;}const a=TW.act;if(!a)return;
   if(a.kind==='npc')twTalk(a.n);
   else if(a.kind==='bld'){if(!a.b.f){twSay({who:'',text:['……返事はない。留守のようだ','戸の向こうで、赤子が泣いている','「間に合ってるよ」と、戸越しに断られた'][Math.floor(Math.random()*3)]});return;}
@@ -301,12 +310,13 @@ function twSay(o){if(!TW)return;TW.say=o;const el=document.getElementById('twsay
   const rb=el.querySelector('[data-twrec]');if(rb)rb.onclick=()=>{const c=rb.dataset.twrec;recruitSeek(c);persist();const ok=!seekable(c);
     if(ok){TW.npcs=TW.npcs.filter(x=>x.named!==c);const id=c;if(partyIds().includes(id))TW.follow.push({key:id,id,x:TW.lead.x,y:TW.lead.y+10,dir:'u',hd:-Math.PI/2,sp:0,mv:false,ph:.5});}
     twSay({who:CHAR_DB[c].name,text:SEEKSAY&&SEEKSAY.c===c?SEEKSAY.text:(ok?'よろしく頼む':'……'),note:ok?(partyIds().includes(c)?'一行に加わった':'宿坊で控える'):''});};}
-function twSayClose(){if(!TW)return;if(TW.say&&TW.say.npc&&!TW.say.npc.keeper&&!TW.say.npc.crew&&!TW.say.npc.seated){TW.say.npc.leaveAt=TW.t+1.5+Math.random()*2;TW.say.npc.come=null;}TW.say=null;const el=document.getElementById('twsay');if(el){el.classList.remove('on');el.innerHTML='';}
+function twSayClose(){if(!TW)return;if(TW.say&&TW.say.npc&&!TW.say.npc.keeper&&!TW.say.npc.crew&&!TW.say.npc.seated){TW.say.npc.leaveAt=TW.t+1.5+Math.random()*2;TW.say.npc.come=null;if(TW.say.npc.called)TW.say.npc.called=TW.t+1.5;}TW.say=null;const el=document.getElementById('twsay');if(el){el.classList.remove('on');el.innerHTML='';}
   const g=document.querySelector('.tw-gold b');if(g)g.textContent=S.gold;}
 function twClick(e){if(!TW)return;if(TW.say){twSayClose();return;}const r=TW.cv.getBoundingClientRect();const sc=TW.sc;
   {const m=TW.miniR;const mx=e.clientX-r.left,my=e.clientY-r.top;if(m&&!TW.L.room&&mx>=m.x&&my>=m.y&&mx<=m.x+m.w&&my<=m.y+m.h){if(TW.miniHover){const k=TW.L.W/m.w;TW.target=null;TW.lead.path=twPath(TW.lead,{x:(mx-m.x)*k,y:(my-m.y)*k});}return;}}
   const wx=(e.clientX-r.left)/sc+TW.camX,wy=(e.clientY-r.top)/sc+TW.camY;const L=TW.L;
-  for(const n of TW.npcs)if(Math.abs(wx-n.x)<9&&wy<n.y+3&&wy>n.y-36){const g={x:n.x+(TW.lead.x<n.x?-14:14),y:n.y};if(n.keeper){g.x=n.x;g.y=n.y+34;}TW.target={n,then:()=>{TW.act=twNear();if(TW.act&&TW.act.n===n)twInteract();}};TW.lead.path=twPath(TW.lead,g);return;}
+  for(const n of TW.npcs)if(Math.abs(wx-n.x)<9&&wy<n.y+3&&wy>n.y-36){if(!n.keeper&&!n.crew){n.called=TW.t+12;n.path=null;n.vx=0;n.vy=0;}   // 押した人は立ち止まって待つ
+    const g={x:n.x+(TW.lead.x<n.x?-14:14),y:n.y};if(n.keeper){g.x=n.x;g.y=n.y+34;}const tg={n,tries:0};tg.then=()=>twTalkTo(n,tg);TW.target=tg;TW.lead.path=twPath(TW.lead,g);return;}
   for(const b of L.blds){const im=twArt(b.art);if(im&&Math.abs(wx-b.x)<im.width/2&&wy<b.by&&wy>b.by-im.height){TW.target={b,then:()=>{const Ld=TW.lead;if(Math.abs(Ld.x-b.x)<16&&Ld.y-b.by>-4&&Ld.y-b.by<22){TW.act={kind:'bld',b,label:b.f?`${FACILITIES[b.f].name}に入る`:'民家の戸を叩く'};twInteract();}}};TW.lead.path=twPath(TW.lead,{x:b.x,y:b.by+8});return;}}
   TW.target=null;TW.lead.path=twPath(TW.lead,{x:wx,y:wy});}
 
