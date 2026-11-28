@@ -2576,11 +2576,19 @@ function rule(k,label,opts,v){return `<div class="rule"><label for="p-${k}">${la
    右の黒い板は左端が斜めに切ってあり、その中に置くと立ち絵の側へはみ出した所が欠け、下の段にも隠れていた。
    中のボタンはそのまま動くよう、作り直さずに要素ごと移す。画面を動かしたら付いていく */
 function floatPops(){document.querySelectorAll('body>.pop2.fl').forEach(e=>e.remove());
-  document.querySelectorAll('.pop2').forEach(p=>{if(p.classList.contains('fl'))return;const host=p.parentElement;if(!host)return;p.classList.add('fl');p._host=host;document.body.appendChild(p);});
+  document.querySelectorAll('.pop2').forEach(p=>{if(p.classList.contains('fl'))return;const host=p.parentElement;if(!host)return;p.classList.add('fl');p._host=host;document.body.appendChild(p);
+    /* 一つ開いたら、ほかの吹き出しは閉じる（2026-11-28） */
+    if(host.tagName==='DETAILS')host.addEventListener('toggle',()=>{if(host.open)document.querySelectorAll('details[open]').forEach(d=>{if(d!==host&&d.querySelector('summary')&&[...document.querySelectorAll('body>.pop2.fl')].some(q=>q._host===d))d.open=false;});placePops();});});
   placePops();}
-function placePops(){document.querySelectorAll('body>.pop2.fl').forEach(p=>{const h=p._host;if(!h||!h.isConnected){p.remove();return;}const r=h.getBoundingClientRect();const w=p.offsetWidth||230;
+function placePops(){document.querySelectorAll('body>.pop2.fl').forEach(p=>{const h=p._host;if(!h||!h.isConnected){p.remove();return;}
+  /* 札が閉じている・画面に出ていない（町や戦いに移った）ときは出さない（2026-11-28、オーナー「出たままになる」） */
+  const show=(h.tagName!=='DETAILS'||h.open)&&h.getClientRects().length>0&&!!h.offsetParent;
+  const tw=document.getElementById('townwalk');const under=tw&&!tw.contains(h)&&getComputedStyle(tw).display!=='none';   // 町の画面の下に隠れたメニューの札
+  if(under&&h.tagName==='DETAILS'&&h.open)h.open=false;
+  p.style.display=show&&!under?'':'none';if(!show||under)return;const r=h.getBoundingClientRect();const w=p.offsetWidth||230;
   p.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left))+'px';p.style.top=(r.bottom+6)+'px';});}
-addEventListener('scroll',()=>{try{placePops();}catch(e){}},{passive:true});setInterval(()=>{try{placePops();}catch(e){}},400);   // 画面が切り替わって元の札が消えたら、吹き出しも消すaddEventListener('resize',()=>{try{placePops();}catch(e){}});
+addEventListener('scroll',()=>{try{placePops();}catch(e){}},{passive:true});setInterval(()=>{try{placePops();}catch(e){}},400);   // 画面が切り替わって元の札が消えたら、吹き出しも消す
+addEventListener('resize',()=>{try{placePops();}catch(e){}});
 function bindPrep(){
   try{floatPops();}catch(e){}
   if($('#twout'))$('#twout').onclick=()=>{TOWN_IN=null;TOWNF=null;if(TWROOM){const f=TWROOM.room;TW=TWROOM;TWROOM=null;renderTown({room:f});}else renderTown({at:TW&&TW.backAt});};
