@@ -30,12 +30,23 @@ function bindDepart(){if($('#dpback'))$('#dpback').onclick=()=>{DEPART=false;WSE
    いまいる区画（町・迷宮）に印、今回の道のりを黄色い点線で。区画が変わったときだけ描き直す。押すと大きくなる */
 function fWorldInsetHere(){if(!B||!B.plan)return null;const nodes=(B.layout&&B.layout.trip&&B.layout.trip.nodes)||[];const st=B.plan[B.si];
   if(!st)return nodes[0]||S.base;if(st.area)return st.area;if(st.t==='arrive')return st.to;if(st.t==='dun'||st.t==='dunrest')return nodes[nodes.length-1];return nodes[0]||S.base;}
-function fWorldInset(){const el=document.getElementById('fworld');if(!el||!B)return;const here=fWorldInsetHere();const key=here+'|'+B.si;if(el.dataset.k===key)return;el.dataset.k=key;
+/* 手順ごとの場所（区画・町・迷宮） */
+function fStepPlace(st){const nodes=(B.layout&&B.layout.trip&&B.layout.trip.nodes)||[];if(!st)return nodes[0]||S.base;if(st.area)return st.area;if(st.t==='arrive'||st.t==='home')return st.to||S.base;if(st.t==='dun'||st.t==='dunrest')return nodes[nodes.length-1];return null;}
+/* いま歩いている所を、毎フレーム地図の上で動かす（2026-11-28、オーナー「移動中にどこを移動しているか、このマップでも出るように」）。
+   区画から区画へ歩くあいだは、出た所と行き先のあいだを歩いた分だけ進める */
+function fWorldInsetDot(){const el=document.getElementById('fworld');if(!el||!B)return;const dot=el.querySelector('#fwdot');if(!dot)return;
+  const here=fWorldInsetHere();const A=PLACE(here);if(!A||A.x==null)return;let x=A.x,y=A.y-2;
+  const tr=B.travel;if(tr&&tr.step){const to=fStepPlace(tr.step);const Bp=to&&PLACE(to);if(Bp&&Bp.x!=null&&Bp.cont===A.cont){const k=Math.max(0,Math.min(1,(B.t-tr.t0)/Math.max(.01,tr.until-tr.t0)));x=A.x+(Bp.x-A.x)*k;y=A.y-2+(Bp.y-A.y)*k;}}
+  dot.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)})`);
+  const nm=el.querySelector('.fwn');if(nm){const to=tr&&tr.step&&fStepPlace(tr.step);const t=to&&to!==here&&PLACE(to)?`${A.name} → ${PLACE(to).name}`:A.name;if(nm.textContent!==t)nm.textContent=t;}}
+function fWorldInset(){const el=document.getElementById('fworld');if(!el||!B)return;const here=fWorldInsetHere();const key=here+'|'+B.si;if(el.dataset.k===key){fWorldInsetDot();return;}el.dataset.k=key;
   const P=PLACE(here);const keep=WCONT;if(P&&P.cont)WCONT=P.cont;let svg='';try{svg=mapSvg();}finally{WCONT=keep;}
   const nodes=((B.layout&&B.layout.trip&&B.layout.trip.nodes)||[]).filter(k=>PLACE(k)&&PLACE(k).x!=null&&(!P||PLACE(k).cont===P.cont));
   let add='';if(nodes.length>1)add+=`<polyline points="${nodes.map(k=>PLACE(k).x+','+PLACE(k).y).join(' ')}" fill="none" stroke="#ffd23a" stroke-width="1.6" stroke-dasharray="3 2" opacity=".9"/>`;
-  if(P&&P.x!=null)add+=`<circle cx="${P.x}" cy="${P.y-2}" r="9" fill="none" stroke="#ffd23a" stroke-width="1.6"><animate attributeName="r" values="6;11;6" dur="1.6s" repeatCount="indefinite"/></circle><circle cx="${P.x}" cy="${P.y-2}" r="2.6" fill="#ffd23a"/>`;
-  el.innerHTML=svg.replace('</svg>',add+'</svg>')+`<span class="fwn">${P?P.name:''}</span>`;}
+     // いまいる所の印は、下の一行の印（#fwdot）が歩いた分だけ動く
+  /* 一行の印（歩いている場所）。白い縁の黄色い点と、小さな旗 */
+  add+=`<g id="fwdot"><circle r="12" fill="rgba(255,60,60,.28)"><animate attributeName="r" values="8;15;8" dur="1.2s" repeatCount="indefinite"/></circle><circle r="5" fill="#ff4a3a" stroke="#fff" stroke-width="2"/><text y="-10" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke">現在地</text></g>`;
+  el.innerHTML=svg.replace('</svg>',add+'</svg>')+`<span class="fwn">${P?P.name:''}</span>`;fWorldInsetDot();}
 /* 地図は二つとも、ふだんは小さく、マウスを載せたときだけ大きく（2026-11-26、オーナー）。右上の世界地図は CSS の :hover、左上の近くの地図は画面の左上にマウスがあるかで */
 document.addEventListener('mousemove',e=>{const c=document.getElementById('field');if(!c||typeof FLD==='undefined')return;const r=c.getBoundingClientRect();const k=r.width/256;
   const x=(e.clientX-r.left)/k,y=(e.clientY-r.top)/k;const big=FLD.miniHover;FLD.miniHover=x>=0&&y>=0&&x<(big?128:52)&&y<(big?102:42);});
