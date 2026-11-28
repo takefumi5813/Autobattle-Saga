@@ -928,7 +928,7 @@ for(const [k,v] of Object.entries({"gareth": "data:image/png;base64,iVBORw0KGgoA
 <script src="data/saga_events_b.js?v=1129w"></script>
 <script src="data/road.js?v=1129w"></script>
 <script src="data/talk_road.js?v=1129w"></script>
-<script src="data/life.js?v=1129w"></script>
+<script src="data/life.js?v=1128rest"></script>
 <script src="data/tps.js?v=1129w"></script>
 <script src="data/nav.js?v=1129w"></script>
 <script src="data/bgm.js?v=1129w"></script>
@@ -2202,6 +2202,7 @@ function facHtml(k,f,ids){const F=FACILITIES[f];let h=`<div class="tl2">${ico(F.
     h+=`<div class="fz" style="margin-bottom:8px"><span><b>家</b><small class="mini2">${home?(home.type==='own'?'この町に家を持っている（宿代なし）':`この町に家を借りている（帰るたびに家賃${HP.rent}）`):`宿に泊まると、帰るたびに一人${({small:2,mid:3,large:5})[sz]}の宿代。家なら宿代は要らず、一行が落ち着き（忠誠+1）、控えの部屋が2つ増える`}</small></span>
       ${home?(home.type==='rent'?`<button class="btn tiny" data-home="buy" ${S.gold<HP.buy?'disabled':''}>買い取る 金${HP.buy}</button>`:'')+`<button class="btn tiny" data-home="leave">${home.type==='own'?'手放す（金'+Math.round(HP.buy*.5)+'）':'引き払う'}</button>`:`<button class="btn tiny" data-home="rent">借りる（家賃${HP.rent}）</button><button class="btn tiny" data-home="buy" ${S.gold<HP.buy?'disabled':''}>買う 金${HP.buy}</button>`}</div>`;}
   if(f==='home')h+=stashHtml(k);
+  if(f==='inn'||f==='home')h+=restStayHtml(k,f);   // 旅に出ずにしばらく休む（2026-11-28、オーナー「軽傷を直すために休み続けたい」）
   if(f==='inn')h+=innBaseHtml(k)+((S.homes||{})[k]?'<p class="mini2">この町には家がある。品は家の物置に預けられる</p>':'');
   if(f==='inn'){const cost=4*ids.length;const done=S.innTurn===S.turn;h+=done?'<p class="mini2">今夜はもう休んだ</p>':`<button class="ab gold" id="innrest" ${S.gold<cost?'disabled':''}>${ico('野営')}一晩休む<small>金${cost}・一行の忠誠+2</small></button>`;}
   if(f==='tavern'&&(ids.length<=2||S.hire)){if(S.hire)h+=`<p class="mini2">「${S.hire.name}」に雇われている。次の潜行のあと別れる</p>`;
@@ -2589,7 +2590,14 @@ function placePops(){document.querySelectorAll('body>.pop2.fl').forEach(p=>{cons
   p.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left))+'px';p.style.top=(r.bottom+6)+'px';});}
 addEventListener('scroll',()=>{try{placePops();}catch(e){}},{passive:true});setInterval(()=>{try{placePops();}catch(e){}},400);   // 画面が切り替わって元の札が消えたら、吹き出しも消す
 addEventListener('resize',()=>{try{placePops();}catch(e){}});
+/* 宿・わが家で一季休む。中身は life.js の restSeason（傷が一段治り、疲れと病が抜け、季節が進む） */
+function restStayHtml(k,f){if(S.hire)return '';const sz=townSize(k);const fixed=TOWNS[k]&&TOWNS[k].fixed;const home=(S.homes||{})[k];
+  const all=Object.keys(CHAR_DB).filter(id=>avail(id)&&!isTemp(id)&&!S.visitors.some(v=>v.id===id)&&(Object.values(S.party).includes(id)||S.met[id]));
+  const cost=(fixed||home?0:({small:2,mid:3,large:5}[sz]||3))*all.length+(home&&home.type==='rent'?HOME_PRICE[sz].rent:0);
+  const hurt=all.filter(id=>(S.wound[id]||0)||S.sick[id]).length;
+  return `<div class="fz"><span><b>しばらく${f==='home'?'家で':'宿に泊まって'}休む</b><small class="mini2">旅に出ず一季すごす。傷が一段よくなり、疲れと病が抜ける。季節が進み、食糧を食べる${hurt?`（いま傷や病の者 ${hurt}人）`:''}</small></span><button class="btn tiny" id="restseason2" ${S.gold<cost?'title="宿代が足りないと納屋で寝ることになり、傷は治らない"':''}>${cost?`金${cost}`:'休む'}</button></div>`;}
 function bindPrep(){
+  {const rs=document.getElementById('restseason2');if(rs)rs.onclick=()=>{restSeason();persist();renderPrep();};}
   try{floatPops();}catch(e){}
   if($('#twout'))$('#twout').onclick=()=>{TOWN_IN=null;TOWNF=null;if(TWROOM){const f=TWROOM.room;TW=TWROOM;TWROOM=null;renderTown({room:f});}else renderTown({at:TW&&TW.backAt});};
   if($('#twback'))$('#twback').onclick=()=>{if(TW&&TW.room)renderTown({room:TW.room});else renderTown();};
@@ -2640,6 +2648,7 @@ function bindPrep(){
   document.querySelectorAll('[data-ration]').forEach(b=>b.onclick=()=>{buyRation(+b.dataset.ration);persist();renderPrep();});
   document.querySelectorAll('[data-med]').forEach(b=>b.onclick=()=>{buyMed();persist();renderPrep();});
   document.querySelectorAll('[data-brew]').forEach(b=>b.onclick=()=>{brewMed();persist();renderPrep();});
+  document.querySelectorAll('[data-brewtreat]').forEach(b=>b.onclick=()=>{brewMed();treat(b.dataset.brewtreat);persist();renderPrep();});
   document.querySelectorAll('[data-drink]').forEach(b=>b.onclick=()=>{drinkRound();persist();renderPrep();});
   document.querySelectorAll('[data-hire2]').forEach(b=>b.onclick=()=>{takeHire2(b.dataset.hire2);persist();renderPrep();});
   {const rs=document.getElementById('restseason');if(rs)rs.onclick=()=>{restSeason();persist();renderPrep();};}

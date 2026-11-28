@@ -140,7 +140,9 @@ function lifeChips(id){if(isTemp(id))return '';const t=moodTier(id),h=S.hunger[i
   const cg=cantGo(id);if(cg)c.push(`<span class="c b">旅に出られない</span>`);
   return c.join('');}
 function lifeCareHtml(id){if(isTemp(id))return '';const need=(S.wound[id]||0)||S.sick[id];
-  return `<div class="row2" style="margin-top:6px">${need?`<button class="btn tiny" data-treat="${id}" ${S.meds<1?'disabled':''}>薬で手当て（薬 ${S.meds}）</button>`:''}</div>`;}
+  /* 薬がなくても、薬草が2つあればその場で煎じて手当てできる（2026-11-28、オーナー「薬草も使えない」） */
+  const herb=S.meds<1&&(S.mats.yakusou||0)>=2;
+  return `<div class="row2" style="margin-top:6px">${need?(herb?`<button class="btn tiny" data-brewtreat="${id}" title="薬草2つを煎じて薬にし、すぐ手当てする">薬草を煎じて手当て（薬草 ${S.mats.yakusou}）</button>`:`<button class="btn tiny" data-treat="${id}" ${S.meds<1?'disabled':''} title="${S.meds<1?'薬がない。道具屋で買うか、薬草2つで煎じられる。宿で休んでも治る':'傷が一段よくなる'}">薬で手当て（薬 ${S.meds}）</button>`):''}</div>`;}
 function lifeDockHtml(ids,nights){const need=rationNeed(ids,nights),have=foodStock();
   return `<span title="食糧：旅立つとき一人あたり（1＋野営の夜）、帰るたびに一人1つ。野麦・干物・茸も食べられる" class="${have<need?'bad':''}">食糧 ${S.ration}${have>S.ration?`+${have-S.ration}`:''}／要る ${need}</span>・<span title="薬：傷や病の手当てに使う">薬 ${S.meds}</span>`;}
 /* 一行が尽きた：最初の信徒を失い、誰も残っていない */
